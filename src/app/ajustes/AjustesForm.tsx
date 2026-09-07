@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { salvarLembreteAtivo, salvarHorarioAjustes } from "@/lib/ajustes/acoes";
 import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
+import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
+import IndicadorSalvo from "@/components/IndicadorSalvo";
 
 const OPCOES_HORARIO = ["20:30", "21:00", "21:30", "22:00", "22:30"] as const;
 const OPCOES_REPETICOES = [1, 3, 5] as const;
@@ -24,26 +26,27 @@ export default function AjustesForm({
   const [lembrete, setLembrete] = useState(lembreteInicial);
   const [reps, setReps] = useState(repsInicial);
   const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
+  const [estadoSalvo, executar] = useEstadoSalvo();
 
   function alterarHorario(valor: string) {
     setHorario(valor);
-    salvarHorarioAjustes(valor).catch(() => {});
+    executar(salvarHorarioAjustes(valor));
   }
 
   function alternarLembrete() {
     const novo = !lembrete;
     setLembrete(novo);
-    salvarLembreteAtivo(novo).catch(() => {});
+    executar(salvarLembreteAtivo(novo));
   }
 
   function alterarReps(valor: number) {
     setReps(valor);
-    salvarPreferenciasRitual(valor, maosLivres).catch(() => {});
+    executar(salvarPreferenciasRitual(valor, maosLivres));
   }
 
   function alterarAvanco(automatico: boolean) {
     setMaosLivres(automatico);
-    salvarPreferenciasRitual(reps, automatico).catch(() => {});
+    executar(salvarPreferenciasRitual(reps, automatico));
   }
 
   return (
@@ -53,6 +56,7 @@ export default function AjustesForm({
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
         <h1 className="text-[21px] text-texto">Ajustes</h1>
+        <IndicadorSalvo estado={estadoSalvo} />
       </div>
 
       <section className="flex flex-col gap-4">

@@ -2,8 +2,10 @@
 
 import { useRef, useState } from "react";
 import { Play, Mic, Pencil } from "lucide-react";
-import { dividirNaLacuna } from "@/lib/frases/modelo";
+import { dividirNaLacuna, MARCADOR_LACUNA } from "@/lib/frases/modelo";
 import { salvarLacuna } from "@/lib/frases/acoes";
+import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
+import IndicadorSalvo from "@/components/IndicadorSalvo";
 
 const TAMANHOS = {
   home: "text-[27px] leading-[1.55]",
@@ -16,28 +18,28 @@ export default function FraseIdentidadeRitual({
   caminhoAtual,
   tamanho = "ritual",
   editavel = true,
+  iniciarEditando = false,
 }: {
   textoBase: string;
   preenchimento: string;
   caminhoAtual: string;
   tamanho?: keyof typeof TAMANHOS;
   editavel?: boolean;
+  iniciarEditando?: boolean;
 }) {
-  const [editando, setEditando] = useState(false);
+  const [editando, setEditando] = useState(iniciarEditando && editavel);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [estadoSalvo, executar] = useEstadoSalvo();
   const [antes, depois] = dividirNaLacuna(textoBase);
   const classeTamanho = TAMANHOS[tamanho];
 
   function salvar() {
     const texto = inputRef.current?.value.trim();
-    if (!texto || texto === preenchimento) {
-      setEditando(false);
-      return;
-    }
+    setEditando(false);
+    if (!texto || texto === preenchimento) return;
     const fd = new FormData();
     fd.set("preenchimento", texto);
-    salvarLacuna(caminhoAtual, {}, fd).catch(() => {});
-    setEditando(false);
+    executar(salvarLacuna(caminhoAtual, {}, fd));
   }
 
   if (!editando) {
@@ -45,7 +47,11 @@ export default function FraseIdentidadeRitual({
       <div className="flex flex-col gap-2">
         <p className={`${classeTamanho} text-texto`}>
           {antes}
-          <span className="text-acento">{preenchimento}</span>
+          {preenchimento ? (
+            <span className="text-acento">{preenchimento}</span>
+          ) : (
+            <span className="text-auxiliar-fraco">{MARCADOR_LACUNA}</span>
+          )}
           {depois}
         </p>
         {editavel && (
@@ -66,6 +72,7 @@ export default function FraseIdentidadeRitual({
               <Pencil className="h-[13px] w-[13px]" strokeWidth={1.5} />
               Editar
             </button>
+            <IndicadorSalvo estado={estadoSalvo} />
           </div>
         )}
       </div>

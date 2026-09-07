@@ -2,6 +2,8 @@
 
 import { useRef } from "react";
 import { confirmarDia, salvarLinhaHoje } from "@/lib/ritual/acoes";
+import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
+import IndicadorSalvo from "@/components/IndicadorSalvo";
 
 export default function LinhaDoDia({
   modo,
@@ -23,19 +25,23 @@ export default function LinhaDoDia({
   focoInicial?: boolean;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [estadoSalvo, executar] = useEstadoSalvo();
 
   if (modo === "manha") {
     function salvar() {
       const fd = new FormData();
       fd.set("linha", textareaRef.current?.value ?? "");
-      salvarLinhaHoje(caminhoAtual, dataHoje, fd).catch(() => {});
+      executar(salvarLinhaHoje(caminhoAtual, dataHoje, fd));
     }
 
     return (
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
-          A linha de hoje
-        </h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
+            A linha de hoje
+          </h2>
+          <IndicadorSalvo estado={estadoSalvo} />
+        </div>
 
         <textarea
           ref={textareaRef}

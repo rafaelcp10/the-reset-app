@@ -15,10 +15,12 @@ export default function FrasesRitual({
   frases,
   recolhidas,
   caminhoAtual,
+  editarIdentidadeInicial = false,
 }: {
   frases: Record<Funcao, FraseRow>;
   recolhidas: boolean;
   caminhoAtual: string;
+  editarIdentidadeInicial?: boolean;
 }) {
   return (
     <section className="flex flex-col gap-5">
@@ -32,6 +34,7 @@ export default function FrasesRitual({
           const texto = frase
             ? textoCompleto(frase)
             : FRASES_PADRAO[funcao].texto;
+          const ehIdentidade = funcao === "identidade";
 
           return (
             <FraseRitualLinha
@@ -39,12 +42,14 @@ export default function FrasesRitual({
               rotulo={ROTULOS_FUNCAO[funcao]}
               previewTexto={texto}
               recolhidaInicialmente={recolhidas}
+              forcarExpandida={ehIdentidade && editarIdentidadeInicial}
             >
-              {funcao === "identidade" ? (
+              {ehIdentidade ? (
                 <FraseIdentidadeRitual
                   textoBase={frase?.texto ?? FRASES_PADRAO.identidade.texto}
                   preenchimento={frase?.preenchimento_lacuna ?? ""}
                   caminhoAtual={caminhoAtual}
+                  iniciarEditando={editarIdentidadeInicial}
                 />
               ) : (
                 <FraseAutoSalvar

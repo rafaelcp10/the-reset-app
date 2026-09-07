@@ -6,14 +6,18 @@ export default function FraseRitualLinha({
   rotulo,
   previewTexto,
   recolhidaInicialmente,
+  forcarExpandida = false,
   children,
 }: {
   rotulo: string;
   previewTexto: string;
   recolhidaInicialmente: boolean;
+  forcarExpandida?: boolean;
   children: ReactNode;
 }) {
-  const [expandida, setExpandida] = useState(!recolhidaInicialmente);
+  const [expandida, setExpandida] = useState(
+    forcarExpandida || !recolhidaInicialmente,
+  );
 
   return (
     <div className="flex flex-col gap-3">

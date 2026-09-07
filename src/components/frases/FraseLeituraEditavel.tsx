@@ -49,7 +49,10 @@ export default function FraseLeituraEditavel({
 
   if (!editando) {
     return (
-      <div className="flex flex-col gap-4">
+      <div
+        className="flex flex-col gap-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <p className="font-frase text-2xl leading-relaxed text-texto">{textoAtual}</p>
         <div className="flex items-center gap-5 text-sm">
           <button
@@ -70,7 +73,11 @@ export default function FraseLeituraEditavel({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      className="flex flex-col gap-4"
+      onClick={(e) => e.stopPropagation()}
+    >
       <textarea
         name="texto"
         value={valor}

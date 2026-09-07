@@ -26,3 +26,20 @@ export async function salvarFaixaSlot(
 
   revalidatePath(caminhoAtual);
 }
+
+/** Remove a faixa de um slot, liberando-o. */
+export async function removerFaixaSlot(caminhoAtual: string, ordem: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase
+    .from("musicas")
+    .delete()
+    .eq("usuario_id", user.id)
+    .eq("ordem", ordem);
+
+  revalidatePath(caminhoAtual);
+}

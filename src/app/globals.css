@@ -17,6 +17,9 @@
   --color-filete-forte: #33363b;
   --color-acento: #c97b3a;
   --color-acento-escuro: #3a2a1e;
+  /* Único uso de vermelho no app — erro de sistema, nunca comportamento do
+     usuário (ver CLAUDE.md). */
+  --color-erro: #b2543f;
 }
 
 @theme inline {
@@ -36,6 +39,7 @@
   --color-filete-forte: var(--color-filete-forte);
   --color-acento: var(--color-acento);
   --color-acento-escuro: var(--color-acento-escuro);
+  --color-erro: var(--color-erro);
   --font-frase: var(--font-archivo);
   --font-interface: var(--font-archivo);
 }

@@ -38,7 +38,9 @@ export default async function HomePage() {
       />
 
       <div className="flex flex-col gap-3">
-        <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
+        {estado.faixaSemanas.length > 1 && (
+          <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
+        )}
         <p className="text-sm text-auxiliar">
           Semana {estado.numeroSemana} · {estado.semanasCumpridas}{" "}
           {estado.semanasCumpridas === 1

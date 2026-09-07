@@ -83,9 +83,9 @@ export async function marcarCompromissoDia(
 }
 
 /**
- * Define ou edita o inegociável de um slot (0, 1 ou 2) da semana. O
- * atributo `required` do input já impede envio vazio — a checagem aqui é
- * só uma segunda trava, sem mensagem de erro na tela.
+ * Define ou edita o inegociável de um slot (0, 1 ou 2) da semana. Sair do
+ * campo vazio apaga o slot — é assim que se "limpa" um inegociável, sem
+ * precisar de um botão de remover separado.
  */
 export async function salvarCompromissoSlot(
   caminhoAtual: string,
@@ -94,13 +94,23 @@ export async function salvarCompromissoSlot(
   formData: FormData,
 ) {
   const texto = ((formData.get("texto") as string) ?? "").trim();
-  if (!texto) return;
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  if (!texto) {
+    await supabase
+      .from("compromissos")
+      .delete()
+      .eq("usuario_id", user.id)
+      .eq("semana_inicio", semanaInicio)
+      .eq("ordem", ordem);
+    revalidatePath(caminhoAtual);
+    return;
+  }
 
   await supabase.from("compromissos").upsert(
     { usuario_id: user.id, semana_inicio: semanaInicio, ordem, texto },

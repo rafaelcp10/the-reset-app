@@ -20,7 +20,7 @@ export default function RecomecoPage() {
           Abrir o ritual de hoje
         </Link>
         <Link
-          href="/ritual"
+          href="/ritual?editarIdentidade=1"
           className="text-center text-[13.5px] text-auxiliar underline underline-offset-4"
         >
           trocar a palavra da frase 1

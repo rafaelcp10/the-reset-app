@@ -89,7 +89,9 @@ export default function ModoEspelho({
 
       <div className="flex items-center justify-between px-6 pt-6">
         <span className="tipo-rotulo text-[10.5px] tracking-[.18em] text-auxiliar">
-          {mostrandoRodape ? `Passo ${passo + 1} de ${frases.length + 1}` : ""}
+          {mostrandoRodape
+            ? `Passo ${passo + 1} de ${frases.length + 1}${maosLivres ? " · Automático" : ""}`
+            : ""}
         </span>
         <Link
           href="/ritual"
@@ -125,30 +127,32 @@ export default function ModoEspelho({
 
 function TelaRespiracao() {
   return (
-    <div className="flex flex-1 flex-col justify-between px-6 py-8">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-[26px] leading-[1.3] text-texto">
-          Respire dez vezes
-        </h1>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
-          ritmo — não precisa tocar em nada.
-        </p>
-      </div>
+    <div className="flex flex-1 flex-col px-6 py-8">
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-3">
+          <h1 className="text-[26px] leading-[1.3] text-texto">
+            Respire dez vezes
+          </h1>
+          <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+            Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
+            ritmo — não precisa tocar em nada.
+          </p>
+        </div>
 
-      <div className="flex justify-center gap-2">
-        {Array.from({ length: TOTAL_PONTOS_RESPIRACAO }).map((_, i) => (
-          <span
-            key={i}
-            className="pulso-respiracao h-2 w-2 rounded-full bg-acento"
-            style={{ animationDelay: `${i * 0.6}s` }}
-          />
-        ))}
+        <div className="flex justify-center gap-2">
+          {Array.from({ length: TOTAL_PONTOS_RESPIRACAO }).map((_, i) => (
+            <span
+              key={i}
+              className="pulso-respiracao h-2 w-2 rounded-full bg-acento"
+              style={{ animationDelay: `${i * 0.6}s` }}
+            />
+          ))}
+        </div>
       </div>
 
       <button
         type="button"
-        className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
+        className="tipo-rotulo mt-auto w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
       >
         Começar as frases
       </button>
@@ -257,9 +261,9 @@ function Rodape({
           {musicaUrl ? "trocar música" : "adicionar música"}
         </Link>
       </div>
-      <div className="flex gap-1">
-        <span className="h-[2px] w-[26px] bg-acento" />
-        <span className="h-[2px] w-[14px] bg-acento-escuro" />
+      <div className="flex gap-1.5">
+        <span className="h-[3px] w-[32px] rounded-full bg-acento" />
+        <span className="h-[3px] w-[18px] rounded-full bg-auxiliar-fraco" />
       </div>
     </div>
   );

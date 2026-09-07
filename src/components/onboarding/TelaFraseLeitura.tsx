@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarFrasesAtuais } from "@/lib/frases/dados";
 import {
@@ -36,15 +37,16 @@ export default async function TelaFraseLeitura({
         <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
           {ROTULOS_FUNCAO[funcao]} · {numero} de {FUNCOES.length}
         </span>
-        <div onClick={(e) => e.stopPropagation()}>
-          <FraseLeituraEditavel
-            textoAtual={texto}
-            textoPadrao={FRASES_PADRAO[funcao].texto}
-            acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}
-          />
-        </div>
+        <FraseLeituraEditavel
+          textoAtual={texto}
+          textoPadrao={FRASES_PADRAO[funcao].texto}
+          acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}
+        />
       </div>
-      <p className="text-[13.5px] text-auxiliar">Um toque avança.</p>
+      <div className="flex items-center justify-center gap-1.5 text-[13.5px] text-auxiliar">
+        <span>Toque para continuar</span>
+        <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+      </div>
     </AvancarAoTocar>
   );
 }

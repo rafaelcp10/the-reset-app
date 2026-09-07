@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { Play, Mic, Pencil } from "lucide-react";
 import type { EstadoEdicaoFrase } from "@/lib/frases/acoes";
+import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
+import IndicadorSalvo from "@/components/IndicadorSalvo";
 
 export default function FraseAutoSalvar({
   textoAtual,
@@ -18,6 +20,7 @@ export default function FraseAutoSalvar({
 }) {
   const [editando, setEditando] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [estadoSalvo, executar] = useEstadoSalvo();
 
   function salvar(texto: string) {
     const valor = texto.trim();
@@ -25,7 +28,7 @@ export default function FraseAutoSalvar({
     if (!valor || valor === textoAtual) return;
     const fd = new FormData();
     fd.set("texto", valor);
-    acaoSalvar({}, fd).catch(() => {});
+    executar(acaoSalvar({}, fd));
   }
 
   if (!editando) {
@@ -49,6 +52,7 @@ export default function FraseAutoSalvar({
             <Pencil className="h-[13px] w-[13px]" strokeWidth={1.5} />
             Editar
           </button>
+          <IndicadorSalvo estado={estadoSalvo} />
         </div>
       </div>
     );

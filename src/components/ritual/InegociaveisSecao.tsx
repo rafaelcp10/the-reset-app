@@ -1,22 +1,19 @@
-"use client";
-
-import { useRef } from "react";
+import Link from "next/link";
 import { Check } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
-import { marcarCompromissoDia, salvarCompromissoSlot } from "@/lib/ritual/acoes";
+import { marcarCompromissoDia } from "@/lib/ritual/acoes";
 
 export default function InegociaveisSecao({
   inegociaveis,
-  semanaInicio,
   dataHoje,
   caminhoAtual,
 }: {
   inegociaveis: InegociavelSlot[];
-  semanaInicio: string;
   dataHoje: string;
   caminhoAtual: string;
 }) {
   const temSlotVazio = inegociaveis.some((slot) => !slot.compromisso);
+  const definidos = inegociaveis.filter((slot) => slot.compromisso);
 
   return (
     <section className="flex flex-col gap-3.5 py-3.5">
@@ -26,17 +23,19 @@ export default function InegociaveisSecao({
 
       {temSlotVazio && (
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          Os três inegociáveis são definidos no domingo. Ficam iguais a
-          semana toda.
+          Os três inegociáveis são definidos na{" "}
+          <Link href="/ritual/domingo" className="underline underline-offset-4">
+            revisão de domingo
+          </Link>
+          . Ficam iguais a semana toda.
         </p>
       )}
 
       <div className="flex flex-col">
-        {inegociaveis.map((slot) => (
+        {definidos.map((slot) => (
           <LinhaInegociavel
             key={slot.ordem}
             slot={slot}
-            semanaInicio={semanaInicio}
             dataHoje={dataHoje}
             caminhoAtual={caminhoAtual}
           />
@@ -48,40 +47,15 @@ export default function InegociaveisSecao({
 
 function LinhaInegociavel({
   slot,
-  semanaInicio,
   dataHoje,
   caminhoAtual,
 }: {
   slot: InegociavelSlot;
-  semanaInicio: string;
   dataHoje: string;
   caminhoAtual: string;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  if (!slot.compromisso) {
-    function salvar() {
-      const texto = inputRef.current?.value.trim();
-      if (!texto) return;
-      const fd = new FormData();
-      fd.set("texto", texto);
-      salvarCompromissoSlot(caminhoAtual, semanaInicio, slot.ordem, fd).catch(
-        () => {},
-      );
-    }
-
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        onBlur={salvar}
-        placeholder={`definir inegociável ${slot.ordem + 1}`}
-        className="min-h-12 border-b border-filete bg-transparent text-[16.5px] text-texto outline-none placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
-      />
-    );
-  }
-
   const { compromisso, feitoHoje } = slot;
+  if (!compromisso) return null;
   const marcado = feitoHoje === true;
 
   return (

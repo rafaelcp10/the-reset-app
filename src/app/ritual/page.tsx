@@ -14,9 +14,9 @@ const CAMINHO = "/ritual";
 export default async function RitualPage({
   searchParams,
 }: {
-  searchParams: Promise<{ foco?: string }>;
+  searchParams: Promise<{ foco?: string; editarIdentidade?: string }>;
 }) {
-  const { foco } = await searchParams;
+  const { foco, editarIdentidade } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -40,7 +40,6 @@ export default async function RitualPage({
   const inegociaveis = (
     <InegociaveisSecao
       inegociaveis={estado.inegociaveis}
-      semanaInicio={estado.semanaInicio}
       dataHoje={estado.dataRitual}
       caminhoAtual={CAMINHO}
     />
@@ -62,6 +61,7 @@ export default async function RitualPage({
       frases={estado.frases}
       recolhidas={estado.modo === "noite"}
       caminhoAtual={CAMINHO}
+      editarIdentidadeInicial={editarIdentidade === "1"}
     />
   );
 

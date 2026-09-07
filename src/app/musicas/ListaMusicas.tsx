@@ -2,9 +2,11 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Plus, X } from "lucide-react";
 import type { MusicaRow } from "@/lib/ritual/dados";
-import { salvarFaixaSlot } from "@/lib/musicas/acoes";
+import { salvarFaixaSlot, removerFaixaSlot } from "@/lib/musicas/acoes";
+import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
+import IndicadorSalvo from "@/components/IndicadorSalvo";
 
 type Slot = { ordem: number; musica: MusicaRow | null };
 
@@ -37,13 +39,8 @@ export default function ListaMusicas({
       <div className="flex flex-col">
         {slots.map((slot, i) => (
           <div key={slot.ordem}>
-            <LinhaFaixa
-              slot={slot}
-              caminhoAtual={caminhoAtual}
-            />
-            {i < slots.length - 1 && (
-              <div className="h-px bg-filete" />
-            )}
+            <LinhaFaixa slot={slot} caminhoAtual={caminhoAtual} />
+            {i < slots.length - 1 && <div className="h-px bg-filete" />}
           </div>
         ))}
       </div>
@@ -66,6 +63,7 @@ function LinhaFaixa({
   caminhoAtual: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [estadoSalvo, executar] = useEstadoSalvo();
 
   if (!slot.musica) {
     function salvar() {
@@ -73,23 +71,46 @@ function LinhaFaixa({
       if (!url) return;
       const fd = new FormData();
       fd.set("url", url);
-      salvarFaixaSlot(caminhoAtual, slot.ordem, fd).catch(() => {});
+      executar(salvarFaixaSlot(caminhoAtual, slot.ordem, fd));
     }
 
     return (
-      <input
-        ref={inputRef}
-        type="url"
-        onBlur={salvar}
-        placeholder="adicionar música"
-        className="w-full bg-transparent py-4 text-[15px] text-auxiliar outline-none placeholder:text-auxiliar focus:text-texto"
-      />
+      <div className="flex flex-col gap-1 py-2">
+        <div className="flex items-center gap-2">
+          <Plus className="h-4 w-4 shrink-0 text-auxiliar-fraco" strokeWidth={1.5} />
+          <input
+            ref={inputRef}
+            type="url"
+            onBlur={salvar}
+            placeholder="adicionar música"
+            className="w-full bg-transparent py-2 text-[15px] text-auxiliar outline-none placeholder:text-auxiliar focus:text-texto"
+          />
+        </div>
+        <IndicadorSalvo estado={estadoSalvo} />
+      </div>
     );
   }
 
+  function remover() {
+    executar(removerFaixaSlot(caminhoAtual, slot.ordem));
+  }
+
   return (
-    <p className="truncate py-4 text-[15px] text-texto">
-      {slot.musica.nome || slot.musica.url}
-    </p>
+    <div className="flex flex-col gap-1 py-2">
+      <div className="flex items-center gap-2">
+        <p className="flex-1 truncate py-2 text-[15px] text-texto">
+          {slot.musica!.nome || slot.musica!.url}
+        </p>
+        <button
+          type="button"
+          onClick={remover}
+          aria-label="Remover faixa"
+          className="shrink-0 text-auxiliar-fraco"
+        >
+          <X className="h-4 w-4" strokeWidth={1.5} />
+        </button>
+      </div>
+      <IndicadorSalvo estado={estadoSalvo} />
+    </div>
   );
 }
