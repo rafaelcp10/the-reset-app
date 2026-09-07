@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
 import {
   FUNCOES,
@@ -15,6 +16,8 @@ export default async function EspelhoPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  await garantirUsuarioEFrasesPadrao(supabase, user);
 
   const estado = await buscarEstadoRitual(supabase, user.id);
 

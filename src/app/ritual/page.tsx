@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
 import Cabecalho from "@/components/ritual/Cabecalho";
 import MusicaPlayer from "@/components/ritual/MusicaPlayer";
@@ -16,6 +17,11 @@ export default async function RitualPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  // Cobre quem chega direto no Ritual sem passar pelo onboarding — o
+  // acesso por e-mail está desligado por enquanto, então essa é a única
+  // garantia de que a linha em `usuarios` e as 5 frases padrão existem.
+  await garantirUsuarioEFrasesPadrao(supabase, user);
 
   const estado = await buscarEstadoRitual(supabase, user.id);
 

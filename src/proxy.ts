@@ -26,7 +26,17 @@ export async function proxy(request: NextRequest) {
   );
 
   // Necessário para manter a sessão válida — dispara o refresh do token.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Sem login por e-mail por enquanto: todo visitante ganha uma sessão
+  // anônima na hora, sem precisar digitar e-mail nem esperar link. RLS
+  // continua funcionando normalmente (auth.uid() existe também pra
+  // usuários anônimos) — os dados de cada visitante continuam isolados.
+  if (!user) {
+    await supabase.auth.signInAnonymously();
+  }
 
   return response;
 }
