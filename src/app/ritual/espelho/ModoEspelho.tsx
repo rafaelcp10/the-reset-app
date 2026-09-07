@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Settings, X } from "lucide-react";
-import { salvarPreferenciasRitual, concluirEspelho } from "@/lib/ritual/acoes";
+import { X } from "lucide-react";
+import { concluirEspelho } from "@/lib/ritual/acoes";
 
 type ItemFrase = { rotulo: string; texto: string };
 
@@ -29,13 +29,15 @@ export default function ModoEspelho({
 }) {
   const ultimoPasso = frases.length + 1;
   const [passo, setPasso] = useState(0);
-  const [repeticoes, setRepeticoes] = useState(
-    OPCOES_REPETICOES.includes(repeticoesIniciais as (typeof OPCOES_REPETICOES)[number])
-      ? repeticoesIniciais
-      : 3,
-  );
-  const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
-  const [configAberta, setConfigAberta] = useState(false);
+
+  // Repetições e mãos livres vêm das preferências do usuário — não são
+  // configuráveis dentro do espelho (só o X de sair fica acessível aqui).
+  const repeticoes = OPCOES_REPETICOES.includes(
+    repeticoesIniciais as (typeof OPCOES_REPETICOES)[number],
+  )
+    ? repeticoesIniciais
+    : 3;
+  const maosLivres = maosLivresInicial;
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -53,11 +55,6 @@ export default function ModoEspelho({
   // mãos livres. Um toque sempre pode adiantar (o efeito é cancelado e
   // recriado a cada mudança de passo).
   useEffect(() => {
-    // Pausa qualquer avanço automático enquanto o painel de preferências
-    // está aberto — senão a cena troca sozinha enquanto o usuário nem está
-    // olhando para ela.
-    if (configAberta) return;
-
     if (passo === 0) {
       const duracao = (TOTAL_PONTOS_RESPIRACAO + 1) * INTERVALO_RESPIRACAO_MS;
       const t = setTimeout(avancar, duracao);
@@ -67,21 +64,9 @@ export default function ModoEspelho({
       const t = setTimeout(avancar, repeticoes * TEMPO_POR_REPETICAO_MS);
       return () => clearTimeout(t);
     }
-  }, [passo, maosLivres, repeticoes, avancar, frases.length, configAberta]);
-
-  function alterarRepeticoes(valor: number) {
-    setRepeticoes(valor);
-    salvarPreferenciasRitual(valor, maosLivres).catch(() => {});
-  }
-
-  function alternarMaosLivres() {
-    const novoValor = !maosLivres;
-    setMaosLivres(novoValor);
-    salvarPreferenciasRitual(repeticoes, novoValor).catch(() => {});
-  }
+  }, [passo, maosLivres, repeticoes, avancar, frases.length]);
 
   function aoTocarNaTela() {
-    if (configAberta) return;
     if (passo >= 0 && passo <= frases.length) avancar();
   }
 
@@ -89,38 +74,19 @@ export default function ModoEspelho({
     <div className="flex min-h-screen flex-col bg-fundo">
       {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
-      <div className="flex items-center justify-between px-6 pt-6">
-        <button
-          type="button"
-          onClick={() => setConfigAberta((v) => !v)}
-          aria-label="Preferências do espelho"
-          className="text-auxiliar"
-        >
-          <Settings className="h-5 w-5" strokeWidth={1.5} />
-        </button>
+      <div className="flex items-center justify-end px-6 pt-6">
         <Link href="/ritual" aria-label="Sair" className="text-auxiliar">
           <X className="h-6 w-6" strokeWidth={1.5} />
         </Link>
       </div>
 
       <div className="flex flex-1 flex-col" onClick={aoTocarNaTela}>
-        {configAberta ? (
-          <PainelPreferencias
-            repeticoes={repeticoes}
-            maosLivres={maosLivres}
-            onEscolherRepeticoes={alterarRepeticoes}
-            onAlternarMaosLivres={alternarMaosLivres}
-            onFechar={() => setConfigAberta(false)}
-          />
-        ) : passo === 0 ? (
+        {passo === 0 ? (
           <TelaRespiracao />
         ) : passo <= frases.length ? (
           <TelaFrase item={frases[passo - 1]} repeticoes={repeticoes} />
         ) : (
-          <TelaEncerramento
-            linhaInicial={linhaHojeInicial}
-            dataHoje={dataHoje}
-          />
+          <TelaEncerramento linhaInicial={linhaHojeInicial} dataHoje={dataHoje} />
         )}
       </div>
     </div>
@@ -171,9 +137,14 @@ function TelaFrase({
             <span key={i} className="h-1 w-4 rounded-full bg-auxiliar/30" />
           ))}
         </div>
+        <p className="text-xs text-auxiliar">
+          Leia em voz alta {repeticoes} {repeticoes === 1 ? "vez" : "vezes"}.
+        </p>
       </div>
 
-      <p className="font-frase text-3xl leading-relaxed">{item.texto}</p>
+      <p className="font-frase text-3xl leading-relaxed text-texto">
+        {item.texto}
+      </p>
 
       <div className="flex items-center justify-center gap-8">
         <button type="button" disabled className="text-sm text-auxiliar/40">
@@ -208,89 +179,15 @@ function TelaEncerramento({
         autoFocus
         placeholder="O que você vai fazer hoje?"
         rows={3}
-        className="resize-none bg-transparent font-frase text-2xl leading-relaxed outline-none placeholder:text-auxiliar/50"
+        className="resize-none bg-transparent font-frase text-2xl leading-relaxed text-texto outline-none placeholder:text-auxiliar/50"
       />
 
       <button
         type="submit"
-        className="w-full rounded-full bg-texto py-3 text-center font-interface font-medium text-fundo"
+        className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo"
       >
         Concluir
       </button>
     </form>
-  );
-}
-
-function PainelPreferencias({
-  repeticoes,
-  maosLivres,
-  onEscolherRepeticoes,
-  onAlternarMaosLivres,
-  onFechar,
-}: {
-  repeticoes: number;
-  maosLivres: boolean;
-  onEscolherRepeticoes: (valor: number) => void;
-  onAlternarMaosLivres: () => void;
-  onFechar: () => void;
-}) {
-  return (
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="flex flex-1 flex-col justify-center gap-10 px-6"
-    >
-      <div className="flex flex-col gap-3">
-        <span className="text-xs font-medium uppercase tracking-wide text-auxiliar">
-          Repetições por frase
-        </span>
-        <div className="flex gap-2">
-          {OPCOES_REPETICOES.map((valor) => (
-            <button
-              key={valor}
-              type="button"
-              onClick={() => onEscolherRepeticoes(valor)}
-              className={`flex-1 rounded-2xl py-3 text-center font-medium ${
-                repeticoes === valor
-                  ? "bg-texto text-fundo"
-                  : "bg-texto/5 text-texto"
-              }`}
-            >
-              {valor}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-texto">Modo mãos livres</p>
-          <p className="text-xs text-auxiliar">
-            Avança sozinho, sem precisar tocar.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onAlternarMaosLivres}
-          aria-label="Alternar modo mãos livres"
-          className={`h-7 w-12 shrink-0 rounded-full p-1 transition-colors ${
-            maosLivres ? "bg-texto" : "bg-texto/10"
-          }`}
-        >
-          <span
-            className={`block h-5 w-5 rounded-full bg-fundo transition-transform ${
-              maosLivres ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
-
-      <button
-        type="button"
-        onClick={onFechar}
-        className="self-center text-sm text-auxiliar underline underline-offset-4"
-      >
-        fechar
-      </button>
-    </div>
   );
 }

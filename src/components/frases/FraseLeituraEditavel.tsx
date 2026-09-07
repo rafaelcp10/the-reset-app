@@ -49,7 +49,7 @@ export default function FraseLeituraEditavel({
   if (!editando) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="font-frase text-2xl leading-relaxed">{textoAtual}</p>
+        <p className="font-frase text-2xl leading-relaxed text-texto">{textoAtual}</p>
         <div className="flex items-center gap-5 text-sm">
           <button
             type="button"
@@ -75,7 +75,8 @@ export default function FraseLeituraEditavel({
         onChange={(e) => setValor(e.target.value)}
         rows={4}
         autoFocus
-        className="resize-none bg-transparent font-frase text-2xl leading-relaxed outline-none"
+        spellCheck={false}
+        className="resize-none bg-transparent font-frase text-2xl leading-relaxed text-texto outline-none"
       />
       {estado.erro && <p className="text-sm text-auxiliar">{estado.erro}</p>}
       <div className="flex items-center gap-5 text-sm">

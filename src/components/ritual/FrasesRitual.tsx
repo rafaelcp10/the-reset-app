@@ -8,7 +8,7 @@ import {
 } from "@/lib/frases/modelo";
 import { salvarEdicaoFrase } from "@/lib/frases/acoes";
 import FraseRitualLinha from "./FraseRitualLinha";
-import FraseLeituraEditavel from "@/components/frases/FraseLeituraEditavel";
+import FraseAutoSalvar from "@/components/frases/FraseAutoSalvar";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 
 const BotaoOuvir = () => (
@@ -53,7 +53,7 @@ export default function FrasesRitual({
                   caminhoAtual={caminhoAtual}
                 />
               ) : (
-                <FraseLeituraEditavel
+                <FraseAutoSalvar
                   textoAtual={texto}
                   textoPadrao={FRASES_PADRAO[funcao].texto}
                   acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}

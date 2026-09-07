@@ -36,7 +36,7 @@ export default function IdentidadeForm({
       action={formAction}
       className="flex flex-1 flex-col justify-between px-6 pb-10 pt-16"
     >
-      <p className="font-frase text-2xl leading-relaxed">
+      <p className="font-frase text-2xl leading-relaxed text-texto">
         {antes}
         <input
           type="text"
@@ -45,6 +45,9 @@ export default function IdentidadeForm({
           onChange={(e) => setValor(e.target.value)}
           placeholder="______"
           autoFocus
+          spellCheck={false}
+          autoComplete="off"
+          autoCorrect="off"
           className="mx-1 w-40 border-b-2 border-acento bg-transparent text-center text-acento outline-none placeholder:text-acento/40"
         />
         {depois}

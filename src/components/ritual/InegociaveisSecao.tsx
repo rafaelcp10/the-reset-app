@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef } from "react";
 import { Check, X } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
 import { marcarCompromissoDia, salvarCompromissoSlot } from "@/lib/ritual/acoes";
@@ -16,19 +19,19 @@ export default function InegociaveisSecao({
   const temSlotVazio = inegociaveis.some((slot) => !slot.compromisso);
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-5">
       <div>
         <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
           Inegociáveis
         </h2>
         {temSlotVazio && (
-          <p className="text-xs text-auxiliar/70">
+          <p className="mt-1 text-xs text-auxiliar/70">
             Só cabem 3 por semana — o que realmente importa.
           </p>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-5">
         {inegociaveis.map((slot) => (
           <LinhaInegociavel
             key={slot.ordem}
@@ -54,28 +57,27 @@ function LinhaInegociavel({
   dataHoje: string;
   caminhoAtual: string;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   if (!slot.compromisso) {
+    function salvar() {
+      const texto = inputRef.current?.value.trim();
+      if (!texto) return;
+      const fd = new FormData();
+      fd.set("texto", texto);
+      salvarCompromissoSlot(caminhoAtual, semanaInicio, slot.ordem, fd).catch(
+        () => {},
+      );
+    }
+
     return (
-      <form
-        action={salvarCompromissoSlot.bind(
-          null,
-          caminhoAtual,
-          semanaInicio,
-          slot.ordem,
-        )}
-        className="flex items-center gap-3 rounded-2xl bg-texto/5 px-4 py-3"
-      >
-        <input
-          type="text"
-          name="texto"
-          required
-          placeholder={`Inegociável ${slot.ordem + 1} da semana`}
-          className="min-w-0 flex-1 bg-transparent text-texto outline-none placeholder:text-auxiliar/60"
-        />
-        <button type="submit" className="shrink-0 text-sm font-medium text-texto">
-          salvar
-        </button>
-      </form>
+      <input
+        ref={inputRef}
+        type="text"
+        onBlur={salvar}
+        placeholder={`Inegociável ${slot.ordem + 1} da semana`}
+        className="bg-transparent py-3 text-lg text-texto outline-none placeholder:text-auxiliar/50"
+      />
     );
   }
 
@@ -101,12 +103,10 @@ function LinhaInegociavel({
       <button
         type="submit"
         aria-label={`${compromisso.texto} — ${rotulo}`}
-        className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left ${
-          feitoHoje === true ? "bg-texto/10" : "bg-texto/5"
-        }`}
+        className="flex w-full items-center gap-4 py-3 text-left"
       >
         <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
             feitoHoje === null ? "border-auxiliar/40" : "border-texto/60"
           }`}
         >
@@ -118,7 +118,7 @@ function LinhaInegociavel({
           )}
         </span>
         <span
-          className={feitoHoje === false ? "flex-1 text-auxiliar" : "flex-1 text-texto"}
+          className={`text-lg ${feitoHoje === false ? "text-auxiliar" : "text-texto"}`}
         >
           {compromisso.texto}
         </span>

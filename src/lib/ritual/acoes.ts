@@ -110,6 +110,22 @@ export async function salvarCompromissoSlot(
   revalidatePath(caminhoAtual);
 }
 
+/** Adiciona a música do ritual (ainda não há um jeito de trocar/remover). */
+export async function adicionarMusica(caminhoAtual: string, formData: FormData) {
+  const url = ((formData.get("url") as string) ?? "").trim();
+  if (!url) return;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase.from("musicas").insert({ usuario_id: user.id, url, ordem: 0 });
+
+  revalidatePath(caminhoAtual);
+}
+
 /** Preferências do modo espelho — repetições por frase e mãos livres. */
 export async function salvarPreferenciasRitual(
   repsPadrao: number,

@@ -3,18 +3,53 @@
 import { useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
 import type { MusicaRow } from "@/lib/ritual/dados";
+import { adicionarMusica } from "@/lib/ritual/acoes";
 
-export default function MusicaPlayer({ musica }: { musica: MusicaRow | null }) {
+export default function MusicaPlayer({
+  musica,
+  caminhoAtual,
+}: {
+  musica: MusicaRow | null;
+  caminhoAtual: string;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [tocando, setTocando] = useState(false);
+  const [adicionando, setAdicionando] = useState(false);
 
   if (!musica) {
+    if (!adicionando) {
+      return (
+        <button
+          type="button"
+          onClick={() => setAdicionando(true)}
+          className="self-start text-sm text-auxiliar underline underline-offset-4"
+        >
+          adicionar música
+        </button>
+      );
+    }
+
+    function salvar() {
+      const url = inputRef.current?.value.trim();
+      if (!url) {
+        setAdicionando(false);
+        return;
+      }
+      const fd = new FormData();
+      fd.set("url", url);
+      adicionarMusica(caminhoAtual, fd).catch(() => {});
+    }
+
     return (
-      <div className="flex items-center rounded-2xl bg-texto/5 px-4 py-3">
-        <span className="text-sm text-auxiliar">
-          Nenhuma música adicionada ainda.
-        </span>
-      </div>
+      <input
+        ref={inputRef}
+        type="url"
+        autoFocus
+        onBlur={salvar}
+        placeholder="Link da música"
+        className="bg-transparent text-texto outline-none placeholder:text-auxiliar/60"
+      />
     );
   }
 
@@ -29,7 +64,7 @@ export default function MusicaPlayer({ musica }: { musica: MusicaRow | null }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-texto/5 px-4 py-3">
+    <div className="flex items-center gap-3">
       <button
         type="button"
         onClick={alternar}

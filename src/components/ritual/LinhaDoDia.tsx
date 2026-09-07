@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef } from "react";
 import { confirmarDia, salvarLinhaHoje } from "@/lib/ritual/acoes";
 
 export default function LinhaDoDia({
@@ -15,31 +18,29 @@ export default function LinhaDoDia({
   dataHoje: string;
   caminhoAtual: string;
 }) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   if (modo === "manha") {
+    function salvar() {
+      const fd = new FormData();
+      fd.set("linha", textareaRef.current?.value ?? "");
+      salvarLinhaHoje(caminhoAtual, dataHoje, fd).catch(() => {});
+    }
+
     return (
       <section className="flex flex-col gap-3">
         <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
           A linha de hoje
         </h2>
 
-        <form
-          action={salvarLinhaHoje.bind(null, caminhoAtual, dataHoje)}
-          className="flex flex-col gap-2"
-        >
-          <textarea
-            name="linha"
-            defaultValue={linhaHoje ?? ""}
-            placeholder="O que você vai fazer hoje?"
-            rows={2}
-            className="resize-none rounded-2xl bg-texto/5 px-4 py-3 text-texto outline-none placeholder:text-auxiliar/60"
-          />
-          <button
-            type="submit"
-            className="self-end text-sm font-medium text-texto"
-          >
-            salvar
-          </button>
-        </form>
+        <textarea
+          ref={textareaRef}
+          defaultValue={linhaHoje ?? ""}
+          onBlur={salvar}
+          placeholder="O que você vai fazer hoje?"
+          rows={2}
+          className="resize-none bg-transparent text-lg text-texto outline-none placeholder:text-auxiliar/60"
+        />
 
         {linhaOntem && (
           <p className="text-sm text-auxiliar">Ontem: {linhaOntem}</p>

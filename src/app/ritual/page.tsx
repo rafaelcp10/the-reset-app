@@ -62,7 +62,7 @@ export default async function RitualPage() {
     return (
       <div className="flex flex-col gap-8 px-6 pb-10 pt-10">
         {cabecalho}
-        <MusicaPlayer musica={estado.musica} />
+        <MusicaPlayer musica={estado.musica} caminhoAtual={CAMINHO} />
         <BotaoEspelho />
         {frases}
         {inegociaveis}
@@ -79,7 +79,7 @@ export default async function RitualPage() {
       </div>
       {frases}
       <BotaoEspelho />
-      <MusicaPlayer musica={estado.musica} />
+      <MusicaPlayer musica={estado.musica} caminhoAtual={CAMINHO} />
       {cabecalho}
     </div>
   );
