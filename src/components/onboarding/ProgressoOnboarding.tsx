@@ -16,7 +16,11 @@ export default function ProgressoOnboarding() {
   return (
     <div className="flex items-center justify-between px-6 pt-6">
       {anterior ? (
-        <Link href={anterior} aria-label="Voltar" className="text-auxiliar">
+        <Link
+          href={anterior}
+          aria-label="Voltar"
+          className="-m-3 inline-flex p-3 text-auxiliar"
+        >
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
       ) : (

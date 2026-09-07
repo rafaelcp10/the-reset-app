@@ -20,7 +20,11 @@ export default function ListaMusicas({
   return (
     <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
       <div className="flex items-center justify-between">
-        <Link href="/ritual" aria-label="Voltar" className="text-auxiliar">
+        <Link
+          href="/ritual"
+          aria-label="Voltar"
+          className="-m-3 inline-flex p-3 text-auxiliar"
+        >
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
         <span className="rounded-[3px] bg-superficie2 px-2 py-0.5 text-[10px] uppercase tracking-[.16em] text-auxiliar-fraco">

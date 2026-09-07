@@ -95,7 +95,7 @@ export default function ModoEspelho({
         </span>
         <Link
           href="/ritual"
-          className="tipo-rotulo text-[10.5px] tracking-[.18em] text-auxiliar"
+          className="tipo-rotulo -m-3 inline-flex p-3 text-[10.5px] tracking-[.18em] text-auxiliar"
         >
           Sair
         </Link>

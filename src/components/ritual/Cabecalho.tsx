@@ -21,10 +21,18 @@ export default function Cabecalho({
             {modo === "manha" ? "Bom dia." : "Boa noite."}
           </p>
           <div className="flex items-center gap-4 text-auxiliar">
-            <Link href="/semanas" aria-label="Semanas">
+            <Link
+              href="/semanas"
+              aria-label="Semanas"
+              className="-m-[13.5px] inline-flex p-[13.5px]"
+            >
               <Calendar className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </Link>
-            <Link href="/ajustes" aria-label="Ajustes">
+            <Link
+              href="/ajustes"
+              aria-label="Ajustes"
+              className="-m-[13.5px] inline-flex p-[13.5px]"
+            >
               <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
             </Link>
           </div>

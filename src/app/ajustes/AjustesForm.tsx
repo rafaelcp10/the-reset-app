@@ -52,7 +52,11 @@ export default function AjustesForm({
   return (
     <div className="flex flex-col gap-10 px-6 pb-10 pt-6">
       <div className="flex items-center gap-4">
-        <Link href="/ritual" aria-label="Voltar" className="text-auxiliar">
+        <Link
+          href="/ritual"
+          aria-label="Voltar"
+          className="-m-3 inline-flex p-3 text-auxiliar"
+        >
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
         <h1 className="text-[21px] text-texto">Ajustes</h1>

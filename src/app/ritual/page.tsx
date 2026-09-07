@@ -68,33 +68,19 @@ export default async function RitualPage({
   const bgTemperatura =
     estado.modo === "manha" ? "bg-fundo-manha" : "bg-fundo-noite";
 
-  if (estado.modo === "manha") {
-    return (
-      <div
-        className={`flex flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
-      >
-        {cabecalho}
-        <MusicaPlayer musica={estado.musica} />
-        <BotaoEspelho modo={estado.modo} />
-        {frases}
-        {inegociaveis}
-        {linhaDoDia}
-      </div>
-    );
-  }
-
+  // Ordem das seções é fixa (manhã e noite) — só o fundo e o conteúdo
+  // interno de cada seção mudam com o horário. Ver README do handoff:
+  // "Tela do Ritual", lista 1-8.
   return (
     <div
       className={`flex flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
     >
-      <div className="flex flex-col gap-6">
-        {inegociaveis}
-        {linhaDoDia}
-      </div>
-      {frases}
-      <BotaoEspelho modo={estado.modo} />
-      <MusicaPlayer musica={estado.musica} />
       {cabecalho}
+      <MusicaPlayer musica={estado.musica} />
+      <BotaoEspelho modo={estado.modo} />
+      {frases}
+      {inegociaveis}
+      {linhaDoDia}
     </div>
   );
 }
