@@ -26,42 +26,37 @@ export default function MusicaPlayer({
 
   if (editando) {
     return (
-      <input
-        ref={inputRef}
-        type="url"
-        autoFocus
-        onBlur={salvar}
-        defaultValue={musica?.url ?? ""}
-        placeholder="Link da música"
-        className="bg-transparent text-sm text-texto outline-none placeholder:text-auxiliar/60"
-      />
-    );
-  }
-
-  if (!musica) {
-    return (
-      <button
-        type="button"
-        onClick={() => setEditando(true)}
-        className="self-start text-sm text-auxiliar underline underline-offset-4"
-      >
-        adicionar música
-      </button>
+      <div className="flex items-center gap-2 text-[13.5px]">
+        <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
+        <input
+          ref={inputRef}
+          type="url"
+          autoFocus
+          onBlur={salvar}
+          defaultValue={musica?.url ?? ""}
+          placeholder="link da música"
+          className="flex-1 border-b border-filete-media bg-transparent py-1.5 text-texto outline-none placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
+        />
+      </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex items-center gap-2 text-[13.5px]">
       <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
-      <span className="flex-1 truncate text-texto">
-        {musica.nome || "Sua música"}
-      </span>
+      {musica ? (
+        <span className="flex-1 truncate text-auxiliar">
+          {musica.nome || "Sua música"} · toca até o fim do espelho
+        </span>
+      ) : (
+        <span className="flex-1 text-auxiliar">Sem música</span>
+      )}
       <button
         type="button"
         onClick={() => setEditando(true)}
         className="shrink-0 text-auxiliar underline underline-offset-4"
       >
-        trocar
+        {musica ? "trocar" : "adicionar música"}
       </button>
     </div>
   );

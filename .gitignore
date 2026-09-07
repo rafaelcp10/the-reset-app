@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material de referência do designer — não faz parte do app
+/The Reset - Telas Mobile/
+/The Reset - Telas Mobile.zip
+
+# estado interno de sessão do agente
+.claude/scheduled_tasks.lock

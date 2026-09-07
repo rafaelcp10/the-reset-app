@@ -46,6 +46,7 @@ export type EstadoRitual = {
   linhaHoje: string | null;
   feitoHoje: boolean | null;
   linhaOntem: string | null;
+  feitoOntem: boolean | null;
   repsPadrao: number;
   modoMaosLivres: boolean;
 };
@@ -146,6 +147,7 @@ export async function buscarEstadoRitual(
     linhaHoje: diaHoje?.linha_do_dia ?? null,
     feitoHoje: diaHoje?.feito ?? null,
     linhaOntem: diaOntem?.linha_do_dia ?? null,
+    feitoOntem: diaOntem?.feito ?? null,
     repsPadrao,
     modoMaosLivres,
   };

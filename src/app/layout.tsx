@@ -1,16 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Inter } from "next/font/google";
+import { Archivo } from "next/font/google";
 import AppChrome from "@/components/AppChrome";
 import "./globals.css";
 
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -31,10 +27,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${archivo.variable} ${inter.variable} h-full`}
-    >
+    <html lang="pt-BR" className={`${archivo.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-fundo text-texto font-interface antialiased">
         <AppChrome>{children}</AppChrome>
       </body>

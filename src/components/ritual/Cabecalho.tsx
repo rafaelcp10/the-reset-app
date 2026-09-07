@@ -12,20 +12,20 @@ export default function Cabecalho({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <Logo />
+      <Logo variante="topo" />
 
       <div>
         <div className="flex items-center justify-between gap-3">
-          <p className="font-frase text-2xl">
+          <p className="text-xl leading-tight text-texto">
             {modo === "manha" ? "Bom dia." : "Boa noite."}
           </p>
-          <div className="flex items-center gap-4 text-auxiliar/50">
-            <Calendar className="h-5 w-5" strokeWidth={1.5} />
-            <Settings className="h-5 w-5" strokeWidth={1.5} />
+          <div className="flex items-center gap-4 text-auxiliar">
+            <Calendar className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
           </div>
         </div>
-        <p className="text-sm uppercase tracking-wide text-auxiliar">
-          {dataExtenso} · Semana {numeroSemana}
+        <p className="tipo-rotulo mt-1 text-[9.5px] tracking-[.18em] text-auxiliar">
+          {dataExtenso} · semana {numeroSemana}
         </p>
       </div>
     </div>

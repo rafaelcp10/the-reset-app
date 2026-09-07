@@ -14,8 +14,9 @@ type ItemFrase = {
 const CAMINHO = "/ritual/espelho";
 const OPCOES_REPETICOES = [1, 3, 5] as const;
 const TOTAL_PONTOS_RESPIRACAO = 10;
-const INTERVALO_RESPIRACAO_MS = 700;
-const TEMPO_POR_REPETICAO_MS = 6000;
+const DURACAO_RESPIRACAO_AUTOMATICA_MS = 30_000;
+const TEMPO_POR_REPETICAO_MS = 7_000;
+const DURACAO_ECO_MS = 2200;
 
 export default function ModoEspelho({
   frases,
@@ -23,7 +24,6 @@ export default function ModoEspelho({
   musicaNome,
   repeticoesIniciais,
   maosLivresInicial,
-  linhaHojeInicial,
   dataHoje,
 }: {
   frases: ItemFrase[];
@@ -31,15 +31,13 @@ export default function ModoEspelho({
   musicaNome: string | null;
   repeticoesIniciais: number;
   maosLivresInicial: boolean;
-  linhaHojeInicial: string | null;
   dataHoje: string;
 }) {
-  const ultimoPasso = frases.length + 1;
-  const totalPassosNumerados = frases.length + 1; // respiração + 5 frases
+  // passos: 0 = respiração, 1..N = frases, N+1 = eco
+  const passoEco = frases.length + 1;
   const [passo, setPasso] = useState(0);
+  const [concluindo, setConcluindo] = useState(false);
 
-  // Repetições e mãos livres vêm das preferências do usuário — não são
-  // configuráveis dentro do espelho (só o "sair" fica acessível aqui).
   const repeticoes = OPCOES_REPETICOES.includes(
     repeticoesIniciais as (typeof OPCOES_REPETICOES)[number],
   )
@@ -50,49 +48,53 @@ export default function ModoEspelho({
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const avancar = useCallback(() => {
-    setPasso((p) => Math.min(p + 1, ultimoPasso));
-  }, [ultimoPasso]);
+    setPasso((p) => Math.min(p + 1, passoEco));
+  }, [passoEco]);
 
-  // Toca a música assim que a cena abre — se o navegador bloquear o
-  // autoplay ou a faixa falhar, o ritual segue normalmente e em silêncio.
   useEffect(() => {
     audioRef.current?.play().catch(() => {});
   }, []);
 
-  // Respiração sempre avança sozinha; frases avançam sozinhas só no modo
-  // mãos livres. Um toque sempre pode adiantar (o efeito é cancelado e
-  // recriado a cada mudança de passo).
   useEffect(() => {
-    if (passo === 0) {
-      const duracao = (TOTAL_PONTOS_RESPIRACAO + 1) * INTERVALO_RESPIRACAO_MS;
-      const t = setTimeout(avancar, duracao);
+    if (passo === 0 && maosLivres) {
+      const t = setTimeout(avancar, DURACAO_RESPIRACAO_AUTOMATICA_MS);
       return () => clearTimeout(t);
     }
     if (passo >= 1 && passo <= frases.length && maosLivres) {
       const t = setTimeout(avancar, repeticoes * TEMPO_POR_REPETICAO_MS);
       return () => clearTimeout(t);
     }
-  }, [passo, maosLivres, repeticoes, avancar, frases.length]);
+    if (passo === passoEco) {
+      const t = setTimeout(() => setConcluindo(true), DURACAO_ECO_MS);
+      return () => clearTimeout(t);
+    }
+  }, [passo, maosLivres, repeticoes, avancar, frases.length, passoEco]);
+
+  // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
+  // já que ela navega e não deve ser cancelada por uma limpeza de timeout.
+  useEffect(() => {
+    if (concluindo) concluirEspelho(dataHoje);
+  }, [concluindo, dataHoje]);
 
   function aoTocarNaTela() {
-    if (passo >= 0 && passo <= frases.length) avancar();
+    // toque avança respiração e frases; durante o eco é ignorado.
+    if (passo <= frases.length) avancar();
   }
 
   const mostrandoRodape = passo <= frases.length;
+  const palavraEco = frases[0]?.palavraEscolhida;
 
   return (
     <div className="flex min-h-screen flex-col bg-fundo">
       {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
       <div className="flex items-center justify-between px-6 pt-6">
-        <span className="text-xs uppercase tracking-wide text-auxiliar">
-          {mostrandoRodape
-            ? `Passo ${passo + 1} de ${totalPassosNumerados}`
-            : ""}
+        <span className="tipo-rotulo text-[10.5px] tracking-[.18em] text-auxiliar">
+          {mostrandoRodape ? `Passo ${passo + 1} de ${frases.length + 1}` : ""}
         </span>
         <Link
           href="/ritual"
-          className="text-xs uppercase tracking-wide text-auxiliar"
+          className="tipo-rotulo text-[10.5px] tracking-[.18em] text-auxiliar"
         >
           Sair
         </Link>
@@ -100,47 +102,40 @@ export default function ModoEspelho({
 
       <div className="flex flex-1 flex-col" onClick={aoTocarNaTela}>
         {passo === 0 ? (
-          <TelaRespiracao onComecar={avancar} />
+          <TelaRespiracao />
         ) : passo <= frases.length ? (
           <TelaFrase
+            key={passo}
             item={frases[passo - 1]}
             indice={passo}
             total={frases.length}
             repeticoes={repeticoes}
+            maosLivres={maosLivres}
           />
         ) : (
-          <TelaEncerramento linhaInicial={linhaHojeInicial} dataHoje={dataHoje} />
+          <TelaEco palavra={palavraEco} />
         )}
       </div>
 
       {mostrandoRodape && (
-        <RodapeMusica
+        <Rodape
           musicaUrl={musicaUrl}
           musicaNome={musicaNome}
-          passo={passo}
-          totalPassos={totalPassosNumerados}
+          caminhoAtual={CAMINHO}
         />
       )}
     </div>
   );
 }
 
-function TelaRespiracao({ onComecar }: { onComecar: () => void }) {
-  const [ativo, setAtivo] = useState(0);
-
-  useEffect(() => {
-    if (ativo >= TOTAL_PONTOS_RESPIRACAO - 1) return;
-    const t = setTimeout(() => setAtivo((a) => a + 1), INTERVALO_RESPIRACAO_MS);
-    return () => clearTimeout(t);
-  }, [ativo]);
-
+function TelaRespiracao() {
   return (
-    <div className="flex flex-1 flex-col justify-between px-6 py-16">
+    <div className="flex flex-1 flex-col justify-between px-6 py-8">
       <div className="flex flex-col gap-3">
-        <h1 className="font-frase text-3xl leading-relaxed text-texto">
+        <h1 className="text-[26px] leading-[1.3] text-texto">
           Respire dez vezes
         </h1>
-        <p className="text-sm text-auxiliar">
+        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
           Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
           ritmo — não precisa tocar em nada.
         </p>
@@ -150,23 +145,71 @@ function TelaRespiracao({ onComecar }: { onComecar: () => void }) {
         {Array.from({ length: TOTAL_PONTOS_RESPIRACAO }).map((_, i) => (
           <span
             key={i}
-            className={`h-2.5 w-2.5 rounded-full transition-colors duration-500 ${
-              i <= ativo ? "bg-acento" : "bg-auxiliar/25"
-            }`}
+            className="pulso-respiracao h-2 w-2 rounded-full bg-acento"
+            style={{ animationDelay: `${i * 0.6}s` }}
           />
         ))}
       </div>
 
       <button
         type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onComecar();
-        }}
-        className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo"
+        className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
       >
         Começar as frases
       </button>
+    </div>
+  );
+}
+
+function TelaFrase({
+  item,
+  indice,
+  total,
+  repeticoes,
+  maosLivres,
+}: {
+  item: ItemFrase;
+  indice: number;
+  total: number;
+  repeticoes: number;
+  maosLivres: boolean;
+}) {
+  return (
+    <div className="entrada-frase flex flex-1 flex-col justify-between px-6 py-8">
+      <div className="flex flex-col gap-2">
+        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+          {item.rotulo} · frase {indice} de {total}
+        </span>
+        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+          {maosLivres
+            ? "A frase passa sozinha."
+            : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
+        </p>
+      </div>
+
+      <p className="text-[29px] leading-[1.5] text-texto">
+        {formatarTexto(item.texto, item.palavraEscolhida)}
+      </p>
+
+      <div className="flex flex-col gap-3">
+        <div className="tipo-rotulo flex items-center gap-4 text-[10px] tracking-[.16em]">
+          <span className="text-auxiliar-fraco">Ouvir</span>
+          <span className="text-auxiliar-fraco">Gravar</span>
+          <span className="rounded-[3px] bg-superficie2 px-1.5 py-0.5 text-auxiliar-fraco">
+            Em breve
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1">
+            {Array.from({ length: repeticoes }).map((_, i) => (
+              <span key={i} className="h-[2px] w-4 bg-auxiliar-minimo" />
+            ))}
+          </div>
+          <span className="tipo-rotulo text-[10px] tracking-[.16em] text-auxiliar-minimo">
+            {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -185,102 +228,24 @@ function formatarTexto(texto: string, palavraEscolhida: string | null) {
   );
 }
 
-function TelaFrase({
-  item,
-  indice,
-  total,
-  repeticoes,
-}: {
-  item: ItemFrase;
-  indice: number;
-  total: number;
-  repeticoes: number;
-}) {
+function TelaEco({ palavra }: { palavra: string | null | undefined }) {
   return (
-    <div className="flex flex-1 flex-col justify-between px-6 py-16">
-      <div className="flex flex-col gap-3">
-        <span className="text-xs font-medium uppercase tracking-wide text-auxiliar">
-          {item.rotulo} · Frase {indice} de {total}
-        </span>
-        <p className="text-xs text-auxiliar">
-          Leia em voz alta {repeticoes} {repeticoes === 1 ? "vez" : "vezes"}.
-          Um toque segue para a próxima.
-        </p>
-      </div>
-
-      <p className="font-frase text-3xl leading-relaxed text-texto">
-        {formatarTexto(item.texto, item.palavraEscolhida)}
+    <div className="entrada-eco flex flex-1 items-center justify-center px-6">
+      <p className="text-center text-[56px] font-semibold leading-[1.1] text-acento">
+        {palavra || "presente"}.
       </p>
-
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-6 text-xs uppercase tracking-wide">
-          <span className="text-auxiliar/40">Ouvir</span>
-          <span className="text-auxiliar/40">Gravar</span>
-          <span className="rounded-full bg-texto/5 px-2 py-0.5 text-auxiliar/60">
-            Em breve
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1.5">
-            {Array.from({ length: repeticoes }).map((_, i) => (
-              <span key={i} className="h-1 w-4 rounded-full bg-auxiliar/30" />
-            ))}
-          </div>
-          <span className="text-xs uppercase tracking-wide text-auxiliar/60">
-            {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
-          </span>
-        </div>
-      </div>
     </div>
   );
 }
 
-function TelaEncerramento({
-  linhaInicial,
-  dataHoje,
-}: {
-  linhaInicial: string | null;
-  dataHoje: string;
-}) {
-  return (
-    <form
-      action={concluirEspelho.bind(null, dataHoje)}
-      onClick={(e) => e.stopPropagation()}
-      className="flex flex-1 flex-col justify-between px-6 py-16"
-    >
-      <h1 className="font-frase text-2xl leading-relaxed text-acento">
-        A linha de hoje
-      </h1>
-
-      <textarea
-        name="linha"
-        defaultValue={linhaInicial ?? ""}
-        autoFocus
-        placeholder="O que você vai fazer hoje?"
-        rows={3}
-        className="resize-none bg-transparent font-frase text-2xl leading-relaxed text-texto outline-none placeholder:text-auxiliar/50"
-      />
-
-      <button
-        type="submit"
-        className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo"
-      >
-        Concluir
-      </button>
-    </form>
-  );
-}
-
-function RodapeMusica({
+function Rodape({
   musicaUrl,
   musicaNome,
-  passo,
-  totalPassos,
+  caminhoAtual,
 }: {
   musicaUrl: string | null;
   musicaNome: string | null;
-  passo: number;
-  totalPassos: number;
+  caminhoAtual: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [editando, setEditando] = useState(false);
@@ -291,15 +256,15 @@ function RodapeMusica({
     if (!url) return;
     const fd = new FormData();
     fd.set("url", url);
-    definirMusica(CAMINHO, fd).catch(() => {});
+    definirMusica(caminhoAtual, fd).catch(() => {});
   }
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="flex flex-col gap-3 px-6 pb-8 pt-4"
+      className="flex flex-col gap-4 px-6 pb-8 pt-4"
     >
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-[13px]">
         <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
         {editando ? (
           <input
@@ -308,41 +273,27 @@ function RodapeMusica({
             autoFocus
             onBlur={salvar}
             defaultValue={musicaUrl ?? ""}
-            placeholder="Link da música"
-            className="flex-1 bg-transparent text-texto outline-none placeholder:text-auxiliar/60"
+            placeholder="link da música"
+            className="flex-1 bg-transparent text-texto outline-none placeholder:text-auxiliar-fraco"
           />
-        ) : musicaUrl ? (
+        ) : (
           <>
             <span className="flex-1 truncate text-auxiliar">
-              {musicaNome || "Sua música"}
+              {musicaUrl ? musicaNome || "Sua música" : "Sem música"}
             </span>
             <button
               type="button"
               onClick={() => setEditando(true)}
-              className="shrink-0 text-xs uppercase tracking-wide text-auxiliar underline underline-offset-4"
+              className="shrink-0 text-auxiliar underline underline-offset-4"
             >
-              Trocar música
+              {musicaUrl ? "trocar música" : "adicionar música"}
             </button>
           </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setEditando(true)}
-            className="text-auxiliar underline underline-offset-4"
-          >
-            adicionar música
-          </button>
         )}
       </div>
       <div className="flex gap-1">
-        {Array.from({ length: totalPassos }).map((_, i) => (
-          <span
-            key={i}
-            className={`h-1 flex-1 rounded-full ${
-              i < passo ? "bg-acento" : "bg-auxiliar/20"
-            }`}
-          />
-        ))}
+        <span className="h-[2px] w-[26px] bg-acento" />
+        <span className="h-[2px] w-[14px] bg-acento-escuro" />
       </div>
     </div>
   );

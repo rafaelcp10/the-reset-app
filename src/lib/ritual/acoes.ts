@@ -144,10 +144,12 @@ export async function salvarPreferenciasRitual(
     .eq("id", user.id);
 }
 
-/** Encerramento do espelho: salva a linha do dia e volta para o ritual. */
-export async function concluirEspelho(data: string, formData: FormData) {
-  const linha = ((formData.get("linha") as string) ?? "").trim();
-
+/**
+ * Marca que o Espelho de hoje (respiração + 5 frases) foi concluído — um
+ * evento distinto da confirmação noturna — e volta para o Ritual com a
+ * linha de hoje em foco.
+ */
+export async function concluirEspelho(data: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -157,9 +159,9 @@ export async function concluirEspelho(data: string, formData: FormData) {
   await supabase
     .from("dias")
     .upsert(
-      { usuario_id: user.id, data, linha_do_dia: linha || null },
+      { usuario_id: user.id, data, espelho_feito_em: new Date().toISOString() },
       { onConflict: "usuario_id,data" },
     );
 
-  redirect("/ritual");
+  redirect("/ritual?foco=linha");
 }

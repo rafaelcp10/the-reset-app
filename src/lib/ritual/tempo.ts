@@ -85,15 +85,41 @@ export function numeroDaSemana(criadoEmISO: string, dataRitualISO: string): numb
   return Math.floor(diffDias / 7) + 1;
 }
 
+export function proximaSemanaISO(dataISO: string): string {
+  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1, dia));
+  data.setUTCDate(data.getUTCDate() + 7);
+  return data.toISOString().slice(0, 10);
+}
+
+/** Formata um timestamp ISO como "6h40" no fuso do usuário. */
+export function formatarHora(isoDatetime: string, fuso: string): string {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: fuso,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(isoDatetime));
+  const hora = Number(partes.find((p) => p.type === "hour")?.value ?? "0") % 24;
+  const minuto = partes.find((p) => p.type === "minute")?.value ?? "00";
+  return `${hora}h${minuto}`;
+}
+
 /** Data por extenso em pt-BR, a partir de um YYYY-MM-DD (sem depender do fuso). */
 export function dataPorExtenso(dataISO: string): string {
   const [ano, mes, dia] = dataISO.split("-").map(Number);
   const data = new Date(Date.UTC(ano, mes - 1, dia, 12));
-  const texto = new Intl.DateTimeFormat("pt-BR", {
+  const formatador = new Intl.DateTimeFormat("pt-BR", {
     timeZone: "UTC",
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(data);
-  return texto.charAt(0).toUpperCase() + texto.slice(1);
+  });
+  const partes = formatador.formatToParts(data);
+  const diaSemana = (partes.find((p) => p.type === "weekday")?.value ?? "")
+    .replace(/-feira$/, "");
+  const diaMes = partes.find((p) => p.type === "day")?.value ?? "";
+  const mesNome = partes.find((p) => p.type === "month")?.value ?? "";
+  const capitalizada = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+  return `${capitalizada} · ${diaMes} de ${mesNome}`;
 }

@@ -1,12 +1,12 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
-import { buscarEstadoRitual } from "@/lib/ritual/dados";
+import { buscarEstadoHome } from "@/lib/home/dados";
 import { FRASES_PADRAO } from "@/lib/frases/modelo";
-import Cabecalho from "@/components/ritual/Cabecalho";
-import MusicaPlayer from "@/components/ritual/MusicaPlayer";
-import BotaoEspelho from "@/components/ritual/BotaoEspelho";
+import Logo from "@/components/Logo";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
+import FaixaSemanas from "@/components/home/FaixaSemanas";
 
 const CAMINHO = "/";
 
@@ -18,35 +18,73 @@ export default async function HomePage() {
   if (!user) redirect("/login");
 
   await garantirUsuarioEFrasesPadrao(supabase, user);
-  const estado = await buscarEstadoRitual(supabase, user.id);
-  const identidade = estado.frases.identidade;
+  const estado = await buscarEstadoHome(supabase, user.id);
+  const { identidade } = estado;
 
   return (
-    <div className="flex flex-col gap-8 px-6 pb-10 pt-10">
-      <Cabecalho
-        modo={estado.modo}
-        dataExtenso={estado.dataExtenso}
-        numeroSemana={estado.numeroSemana}
-      />
-
-      <MusicaPlayer musica={estado.musica} caminhoAtual={CAMINHO} />
-
+    <div className="flex flex-col gap-14 px-[26px] pb-[30px] pt-[56px]">
       <FraseIdentidadeRitual
         textoBase={identidade?.texto ?? FRASES_PADRAO.identidade.texto}
         preenchimento={identidade?.preenchimento_lacuna ?? ""}
         caminhoAtual={CAMINHO}
+        tamanho="home"
+        editavel={false}
       />
 
-      <BotaoEspelho />
+      <div className="flex flex-col gap-3">
+        <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
+        <p className="text-sm text-auxiliar">
+          Semana {estado.numeroSemana} · {estado.semanasCumpridas}{" "}
+          {estado.semanasCumpridas === 1
+            ? "semana cumprida"
+            : "semanas cumpridas"}
+        </p>
+        {estado.feitoOntem !== null && (
+          <p className="text-sm text-auxiliar">
+            Ontem · {estado.feitoOntem ? "feito" : "não feito"}
+            {estado.linhaOntem ? ` — ${estado.linhaOntem}` : ""}
+          </p>
+        )}
+      </div>
 
-      <PreviaBloqueada
-        titulo="To-do"
-        texto="As tarefas do dia, separadas dos inegociáveis."
-      />
-      <PreviaBloqueada
-        titulo="Objetivos"
-        texto="O que você está construindo em meses, não em dias."
-      />
+      {estado.espelhoFeitoHoje ? (
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-auxiliar">
+            Ritual de hoje, feito
+            {estado.horaRegistroHoje ? ` às ${estado.horaRegistroHoje}` : ""}
+          </p>
+          <Link
+            href="/ritual/espelho"
+            className="text-sm text-auxiliar underline underline-offset-4"
+          >
+            entrar de novo
+          </Link>
+        </div>
+      ) : (
+        <Link
+          href="/ritual/espelho"
+          className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
+        >
+          Entrar no espelho
+        </Link>
+      )}
+
+      <div className="flex flex-col gap-6">
+        <PreviaBloqueada
+          titulo="To-do"
+          texto="As tarefas do dia, separadas dos inegociáveis."
+        />
+        <PreviaBloqueada
+          titulo="Objetivos"
+          texto="O que você está construindo em meses, não em dias."
+        />
+        <PreviaBloqueada
+          titulo="Academia"
+          texto="Os treinos da semana e o registro de cada um."
+        />
+      </div>
+
+      <Logo variante="rodape" />
     </div>
   );
 }
@@ -54,10 +92,10 @@ export default async function HomePage() {
 function PreviaBloqueada({ titulo, texto }: { titulo: string; texto: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
+      <h2 className="tipo-rotulo text-[11px] tracking-[.16em] text-auxiliar-fraco">
         {titulo}
       </h2>
-      <p className="text-sm text-auxiliar/70">{texto}</p>
+      <p className="text-[13.5px] text-auxiliar-minimo">{texto}</p>
     </div>
   );
 }

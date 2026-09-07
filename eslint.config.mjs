@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Material de referência do designer — não é código do app.
+    "The Reset - Telas Mobile/**",
   ]),
 ]);
 

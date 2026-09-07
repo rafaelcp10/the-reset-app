@@ -30,15 +30,15 @@ export default function FraseAutoSalvar({
 
   if (!editando) {
     return (
-      <div className="flex flex-col gap-4">
-        <p className="font-frase text-2xl leading-relaxed text-texto">{textoAtual}</p>
-        <div className="flex items-center gap-6 text-xs uppercase tracking-wide text-auxiliar/50">
-          <span className="flex items-center gap-1.5">
-            <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+      <div className="flex flex-col gap-2">
+        <p className="text-[16.5px] leading-[1.7] text-texto">{textoAtual}</p>
+        <div className="tipo-rotulo flex items-center gap-5 text-[10px] tracking-[.16em]">
+          <span className="flex items-center gap-1.5 text-auxiliar-fraco">
+            <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
             Ouvir
           </span>
-          <span className="flex items-center gap-1.5">
-            <Mic className="h-3.5 w-3.5" strokeWidth={1.5} />
+          <span className="flex items-center gap-1.5 text-auxiliar-fraco">
+            <Mic className="h-[13px] w-[13px]" strokeWidth={1.5} />
             Gravar
           </span>
           <button
@@ -46,7 +46,7 @@ export default function FraseAutoSalvar({
             onClick={() => setEditando(true)}
             className="flex items-center gap-1.5 text-auxiliar"
           >
-            <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+            <Pencil className="h-[13px] w-[13px]" strokeWidth={1.5} />
             Editar
           </button>
         </div>
@@ -55,7 +55,7 @@ export default function FraseAutoSalvar({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <textarea
         ref={textareaRef}
         defaultValue={textoAtual}
@@ -63,13 +63,13 @@ export default function FraseAutoSalvar({
         rows={4}
         autoFocus
         spellCheck={false}
-        className="resize-none bg-transparent font-frase text-2xl leading-relaxed text-texto outline-none"
+        className="resize-none border-b border-filete-media bg-transparent px-2 py-1.5 text-[16.5px] leading-[1.7] text-texto outline-none focus:border-acento focus:bg-acento-escuro"
       />
       <button
         type="button"
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => salvar(textoPadrao)}
-        className="self-start text-sm text-auxiliar underline underline-offset-4"
+        className="self-start text-[13px] text-auxiliar underline underline-offset-4"
       >
         restaurar padrão
       </button>

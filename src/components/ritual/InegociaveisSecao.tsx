@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
 import { marcarCompromissoDia, salvarCompromissoSlot } from "@/lib/ritual/acoes";
 
@@ -19,19 +19,19 @@ export default function InegociaveisSecao({
   const temSlotVazio = inegociaveis.some((slot) => !slot.compromisso);
 
   return (
-    <section className="flex flex-col gap-5">
-      <div>
-        <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
-          Inegociáveis
-        </h2>
-        {temSlotVazio && (
-          <p className="mt-1 text-xs text-auxiliar/70">
-            Só cabem 3 por semana — o que realmente importa.
-          </p>
-        )}
-      </div>
+    <section className="flex flex-col gap-3.5 py-3.5">
+      <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+        Inegociáveis
+      </h2>
 
-      <div className="flex flex-col gap-5">
+      {temSlotVazio && (
+        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+          Os três inegociáveis são definidos no domingo. Ficam iguais a
+          semana toda.
+        </p>
+      )}
+
+      <div className="flex flex-col">
         {inegociaveis.map((slot) => (
           <LinhaInegociavel
             key={slot.ordem}
@@ -75,20 +75,14 @@ function LinhaInegociavel({
         ref={inputRef}
         type="text"
         onBlur={salvar}
-        placeholder={`Inegociável ${slot.ordem + 1} da semana`}
-        className="bg-transparent py-3 text-lg text-texto outline-none placeholder:text-auxiliar/50"
+        placeholder={`definir inegociável ${slot.ordem + 1}`}
+        className="min-h-12 border-b border-filete bg-transparent text-[16.5px] text-texto outline-none placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
       />
     );
   }
 
   const { compromisso, feitoHoje } = slot;
-  const proximoFeito = feitoHoje !== true;
-  const rotulo =
-    feitoHoje === true
-      ? "feito hoje"
-      : feitoHoje === false
-        ? "não feito hoje"
-        : "ainda não marcado hoje";
+  const marcado = feitoHoje === true;
 
   return (
     <form
@@ -97,29 +91,27 @@ function LinhaInegociavel({
         caminhoAtual,
         compromisso.id,
         dataHoje,
-        proximoFeito,
+        !marcado,
       )}
     >
       <button
         type="submit"
-        aria-label={`${compromisso.texto} — ${rotulo}`}
-        className="flex w-full items-center gap-4 py-3 text-left"
+        aria-label={`${compromisso.texto} — ${marcado ? "feito hoje" : "não marcado"}`}
+        className="flex min-h-12 w-full items-center gap-3 text-left"
       >
         <span
-          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border ${
-            feitoHoje === null ? "border-auxiliar/40" : "border-texto/60"
+          className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[4px] border transition-colors duration-[220ms] ${
+            marcado ? "border-acento bg-acento-escuro" : "border-filete-forte"
           }`}
         >
-          {feitoHoje === true && (
-            <Check className="h-4 w-4 text-texto" strokeWidth={2} />
-          )}
-          {feitoHoje === false && (
-            <X className="h-4 w-4 text-auxiliar" strokeWidth={2} />
+          {marcado && (
+            <Check
+              className="entrada-check h-3.5 w-3.5 text-texto"
+              strokeWidth={2}
+            />
           )}
         </span>
-        <span
-          className={`text-lg ${feitoHoje === false ? "text-auxiliar" : "text-texto"}`}
-        >
+        <span className="text-[16.5px] leading-[1.5] text-texto">
           {compromisso.texto}
         </span>
       </button>

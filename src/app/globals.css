@@ -2,22 +2,110 @@
 
 :root {
   --color-fundo: #101114;
+  --color-fundo-manha: #12100e;
+  --color-fundo-noite: #0e1013;
+  --color-superficie1: #141518;
+  --color-superficie2: #17191d;
+  --color-superficie3: #2a2d33;
   --color-texto: #f7f7f5;
   --color-auxiliar: #8a8c8f;
+  --color-auxiliar-fraco: #66686d;
+  --color-auxiliar-minimo: #5a5c60;
+  --color-aba-inativa: #2f3237;
+  --color-filete: #1c1e22;
+  --color-filete-media: #2a2c31;
+  --color-filete-forte: #33363b;
   --color-acento: #c97b3a;
+  --color-acento-escuro: #3a2a1e;
 }
 
 @theme inline {
   --color-fundo: var(--color-fundo);
+  --color-fundo-manha: var(--color-fundo-manha);
+  --color-fundo-noite: var(--color-fundo-noite);
+  --color-superficie1: var(--color-superficie1);
+  --color-superficie2: var(--color-superficie2);
+  --color-superficie3: var(--color-superficie3);
   --color-texto: var(--color-texto);
   --color-auxiliar: var(--color-auxiliar);
+  --color-auxiliar-fraco: var(--color-auxiliar-fraco);
+  --color-auxiliar-minimo: var(--color-auxiliar-minimo);
+  --color-aba-inativa: var(--color-aba-inativa);
+  --color-filete: var(--color-filete);
+  --color-filete-media: var(--color-filete-media);
+  --color-filete-forte: var(--color-filete-forte);
   --color-acento: var(--color-acento);
+  --color-acento-escuro: var(--color-acento-escuro);
   --font-frase: var(--font-archivo);
-  --font-interface: var(--font-inter);
+  --font-interface: var(--font-archivo);
 }
 
 body {
   background: var(--color-fundo);
   color: var(--color-texto);
   font-family: var(--font-interface), sans-serif;
+  font-stretch: 100%;
+}
+
+/* Uso 2 da tipografia (ver README do handoff): título de tela, rótulo de
+   função, texto de botão, rótulo de aba — condensada, caixa alta, tracking
+   largo. Nunca em frase longa. */
+.tipo-rotulo {
+  font-stretch: 66%;
+  text-transform: uppercase;
+}
+
+@keyframes entrada-check {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.entrada-check {
+  animation: entrada-check 220ms ease;
+}
+
+@keyframes entrada-frase {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.entrada-frase {
+  animation: entrada-frase 450ms ease;
+}
+
+@keyframes pulso-respiracao {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+.pulso-respiracao {
+  animation: pulso-respiracao 6s ease-in-out infinite;
+}
+
+@keyframes entrada-eco {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.entrada-eco {
+  animation: entrada-eco 600ms ease;
 }

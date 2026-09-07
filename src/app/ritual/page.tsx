@@ -11,7 +11,12 @@ import LinhaDoDia from "@/components/ritual/LinhaDoDia";
 
 const CAMINHO = "/ritual";
 
-export default async function RitualPage() {
+export default async function RitualPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ foco?: string }>;
+}) {
+  const { foco } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -45,9 +50,11 @@ export default async function RitualPage() {
       modo={estado.modo}
       linhaHoje={estado.linhaHoje}
       linhaOntem={estado.linhaOntem}
+      feitoOntem={estado.feitoOntem}
       feitoHoje={estado.feitoHoje}
       dataHoje={estado.dataRitual}
       caminhoAtual={CAMINHO}
+      focoInicial={foco === "linha"}
     />
   );
   const frases = (
@@ -58,12 +65,17 @@ export default async function RitualPage() {
     />
   );
 
+  const bgTemperatura =
+    estado.modo === "manha" ? "bg-fundo-manha" : "bg-fundo-noite";
+
   if (estado.modo === "manha") {
     return (
-      <div className="flex flex-col gap-8 px-6 pb-10 pt-10">
+      <div
+        className={`flex flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
+      >
         {cabecalho}
         <MusicaPlayer musica={estado.musica} caminhoAtual={CAMINHO} />
-        <BotaoEspelho />
+        <BotaoEspelho modo={estado.modo} />
         {frases}
         {inegociaveis}
         {linhaDoDia}
@@ -72,13 +84,15 @@ export default async function RitualPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 px-6 pb-6 pt-6">
+    <div
+      className={`flex flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
+    >
       <div className="flex flex-col gap-6">
         {inegociaveis}
         {linhaDoDia}
       </div>
       {frases}
-      <BotaoEspelho />
+      <BotaoEspelho modo={estado.modo} />
       <MusicaPlayer musica={estado.musica} caminhoAtual={CAMINHO} />
       {cabecalho}
     </div>

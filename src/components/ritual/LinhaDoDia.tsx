@@ -7,16 +7,20 @@ export default function LinhaDoDia({
   modo,
   linhaHoje,
   linhaOntem,
+  feitoOntem,
   feitoHoje,
   dataHoje,
   caminhoAtual,
+  focoInicial = false,
 }: {
   modo: "manha" | "noite";
   linhaHoje: string | null;
   linhaOntem: string | null;
+  feitoOntem: boolean | null;
   feitoHoje: boolean | null;
   dataHoje: string;
   caminhoAtual: string;
+  focoInicial?: boolean;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -29,7 +33,7 @@ export default function LinhaDoDia({
 
     return (
       <section className="flex flex-col gap-3">
-        <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-acento">
+        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
           A linha de hoje
         </h2>
 
@@ -37,25 +41,22 @@ export default function LinhaDoDia({
           ref={textareaRef}
           defaultValue={linhaHoje ?? ""}
           onBlur={salvar}
-          placeholder="O que você vai fazer hoje?"
+          autoFocus={focoInicial}
+          placeholder="o que eu vou fazer hoje"
           rows={2}
-          className="resize-none bg-transparent text-lg text-texto outline-none placeholder:text-auxiliar/60"
+          className="resize-none border-b border-filete-media bg-transparent px-2 py-1.5 text-[17px] leading-[1.6] text-texto outline-none placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
         />
-
-        {linhaOntem && (
-          <p className="text-sm text-auxiliar">Ontem: {linhaOntem}</p>
-        )}
       </section>
     );
   }
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-acento">
+      <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
         A linha de hoje
       </h2>
 
-      <p className="truncate text-base text-texto">
+      <p className="truncate text-[17px] leading-[1.6] text-texto">
         {linhaHoje || (
           <span className="text-auxiliar">Você não escreveu nada hoje.</span>
         )}
@@ -68,10 +69,10 @@ export default function LinhaDoDia({
         >
           <button
             type="submit"
-            className={`w-full rounded-2xl py-3 text-center font-medium ${
+            className={`tipo-rotulo w-full rounded-[6px] py-3 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
               feitoHoje === true
-                ? "bg-texto text-fundo"
-                : "bg-texto/5 text-texto"
+                ? "bg-acento text-fundo"
+                : "bg-superficie2 text-texto"
             }`}
           >
             Fiz
@@ -83,16 +84,23 @@ export default function LinhaDoDia({
         >
           <button
             type="submit"
-            className={`w-full rounded-2xl py-3 text-center font-medium ${
+            className={`tipo-rotulo w-full rounded-[6px] py-3 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
               feitoHoje === false
-                ? "bg-texto/10 text-texto"
-                : "bg-texto/5 text-auxiliar"
+                ? "bg-superficie3 text-texto"
+                : "bg-superficie2 text-texto"
             }`}
           >
             Não fiz
           </button>
         </form>
       </div>
+
+      {feitoOntem !== null && (
+        <p className="text-[13.5px] text-auxiliar">
+          Ontem · {feitoOntem ? "feita" : "não feita"}
+          {linhaOntem ? ` — ${linhaOntem}` : ""}
+        </p>
+      )}
     </section>
   );
 }
