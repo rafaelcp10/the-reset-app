@@ -26,6 +26,8 @@ export default async function EspelhoPage() {
     return {
       rotulo: ROTULOS_FUNCAO[funcao],
       texto: frase ? textoCompleto(frase) : FRASES_PADRAO[funcao].texto,
+      palavraEscolhida:
+        funcao === "identidade" ? (frase?.preenchimento_lacuna ?? null) : null,
     };
   });
 
@@ -33,6 +35,7 @@ export default async function EspelhoPage() {
     <ModoEspelho
       frases={itens}
       musicaUrl={estado.musica?.url ?? null}
+      musicaNome={estado.musica?.nome ?? null}
       repeticoesIniciais={estado.repsPadrao}
       maosLivresInicial={estado.modoMaosLivres}
       linhaHojeInicial={estado.linhaHoje}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Play, Mic, Pencil } from "lucide-react";
 import { dividirNaLacuna } from "@/lib/frases/modelo";
 import { salvarLacuna } from "@/lib/frases/acoes";
 
@@ -37,16 +38,22 @@ export default function FraseIdentidadeRitual({
           <span className="text-acento">{preenchimento}</span>
           {depois}
         </p>
-        <div className="flex items-center gap-5 text-sm">
+        <div className="flex items-center gap-6 text-xs uppercase tracking-wide text-auxiliar/50">
+          <span className="flex items-center gap-1.5">
+            <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Ouvir
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Mic className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Gravar
+          </span>
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-auxiliar underline underline-offset-4"
+            className="flex items-center gap-1.5 text-auxiliar"
           >
-            editar
-          </button>
-          <button type="button" disabled className="text-auxiliar/40">
-            ouvir (em breve)
+            <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Editar
           </button>
         </div>
       </div>

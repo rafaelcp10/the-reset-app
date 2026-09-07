@@ -11,12 +11,6 @@ import FraseRitualLinha from "./FraseRitualLinha";
 import FraseAutoSalvar from "@/components/frases/FraseAutoSalvar";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 
-const BotaoOuvir = () => (
-  <button type="button" disabled className="text-auxiliar/40">
-    ouvir (em breve)
-  </button>
-);
-
 export default function FrasesRitual({
   frases,
   recolhidas,
@@ -57,7 +51,6 @@ export default function FrasesRitual({
                   textoAtual={texto}
                   textoPadrao={FRASES_PADRAO[funcao].texto}
                   acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}
-                  extraAcoes={<BotaoOuvir />}
                 />
               )}
             </FraseRitualLinha>

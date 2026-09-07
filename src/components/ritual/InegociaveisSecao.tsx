@@ -106,7 +106,7 @@ function LinhaInegociavel({
         className="flex w-full items-center gap-4 py-3 text-left"
       >
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
+          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border ${
             feitoHoje === null ? "border-auxiliar/40" : "border-texto/60"
           }`}
         >

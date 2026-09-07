@@ -29,7 +29,7 @@ export default function LinhaDoDia({
 
     return (
       <section className="flex flex-col gap-3">
-        <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
+        <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-acento">
           A linha de hoje
         </h2>
 
@@ -51,7 +51,7 @@ export default function LinhaDoDia({
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-auxiliar">
+      <h2 className="font-interface text-sm font-medium uppercase tracking-wide text-acento">
         A linha de hoje
       </h2>
 

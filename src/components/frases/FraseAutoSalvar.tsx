@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState } from "react";
+import { Play, Mic, Pencil } from "lucide-react";
 import type { EstadoEdicaoFrase } from "@/lib/frases/acoes";
 
 export default function FraseAutoSalvar({
   textoAtual,
   textoPadrao,
   acaoSalvar,
-  extraAcoes,
 }: {
   textoAtual: string;
   textoPadrao: string;
@@ -15,7 +15,6 @@ export default function FraseAutoSalvar({
     estado: EstadoEdicaoFrase,
     formData: FormData,
   ) => Promise<EstadoEdicaoFrase>;
-  extraAcoes?: ReactNode;
 }) {
   const [editando, setEditando] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -32,16 +31,24 @@ export default function FraseAutoSalvar({
   if (!editando) {
     return (
       <div className="flex flex-col gap-4">
-        <p className="font-frase text-2xl leading-relaxed">{textoAtual}</p>
-        <div className="flex items-center gap-5 text-sm">
+        <p className="font-frase text-2xl leading-relaxed text-texto">{textoAtual}</p>
+        <div className="flex items-center gap-6 text-xs uppercase tracking-wide text-auxiliar/50">
+          <span className="flex items-center gap-1.5">
+            <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Ouvir
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Mic className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Gravar
+          </span>
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="text-auxiliar underline underline-offset-4"
+            className="flex items-center gap-1.5 text-auxiliar"
           >
-            editar
+            <Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Editar
           </button>
-          {extraAcoes}
         </div>
       </div>
     );

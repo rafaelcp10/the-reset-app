@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { Music } from "lucide-react";
 import type { MusicaRow } from "@/lib/ritual/dados";
-import { adicionarMusica } from "@/lib/ritual/acoes";
+import { definirMusica } from "@/lib/ritual/acoes";
 
 export default function MusicaPlayer({
   musica,
@@ -12,81 +12,57 @@ export default function MusicaPlayer({
   musica: MusicaRow | null;
   caminhoAtual: string;
 }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [tocando, setTocando] = useState(false);
-  const [adicionando, setAdicionando] = useState(false);
+  const [editando, setEditando] = useState(false);
 
-  if (!musica) {
-    if (!adicionando) {
-      return (
-        <button
-          type="button"
-          onClick={() => setAdicionando(true)}
-          className="self-start text-sm text-auxiliar underline underline-offset-4"
-        >
-          adicionar música
-        </button>
-      );
-    }
+  function salvar() {
+    const url = inputRef.current?.value.trim();
+    setEditando(false);
+    if (!url) return;
+    const fd = new FormData();
+    fd.set("url", url);
+    definirMusica(caminhoAtual, fd).catch(() => {});
+  }
 
-    function salvar() {
-      const url = inputRef.current?.value.trim();
-      if (!url) {
-        setAdicionando(false);
-        return;
-      }
-      const fd = new FormData();
-      fd.set("url", url);
-      adicionarMusica(caminhoAtual, fd).catch(() => {});
-    }
-
+  if (editando) {
     return (
       <input
         ref={inputRef}
         type="url"
         autoFocus
         onBlur={salvar}
+        defaultValue={musica?.url ?? ""}
         placeholder="Link da música"
-        className="bg-transparent text-texto outline-none placeholder:text-auxiliar/60"
+        className="bg-transparent text-sm text-texto outline-none placeholder:text-auxiliar/60"
       />
     );
   }
 
-  function alternar() {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
+  if (!musica) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditando(true)}
+        className="self-start text-sm text-auxiliar underline underline-offset-4"
+      >
+        adicionar música
+      </button>
+    );
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <button
-        type="button"
-        onClick={alternar}
-        aria-label={tocando ? "Pausar" : "Tocar"}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-texto/10"
-      >
-        {tocando ? (
-          <Pause className="h-5 w-5 text-texto" strokeWidth={1.5} />
-        ) : (
-          <Play className="h-5 w-5 text-texto" strokeWidth={1.5} />
-        )}
-      </button>
-      <span className="flex-1 truncate text-sm text-texto">
+    <div className="flex items-center gap-2 text-sm">
+      <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
+      <span className="flex-1 truncate text-texto">
         {musica.nome || "Sua música"}
       </span>
-      <audio
-        ref={audioRef}
-        src={musica.url}
-        onPlay={() => setTocando(true)}
-        onPause={() => setTocando(false)}
-        onEnded={() => setTocando(false)}
-      />
+      <button
+        type="button"
+        onClick={() => setEditando(true)}
+        className="shrink-0 text-auxiliar underline underline-offset-4"
+      >
+        trocar
+      </button>
     </div>
   );
 }
