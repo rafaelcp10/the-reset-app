@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import HorarioForm from "./HorarioForm";
 
-const HORARIO_PADRAO = "21:00";
+const HORARIO_PADRAO = "21:30";
 
 export default async function HorarioPage() {
   const supabase = await createClient();

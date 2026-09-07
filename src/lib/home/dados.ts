@@ -5,6 +5,7 @@ import {
   agoraNoFuso,
   dataRitual,
   diaAnteriorISO,
+  diferencaDias,
   domingoDaSemana,
   formatarHora,
   numeroDaSemana,
@@ -13,7 +14,11 @@ import {
 
 const FUSO_PADRAO = "UTC";
 
-export type FaixaSemana = { semanaInicio: string; diasRespondidos: number };
+export type FaixaSemana = {
+  semanaInicio: string;
+  diasRespondidos: number;
+  numero: number;
+};
 
 export type EstadoHome = {
   identidade: FraseRow | undefined;
@@ -24,6 +29,7 @@ export type EstadoHome = {
   feitoOntem: boolean | null;
   espelhoFeitoHoje: boolean;
   horaRegistroHoje: string | null;
+  diasSemAbrir: number | null;
 };
 
 /**
@@ -74,6 +80,7 @@ export async function buscarEstadoHome(
     faixaSemanas.push({
       semanaInicio: cursor,
       diasRespondidos: diasPorSemana.get(cursor) ?? 0,
+      numero: numeroDaSemana(criadoEm, cursor),
     });
   }
 
@@ -83,6 +90,15 @@ export async function buscarEstadoHome(
 
   const diaHoje = (dias ?? []).find((d) => d.data === hoje);
   const diaOntem = (dias ?? []).find((d) => d.data === ontem);
+
+  const datasRegistradas = (dias ?? []).map((d) => d.data as string);
+  const ultimoRegistro =
+    datasRegistradas.length > 0
+      ? datasRegistradas.reduce((a, b) => (a > b ? a : b))
+      : null;
+  const diasSemAbrir = ultimoRegistro
+    ? diferencaDias(hoje, ultimoRegistro)
+    : null;
 
   return {
     identidade: frases.identidade,
@@ -95,5 +111,6 @@ export async function buscarEstadoHome(
     horaRegistroHoje: diaHoje?.espelho_feito_em
       ? formatarHora(diaHoje.espelho_feito_em, fuso)
       : null,
+    diasSemAbrir,
   };
 }

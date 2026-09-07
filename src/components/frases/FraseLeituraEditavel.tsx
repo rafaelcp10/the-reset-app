@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { Pencil } from "lucide-react";
 import type { EstadoEdicaoFrase } from "@/lib/frases/acoes";
 
 const ESTADO_INICIAL: EstadoEdicaoFrase = {};
@@ -57,9 +58,10 @@ export default function FraseLeituraEditavel({
               setValor(textoAtual);
               setEditando(true);
             }}
-            className="text-auxiliar underline underline-offset-4"
+            className="tipo-rotulo flex items-center gap-1.5 text-[10px] tracking-[.16em] text-auxiliar"
           >
-            editar
+            <Pencil className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            Editar
           </button>
           {extraAcoes}
         </div>

@@ -38,7 +38,7 @@ export default function InstalarPage() {
   return (
     <div className="flex flex-1 flex-col justify-between px-6 pb-10 pt-16">
       <div>
-        <h1 className="font-frase text-2xl leading-relaxed">
+        <h1 className="text-[24px] leading-[1.4] text-texto">
           {instalado
             ? "Você já está com o app instalado."
             : "Adicione o app à tela de início"}
@@ -91,7 +91,7 @@ export default function InstalarPage() {
 
       <Link
         href="/"
-        className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo"
+        className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
       >
         Concluir
       </Link>

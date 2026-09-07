@@ -1,17 +1,24 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function AberturaPage() {
   return (
-    <div className="flex flex-1 flex-col justify-between px-6 pb-10 pt-16">
-      <p className="font-frase text-2xl leading-relaxed">
-        Toda manhã, você lê cinco frases em voz alta e escreve uma linha
-        sobre o que vai fazer hoje. Toda noite, você confirma se cumpriu —
-        sem nota, sem sequência perfeita, só o registro do que foi real.
-      </p>
+    <div className="flex flex-1 flex-col justify-between px-6 pb-10 pt-10">
+      <Logo variante="abertura" />
+
+      <div className="flex flex-col gap-6">
+        <p className="text-2xl leading-relaxed text-texto">
+          De manhã você põe a música, lê cinco frases em voz alta e escreve
+          uma linha: o que vai fazer hoje.
+        </p>
+        <p className="text-2xl leading-relaxed text-texto">
+          De noite você abre a mesma tela e marca o que fez. Cinco minutos.
+        </p>
+      </div>
 
       <Link
         href="/onboarding/identidade"
-        className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo"
+        className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
       >
         Começar
       </Link>

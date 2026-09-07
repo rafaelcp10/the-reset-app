@@ -92,6 +92,40 @@ export function proximaSemanaISO(dataISO: string): string {
   return data.toISOString().slice(0, 10);
 }
 
+export function semanaAnteriorISO(dataISO: string): string {
+  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1, dia));
+  data.setUTCDate(data.getUTCDate() - 7);
+  return data.toISOString().slice(0, 10);
+}
+
+export function somarDiasISO(dataISO: string, dias: number): string {
+  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1, dia));
+  data.setUTCDate(data.getUTCDate() + dias);
+  return data.toISOString().slice(0, 10);
+}
+
+/** Abreviação do dia da semana em pt-BR ("dom", "seg"...), a partir de YYYY-MM-DD. */
+export function diaSemanaAbreviado(dataISO: string): string {
+  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const data = new Date(Date.UTC(ano, mes - 1, dia, 12));
+  const texto = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC",
+    weekday: "short",
+  }).format(data);
+  return texto.replace(".", "");
+}
+
+/** Nº de dias, em milissegundos de UTC, entre duas datas YYYY-MM-DD. */
+export function diferencaDias(dataISO: string, outraISO: string): number {
+  const [a1, m1, d1] = dataISO.split("-").map(Number);
+  const [a2, m2, d2] = outraISO.split("-").map(Number);
+  const ms =
+    Date.UTC(a1, m1 - 1, d1) - Date.UTC(a2, m2 - 1, d2);
+  return Math.round(ms / 86_400_000);
+}
+
 /** Formata um timestamp ISO como "6h40" no fuso do usuário. */
 export function formatarHora(isoDatetime: string, fuso: string): string {
   const partes = new Intl.DateTimeFormat("en-US", {

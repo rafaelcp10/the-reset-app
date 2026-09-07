@@ -21,6 +21,12 @@ export default async function HomePage() {
   const estado = await buscarEstadoHome(supabase, user.id);
   const { identidade } = estado;
 
+  // "Vários dias sem abrir" — o exemplo do handoff usa 6 dias como cenário
+  // de validação, por isso o limiar aqui. Não conta pra quem nunca abriu.
+  if (estado.diasSemAbrir !== null && estado.diasSemAbrir >= 6) {
+    redirect("/recomeco");
+  }
+
   return (
     <div className="flex flex-col gap-14 px-[26px] pb-[30px] pt-[56px]">
       <FraseIdentidadeRitual

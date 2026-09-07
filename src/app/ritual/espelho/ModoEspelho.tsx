@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Music } from "lucide-react";
-import { concluirEspelho, definirMusica } from "@/lib/ritual/acoes";
+import { concluirEspelho } from "@/lib/ritual/acoes";
 
 type ItemFrase = {
   rotulo: string;
@@ -11,7 +11,6 @@ type ItemFrase = {
   palavraEscolhida: string | null;
 };
 
-const CAMINHO = "/ritual/espelho";
 const OPCOES_REPETICOES = [1, 3, 5] as const;
 const TOTAL_PONTOS_RESPIRACAO = 10;
 const DURACAO_RESPIRACAO_AUTOMATICA_MS = 30_000;
@@ -118,11 +117,7 @@ export default function ModoEspelho({
       </div>
 
       {mostrandoRodape && (
-        <Rodape
-          musicaUrl={musicaUrl}
-          musicaNome={musicaNome}
-          caminhoAtual={CAMINHO}
-        />
+        <Rodape musicaUrl={musicaUrl} musicaNome={musicaNome} />
       )}
     </div>
   );
@@ -241,24 +236,10 @@ function TelaEco({ palavra }: { palavra: string | null | undefined }) {
 function Rodape({
   musicaUrl,
   musicaNome,
-  caminhoAtual,
 }: {
   musicaUrl: string | null;
   musicaNome: string | null;
-  caminhoAtual: string;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [editando, setEditando] = useState(false);
-
-  function salvar() {
-    const url = inputRef.current?.value.trim();
-    setEditando(false);
-    if (!url) return;
-    const fd = new FormData();
-    fd.set("url", url);
-    definirMusica(caminhoAtual, fd).catch(() => {});
-  }
-
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -266,30 +247,15 @@ function Rodape({
     >
       <div className="flex items-center gap-2 text-[13px]">
         <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
-        {editando ? (
-          <input
-            ref={inputRef}
-            type="url"
-            autoFocus
-            onBlur={salvar}
-            defaultValue={musicaUrl ?? ""}
-            placeholder="link da música"
-            className="flex-1 bg-transparent text-texto outline-none placeholder:text-auxiliar-fraco"
-          />
-        ) : (
-          <>
-            <span className="flex-1 truncate text-auxiliar">
-              {musicaUrl ? musicaNome || "Sua música" : "Sem música"}
-            </span>
-            <button
-              type="button"
-              onClick={() => setEditando(true)}
-              className="shrink-0 text-auxiliar underline underline-offset-4"
-            >
-              {musicaUrl ? "trocar música" : "adicionar música"}
-            </button>
-          </>
-        )}
+        <span className="flex-1 truncate text-auxiliar">
+          {musicaUrl ? musicaNome || "Sua música" : "Sem música"}
+        </span>
+        <Link
+          href="/musicas"
+          className="shrink-0 text-auxiliar underline underline-offset-4"
+        >
+          {musicaUrl ? "trocar música" : "adicionar música"}
+        </Link>
       </div>
       <div className="flex gap-1">
         <span className="h-[2px] w-[26px] bg-acento" />

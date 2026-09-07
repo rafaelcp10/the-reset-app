@@ -97,7 +97,7 @@ export async function buscarEstadoRitual(
         .from("musicas")
         .select("*")
         .eq("usuario_id", usuarioId)
-        .order("ordem", { ascending: true })
+        .order("ordem", { ascending: false })
         .limit(1),
     ]);
 

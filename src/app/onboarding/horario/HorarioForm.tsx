@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { salvarHorario, type EstadoHorario } from "./actions";
 
 const ESTADO_INICIAL: EstadoHorario = {};
+const OPCOES_HORARIO = ["20:30", "21:00", "21:30", "22:00", "22:30"] as const;
 
 function BotaoContinuar() {
   const { pending } = useFormStatus();
@@ -12,9 +13,9 @@ function BotaoContinuar() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-full bg-acento py-3 text-center font-interface font-medium text-fundo disabled:opacity-40"
+      className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-40"
     >
-      {pending ? "Salvando..." : "Continuar"}
+      {pending ? "Salvando..." : "Ver o meu ritual"}
     </button>
   );
 }
@@ -25,6 +26,11 @@ export default function HorarioForm({
   horarioInicial: string;
 }) {
   const [estado, formAction] = useActionState(salvarHorario, ESTADO_INICIAL);
+  const [horario, setHorario] = useState(
+    (OPCOES_HORARIO as readonly string[]).includes(horarioInicial)
+      ? horarioInicial
+      : "21:30",
+  );
   const fusoRef = useRef<HTMLInputElement>(null);
 
   // Fuso é lido do navegador, nunca renderizado — evita mismatch de
@@ -38,25 +44,34 @@ export default function HorarioForm({
   return (
     <form
       action={formAction}
-      className="flex flex-1 flex-col justify-between px-6 pb-10 pt-16"
+      className="flex flex-1 flex-col justify-between px-6 pb-10 pt-10"
     >
       <div>
-        <h1 className="font-frase text-2xl leading-relaxed">
-          Que horas você quer confirmar o dia?
+        <h1 className="text-[24px] leading-[1.4] text-texto">
+          Que horas você fecha o dia?
         </h1>
-        <p className="mt-3 text-sm text-auxiliar">
-          Toda noite, nesse horário, avisamos para você confirmar em poucos
-          segundos o que fez.
+        <p className="mt-3 text-[13.5px] leading-[1.6] text-auxiliar">
+          À noite a mesma tela pede quatro toques: os três inegociáveis e a
+          linha do dia.
         </p>
 
-        <input
-          type="time"
-          name="horario"
-          defaultValue={horarioInicial}
-          required
-          style={{ colorScheme: "dark" }}
-          className="mt-10 w-full bg-transparent text-center font-frase text-4xl text-texto outline-none"
-        />
+        <div className="mt-10 flex flex-col gap-2">
+          {OPCOES_HORARIO.map((opcao) => (
+            <button
+              key={opcao}
+              type="button"
+              onClick={() => setHorario(opcao)}
+              className={`tipo-rotulo rounded-[6px] py-3 text-center text-[16px] tracking-[.09em] ${
+                horario === opcao
+                  ? "bg-superficie3 text-texto"
+                  : "bg-superficie2 text-texto"
+              }`}
+            >
+              {opcao}
+            </button>
+          ))}
+        </div>
+        <input type="hidden" name="horario" value={horario} />
         <input type="hidden" name="fuso" ref={fusoRef} defaultValue="" />
       </div>
 

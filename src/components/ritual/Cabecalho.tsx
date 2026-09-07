@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Calendar, Settings } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -20,8 +21,12 @@ export default function Cabecalho({
             {modo === "manha" ? "Bom dia." : "Boa noite."}
           </p>
           <div className="flex items-center gap-4 text-auxiliar">
-            <Calendar className="h-[17px] w-[17px]" strokeWidth={1.5} />
-            <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            <Link href="/semanas" aria-label="Semanas">
+              <Calendar className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            </Link>
+            <Link href="/ajustes" aria-label="Ajustes">
+              <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            </Link>
           </div>
         </div>
         <p className="tipo-rotulo mt-1 text-[9.5px] tracking-[.18em] text-auxiliar">
