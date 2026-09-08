@@ -1,24 +1,24 @@
 const VARIANTES = {
   topo: {
-    texto: "text-sm",
-    gap: "gap-1",
-    barra1: "h-0.5 w-5",
-    barra2: "h-0.5 w-8",
-    opacidade: "opacity-75",
+    texto: "text-[19px]",
+    gap: "gap-1.5",
+    barra1: "h-[3px] w-7",
+    barra2: "h-[3px] w-11",
+    opacidade: "opacity-100",
   },
   abertura: {
-    texto: "text-3xl",
-    gap: "gap-2",
-    barra1: "h-1.5 w-10",
-    barra2: "h-1.5 w-16",
+    texto: "text-4xl",
+    gap: "gap-2.5",
+    barra1: "h-[5px] w-12",
+    barra2: "h-[5px] w-20",
     opacidade: "opacity-100",
   },
   rodape: {
-    texto: "text-[10px]",
-    gap: "gap-0.5",
-    barra1: "h-px w-3",
-    barra2: "h-px w-5",
-    opacidade: "opacity-40",
+    texto: "text-[11px]",
+    gap: "gap-1",
+    barra1: "h-px w-3.5",
+    barra2: "h-px w-6",
+    opacidade: "opacity-45",
   },
 } as const;
 
@@ -34,8 +34,8 @@ export default function Logo({
         The Reset
       </span>
       <span className="flex gap-1">
-        <span className={`${v.barra1} bg-acento`} />
-        <span className={`${v.barra2} bg-acento`} />
+        <span className={`${v.barra1} rounded-full bg-acento`} />
+        <span className={`${v.barra2} rounded-full bg-acento`} />
       </span>
     </div>
   );
