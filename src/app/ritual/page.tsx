@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
+import { buscarGravacoes } from "@/lib/gravacoes/dados";
 import Cabecalho from "@/components/ritual/Cabecalho";
 import MusicaPlayer from "@/components/ritual/MusicaPlayer";
 import BotaoEspelho from "@/components/ritual/BotaoEspelho";
@@ -28,7 +29,10 @@ export default async function RitualPage({
   // garantia de que a linha em `usuarios` e as 5 frases padrão existem.
   await garantirUsuarioEFrasesPadrao(supabase, user);
 
-  const estado = await buscarEstadoRitual(supabase, user.id);
+  const [estado, gravacoes] = await Promise.all([
+    buscarEstadoRitual(supabase, user.id),
+    buscarGravacoes(supabase, user.id),
+  ]);
 
   const cabecalho = (
     <Cabecalho
@@ -59,6 +63,7 @@ export default async function RitualPage({
   const frases = (
     <FrasesRitual
       frases={estado.frases}
+      gravacoes={gravacoes}
       recolhidas={estado.modo === "noite"}
       caminhoAtual={CAMINHO}
       editarIdentidadeInicial={editarIdentidade === "1"}

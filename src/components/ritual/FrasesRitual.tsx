@@ -7,17 +7,20 @@ import {
   type FraseRow,
 } from "@/lib/frases/modelo";
 import { salvarEdicaoFrase } from "@/lib/frases/acoes";
+import type { GravacoesPorFuncao } from "@/lib/gravacoes/dados";
 import FraseRitualLinha from "./FraseRitualLinha";
 import FraseAutoSalvar from "@/components/frases/FraseAutoSalvar";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 
 export default function FrasesRitual({
   frases,
+  gravacoes,
   recolhidas,
   caminhoAtual,
   editarIdentidadeInicial = false,
 }: {
   frases: Record<Funcao, FraseRow>;
+  gravacoes: GravacoesPorFuncao;
   recolhidas: boolean;
   caminhoAtual: string;
   editarIdentidadeInicial?: boolean;
@@ -50,12 +53,17 @@ export default function FrasesRitual({
                   preenchimento={frase?.preenchimento_lacuna ?? ""}
                   caminhoAtual={caminhoAtual}
                   iniciarEditando={editarIdentidadeInicial}
+                  gravavel
+                  urlGravacao={gravacoes[funcao]}
                 />
               ) : (
                 <FraseAutoSalvar
                   textoAtual={texto}
                   textoPadrao={FRASES_PADRAO[funcao].texto}
                   acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}
+                  funcao={funcao}
+                  caminhoAtual={caminhoAtual}
+                  urlGravacao={gravacoes[funcao]}
                 />
               )}
             </FraseRitualLinha>

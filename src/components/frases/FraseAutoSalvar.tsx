@@ -1,15 +1,20 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Play, Mic, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import type { EstadoEdicaoFrase } from "@/lib/frases/acoes";
+import type { Funcao } from "@/lib/frases/modelo";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
+import GravacaoFrase from "./GravacaoFrase";
 
 export default function FraseAutoSalvar({
   textoAtual,
   textoPadrao,
   acaoSalvar,
+  funcao,
+  caminhoAtual,
+  urlGravacao,
 }: {
   textoAtual: string;
   textoPadrao: string;
@@ -17,6 +22,9 @@ export default function FraseAutoSalvar({
     estado: EstadoEdicaoFrase,
     formData: FormData,
   ) => Promise<EstadoEdicaoFrase>;
+  funcao: Funcao;
+  caminhoAtual: string;
+  urlGravacao: string | null;
 }) {
   const [editando, setEditando] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,15 +43,11 @@ export default function FraseAutoSalvar({
     return (
       <div className="flex flex-col gap-2">
         <p className="text-[16.5px] leading-[1.7] text-texto">{textoAtual}</p>
-        <div className="tipo-rotulo flex items-center gap-5 text-[10px] tracking-[.16em]">
-          <span className="flex items-center gap-1.5 text-auxiliar-fraco">
-            <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
-            Ouvir
-          </span>
-          <span className="flex items-center gap-1.5 text-auxiliar-fraco">
-            <Mic className="h-[13px] w-[13px]" strokeWidth={1.5} />
-            Gravar
-          </span>
+        <GravacaoFrase
+          funcao={funcao}
+          caminhoAtual={caminhoAtual}
+          urlGravacao={urlGravacao}
+        >
           <button
             type="button"
             onClick={() => setEditando(true)}
@@ -53,7 +57,7 @@ export default function FraseAutoSalvar({
             Editar
           </button>
           <IndicadorSalvo estado={estadoSalvo} />
-        </div>
+        </GravacaoFrase>
       </div>
     );
   }
