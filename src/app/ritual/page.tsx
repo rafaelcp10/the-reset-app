@@ -88,7 +88,7 @@ export default async function RitualPage({
         <MusicaPlayer musica={estado.musica} />
       </Revelar>
       <Revelar imediato atraso={160}>
-        <BotaoEspelho modo={estado.modo} />
+        <BotaoEspelho />
       </Revelar>
       <Revelar imediato atraso={240}>{frases}</Revelar>
       <Revelar>{inegociaveis}</Revelar>
