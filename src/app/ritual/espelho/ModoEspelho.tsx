@@ -84,7 +84,7 @@ export default function ModoEspelho({
   const palavraEco = frases[0]?.palavraEscolhida;
 
   return (
-    <div className="flex min-h-screen flex-col bg-fundo">
+    <div className="flex min-h-screen flex-col">
       {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
       <div className="flex items-center justify-between px-6 pt-6">
@@ -128,31 +128,34 @@ export default function ModoEspelho({
 function TelaRespiracao() {
   return (
     <div className="flex flex-1 flex-col px-6 py-8">
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col gap-3">
-          <h1 className="text-[26px] leading-[1.3] text-texto">
-            Respire dez vezes
-          </h1>
-          <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-            Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
-            ritmo — não precisa tocar em nada.
-          </p>
-        </div>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-[26px] leading-[1.3] text-texto">
+          Respire dez vezes
+        </h1>
+        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+          Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
+          ritmo — não precisa tocar em nada.
+        </p>
+      </div>
 
-        <div className="flex justify-center gap-2">
-          {Array.from({ length: TOTAL_PONTOS_RESPIRACAO }).map((_, i) => (
-            <span
-              key={i}
-              className="pulso-respiracao h-2 w-2 rounded-full bg-acento"
-              style={{ animationDelay: `${i * 0.6}s` }}
-            />
-          ))}
-        </div>
+      {/* Os pontos ocupam o centro da tela: são eles que conduzem o tempo
+          aqui, então recebem o espaço todo em vez de ficar num canto. */}
+      <div className="flex flex-1 items-center justify-center gap-2.5">
+        {Array.from({ length: TOTAL_PONTOS_RESPIRACAO }).map((_, i) => (
+          <span
+            key={i}
+            className="pulso-respiracao h-2.5 w-2.5 rounded-full bg-acento"
+            style={{
+              animationDelay: `${i * 0.6}s`,
+              boxShadow: "0 0 20px rgb(201 123 58 / 0.6)",
+            }}
+          />
+        ))}
       </div>
 
       <button
         type="button"
-        className="tipo-rotulo mt-auto w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
+        className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
       >
         Começar as frases
       </button>
@@ -229,8 +232,20 @@ function formatarTexto(texto: string, palavraEscolhida: string | null) {
 
 function TelaEco({ palavra }: { palavra: string | null | undefined }) {
   return (
-    <div className="entrada-eco flex flex-1 items-center justify-center px-6">
-      <p className="text-center text-[56px] font-semibold leading-[1.1] text-acento">
+    <div className="entrada-eco relative flex flex-1 items-center justify-center overflow-hidden px-6">
+      {/* A palavra não só aparece: ela acende a tela por trás. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[120vw] w-[120vw] -translate-x-1/2 -translate-y-1/2"
+        style={{
+          background:
+            "radial-gradient(circle, rgb(201 123 58 / 0.22) 0%, rgb(201 123 58 / 0.07) 34%, transparent 66%)",
+        }}
+      />
+      <p
+        className="relative text-center text-[56px] font-semibold leading-[1.1] text-acento"
+        style={{ textShadow: "0 0 48px rgb(201 123 58 / 0.45)" }}
+      >
         {palavra || "presente"}.
       </p>
     </div>
@@ -247,7 +262,7 @@ function Rodape({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="flex flex-col gap-4 px-6 pb-8 pt-4"
+      className="vidro flex flex-col gap-4 px-6 pb-8 pt-4"
     >
       <div className="flex items-center gap-2 text-[13px]">
         <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />

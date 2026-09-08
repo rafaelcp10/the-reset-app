@@ -9,6 +9,7 @@ import BotaoEspelho from "@/components/ritual/BotaoEspelho";
 import FrasesRitual from "@/components/ritual/FrasesRitual";
 import InegociaveisSecao from "@/components/ritual/InegociaveisSecao";
 import LinhaDoDia from "@/components/ritual/LinhaDoDia";
+import Revelar from "@/components/movimento/Revelar";
 
 const CAMINHO = "/ritual";
 
@@ -71,21 +72,27 @@ export default async function RitualPage({
   );
 
   const bgTemperatura =
-    estado.modo === "manha" ? "bg-fundo-manha" : "bg-fundo-noite";
+    estado.modo === "manha" ? "temperatura-manha" : "temperatura-noite";
 
   // Ordem das seções é fixa (manhã e noite) — só o fundo e o conteúdo
   // interno de cada seção mudam com o horário. Ver README do handoff:
   // "Tela do Ritual", lista 1-8.
   return (
     <div
-      className={`flex flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
+      className={`flex grow flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
     >
-      {cabecalho}
-      <MusicaPlayer musica={estado.musica} />
-      <BotaoEspelho modo={estado.modo} />
-      {frases}
-      {inegociaveis}
-      {linhaDoDia}
+      <Revelar imediato y={14} desfoque={4}>
+        {cabecalho}
+      </Revelar>
+      <Revelar imediato atraso={90} y={14} desfoque={4}>
+        <MusicaPlayer musica={estado.musica} />
+      </Revelar>
+      <Revelar imediato atraso={160}>
+        <BotaoEspelho modo={estado.modo} />
+      </Revelar>
+      <Revelar imediato atraso={240}>{frases}</Revelar>
+      <Revelar>{inegociaveis}</Revelar>
+      <Revelar>{linhaDoDia}</Revelar>
     </div>
   );
 }

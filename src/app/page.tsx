@@ -7,6 +7,8 @@ import { FRASES_PADRAO } from "@/lib/frases/modelo";
 import Logo from "@/components/Logo";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 import FaixaSemanas from "@/components/home/FaixaSemanas";
+import Revelar from "@/components/movimento/Revelar";
+import CamadaParallax from "@/components/movimento/CamadaParallax";
 
 const CAMINHO = "/";
 
@@ -28,16 +30,21 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex flex-col gap-14 px-[26px] pb-[30px] pt-[56px]">
-      <FraseIdentidadeRitual
-        textoBase={identidade?.texto ?? FRASES_PADRAO.identidade.texto}
-        preenchimento={identidade?.preenchimento_lacuna ?? ""}
-        caminhoAtual={CAMINHO}
-        tamanho="home"
-        editavel={false}
-      />
+    <div className="flex grow flex-col gap-14 px-[26px] pb-[30px] pt-[56px]">
+      {/* Plano da frente: a frase sobe mais devagar que o resto da página,
+          então ela "segura" enquanto o conteúdo abaixo desliza. */}
+      <CamadaParallax fator={0.16} maximo={70}>
+        <FraseIdentidadeRitual
+          textoBase={identidade?.texto ?? FRASES_PADRAO.identidade.texto}
+          preenchimento={identidade?.preenchimento_lacuna ?? ""}
+          caminhoAtual={CAMINHO}
+          tamanho="home"
+          editavel={false}
+          revelarPalavras
+        />
+      </CamadaParallax>
 
-      <div className="flex flex-col gap-3">
+      <Revelar imediato atraso={120} className="flex flex-col gap-3">
         {estado.faixaSemanas.length > 1 && (
           <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
         )}
@@ -53,46 +60,56 @@ export default async function HomePage() {
             {estado.linhaOntem ? ` — ${estado.linhaOntem}` : ""}
           </p>
         )}
-      </div>
+      </Revelar>
 
-      {estado.espelhoFeitoHoje ? (
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-auxiliar">
-            Ritual de hoje, feito
-            {estado.horaRegistroHoje ? ` às ${estado.horaRegistroHoje}` : ""}
-          </p>
+      <Revelar imediato atraso={200}>
+        {estado.espelhoFeitoHoje ? (
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-auxiliar">
+              Ritual de hoje, feito
+              {estado.horaRegistroHoje ? ` às ${estado.horaRegistroHoje}` : ""}
+            </p>
+            <Link
+              href="/ritual/espelho"
+              className="text-sm text-auxiliar underline underline-offset-4"
+            >
+              entrar de novo
+            </Link>
+          </div>
+        ) : (
           <Link
             href="/ritual/espelho"
-            className="text-sm text-auxiliar underline underline-offset-4"
+            className="botao-acento tipo-rotulo block w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
           >
-            entrar de novo
+            Entrar no espelho
           </Link>
-        </div>
-      ) : (
-        <Link
-          href="/ritual/espelho"
-          className="tipo-rotulo w-full rounded-[6px] bg-acento py-3 text-center text-[16px] tracking-[.09em] text-fundo"
-        >
-          Entrar no espelho
-        </Link>
-      )}
+        )}
+      </Revelar>
 
       <div className="flex flex-col gap-6">
-        <PreviaBloqueada
-          titulo="To-do"
-          texto="As tarefas do dia, separadas dos inegociáveis."
-        />
-        <PreviaBloqueada
-          titulo="Objetivos"
-          texto="O que você está construindo em meses, não em dias."
-        />
-        <PreviaBloqueada
-          titulo="Academia"
-          texto="Os treinos da semana e o registro de cada um."
-        />
+        <Revelar imediato atraso={280} y={16}>
+          <PreviaBloqueada
+            titulo="To-do"
+            texto="As tarefas do dia, separadas dos inegociáveis."
+          />
+        </Revelar>
+        <Revelar imediato atraso={340} y={16}>
+          <PreviaBloqueada
+            titulo="Objetivos"
+            texto="O que você está construindo em meses, não em dias."
+          />
+        </Revelar>
+        <Revelar imediato atraso={400} y={16}>
+          <PreviaBloqueada
+            titulo="Academia"
+            texto="Os treinos da semana e o registro de cada um."
+          />
+        </Revelar>
       </div>
 
-      <Logo variante="rodape" />
+      <Revelar imediato atraso={460} y={10} desfoque={3}>
+        <Logo variante="rodape" />
+      </Revelar>
     </div>
   );
 }

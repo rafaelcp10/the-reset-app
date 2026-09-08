@@ -24,7 +24,11 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 bg-fundo pb-[env(safe-area-inset-bottom)]">
+    <nav className="vidro fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      {/* O menu flutua sobre o conteúdo: o texto se dissolve num véu antes
+          de encostar, e a separação é um fio de luz, não um filete reto. */}
+      <div className="veu-inferior" aria-hidden="true" />
+      <div className="fio-luz" />
       <ul className="flex items-stretch justify-between px-2 pt-2">
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -41,6 +45,7 @@ export default function BottomNav() {
                   <span className="text-[11px] font-interface">
                     {tab.label}
                   </span>
+                  <span className="h-[3px] w-[3px]" />
                 </div>
               </li>
             );
@@ -50,12 +55,22 @@ export default function BottomNav() {
             <li key={tab.href} className="flex-1">
               <Link
                 href={tab.href}
-                className={`flex flex-col items-center gap-1 py-2 font-interface ${
+                className={`flex flex-col items-center gap-1 py-2 font-interface transition-colors duration-300 ${
                   isCurrent ? "text-texto" : "text-auxiliar"
                 }`}
               >
-                <Icon className="h-6 w-6" strokeWidth={1.5} />
+                <Icon
+                  className={`h-6 w-6 transition-transform duration-500 ${
+                    isCurrent ? "scale-105" : "scale-100"
+                  }`}
+                  strokeWidth={1.5}
+                />
                 <span className="text-[11px]">{tab.label}</span>
+                <span
+                  className={`h-[3px] w-[3px] rounded-full bg-acento transition-opacity duration-500 ${
+                    isCurrent ? "opacity-100" : "opacity-0"
+                  }`}
+                />
               </Link>
             </li>
           );

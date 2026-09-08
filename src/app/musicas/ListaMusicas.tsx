@@ -18,7 +18,7 @@ export default function ListaMusicas({
   caminhoAtual: string;
 }) {
   return (
-    <div className="flex flex-col gap-8 px-6 pb-10 pt-6">
+    <div className="flex grow flex-col gap-8 px-6 pb-10 pt-6">
       <div className="flex items-center justify-between">
         <Link
           href="/ritual"

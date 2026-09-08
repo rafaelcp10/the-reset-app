@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
 import AppChrome from "@/components/AppChrome";
+import Atmosfera from "@/components/movimento/Atmosfera";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -28,7 +29,18 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${archivo.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-fundo text-texto font-interface antialiased">
+      {/* Sem overflow-x aqui: isso transformaria o body num segundo
+          contêiner de rolagem e quebraria o scroll da página. A atmosfera
+          já se recorta sozinha. */}
+      <body className="relative flex min-h-full flex-col bg-fundo text-texto font-interface antialiased">
+        {/* Sem JS as revelações nunca receberiam a classe `visivel` e a tela
+            ficaria em branco — então o padrão passa a ser "tudo visível". */}
+        <noscript>
+          <style>{`.revelar{opacity:1;transform:none;filter:none}
+.linha-mascara>span{transform:none}
+.palavra-revelada{opacity:1;transform:none;filter:none}`}</style>
+        </noscript>
+        <Atmosfera />
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

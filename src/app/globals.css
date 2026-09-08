@@ -20,6 +20,17 @@
   /* Único uso de vermelho no app — erro de sistema, nunca comportamento do
      usuário (ver CLAUDE.md). */
   --color-erro: #b2543f;
+
+  /* Profundidade. A paleta continua a mesma; o que muda é a luz sobre ela:
+     cada plano tem sua própria elevação, brilho e desfoque. */
+  --elevacao-baixa: 0 1px 2px rgb(0 0 0 / 0.4);
+  --elevacao-media: 0 12px 32px -12px rgb(0 0 0 / 0.7);
+  --elevacao-alta: 0 32px 64px -24px rgb(0 0 0 / 0.85);
+  --brilho-acento: 0 8px 32px -8px rgb(201 123 58 / 0.45);
+  --brilho-acento-forte: 0 12px 48px -8px rgb(201 123 58 / 0.6);
+
+  --curva-suave: cubic-bezier(0.22, 1, 0.36, 1);
+  --curva-entrada: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -42,6 +53,13 @@
   --color-erro: var(--color-erro);
   --font-frase: var(--font-archivo);
   --font-interface: var(--font-archivo);
+  --shadow-baixa: var(--elevacao-baixa);
+  --shadow-media: var(--elevacao-media);
+  --shadow-alta: var(--elevacao-alta);
+  --shadow-acento: var(--brilho-acento);
+  --shadow-acento-forte: var(--brilho-acento-forte);
+  --ease-suave: var(--curva-suave);
+  --ease-entrada: var(--curva-entrada);
 }
 
 body {
@@ -76,15 +94,17 @@ body {
 @keyframes entrada-frase {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px);
+    filter: blur(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
   }
 }
 .entrada-frase {
-  animation: entrada-frase 450ms ease;
+  animation: entrada-frase 620ms var(--curva-entrada);
 }
 
 @keyframes pulso-respiracao {
@@ -112,4 +132,314 @@ body {
 }
 .entrada-eco {
   animation: entrada-eco 600ms ease;
+}
+
+/* ---------------------------------------------------------------------
+   Atmosfera — os planos de fundo que dão profundidade.
+   Nenhuma imagem: tudo é luz (gradiente radial) e grão (turbulência SVG),
+   então escala em qualquer tela e não pesa no carregamento offline.
+   --------------------------------------------------------------------- */
+
+.atmosfera {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Plano 0 — a luz âmbar que nasce no alto e morre no rodapé. */
+.atmosfera-luz {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 70% at 50% -10%,
+      rgb(201 123 58 / 0.16) 0%,
+      rgb(201 123 58 / 0.05) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      90% 60% at 12% 8%,
+      rgb(201 123 58 / 0.07) 0%,
+      transparent 60%
+    );
+}
+
+/* Plano 1 — massas de luz que respiram devagar. O movimento é lento de
+   propósito: precisa ser sentido, não percebido. */
+.atmosfera-bruma {
+  position: absolute;
+  width: 78vw;
+  height: 78vw;
+  max-width: 620px;
+  max-height: 620px;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.atmosfera-bruma-a {
+  top: -18vw;
+  left: -26vw;
+  background: radial-gradient(circle, rgb(201 123 58 / 0.24), transparent 70%);
+  animation: deriva-a 34s ease-in-out infinite;
+}
+
+.atmosfera-bruma-b {
+  top: 28vh;
+  right: -34vw;
+  background: radial-gradient(circle, rgb(122 96 78 / 0.2), transparent 70%);
+  animation: deriva-b 46s ease-in-out infinite;
+}
+
+@keyframes deriva-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, 5vh, 0) scale(1.12);
+  }
+}
+
+@keyframes deriva-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+  50% {
+    transform: translate3d(-7vw, -6vh, 0) scale(1);
+  }
+}
+
+/* Plano 2 — vinheta: fecha as bordas e empurra o olho pro centro. */
+.atmosfera-vinheta {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    100% 75% at 50% 42%,
+    transparent 30%,
+    rgb(8 9 11 / 0.55) 100%
+  );
+}
+
+/* Plano 3 — grão. É o que tira o "digital limpo demais" da tela escura. */
+.atmosfera-grao {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
+}
+
+/* Conteúdo sempre acima da atmosfera. */
+.acima {
+  position: relative;
+  z-index: 1;
+}
+
+/* Temperatura do Ritual: manhã mais quente, noite mais fria. Translúcida
+   de propósito — a luz de fundo precisa atravessar. */
+.temperatura-manha {
+  background: color-mix(in srgb, var(--color-fundo-manha) 62%, transparent);
+}
+
+.temperatura-noite {
+  background: color-mix(in srgb, var(--color-fundo-noite) 62%, transparent);
+}
+
+/* ---------------------------------------------------------------------
+   Superfícies com profundidade
+   --------------------------------------------------------------------- */
+
+/* Vidro: usado no menu inferior e em barras que flutuam sobre o conteúdo. */
+.vidro {
+  background: color-mix(in srgb, var(--color-fundo) 86%, transparent);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+/* Véu: o conteúdo se dissolve antes de encostar na barra flutuante, em vez
+   de sumir atrás de uma aresta. */
+.veu-inferior {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 56px;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    var(--color-fundo) 0%,
+    color-mix(in srgb, var(--color-fundo) 70%, transparent) 45%,
+    transparent 100%
+  );
+}
+
+/* Botão principal: âmbar com brilho e leve relevo interno. */
+.botao-acento {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-acento) 92%, white) 0%,
+    var(--color-acento) 52%,
+    color-mix(in srgb, var(--color-acento) 88%, black) 100%
+  );
+  box-shadow:
+    var(--brilho-acento),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+  transition:
+    transform 220ms var(--curva-suave),
+    box-shadow 220ms var(--curva-suave);
+}
+
+.botao-acento:active {
+  transform: translateY(1px) scale(0.994);
+  box-shadow:
+    var(--brilho-acento-forte),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+/* Pílulas de opção (Ajustes, horários, repetições). A seleção se lê pela
+   luz — relevo e brilho — não por uma cor nova. */
+.pilula {
+  background: color-mix(in srgb, var(--color-superficie2) 90%, transparent);
+  box-shadow:
+    var(--elevacao-baixa),
+    inset 0 1px 0 rgb(255 255 255 / 0.03);
+  transition:
+    background 260ms var(--curva-suave),
+    box-shadow 260ms var(--curva-suave),
+    transform 260ms var(--curva-suave);
+}
+
+.pilula:active {
+  transform: scale(0.98);
+}
+
+.pilula-ativa {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-superficie3) 96%, white) 0%,
+    var(--color-superficie3) 100%
+  );
+  box-shadow:
+    var(--elevacao-media),
+    inset 0 1px 0 rgb(255 255 255 / 0.09),
+    0 0 0 1px color-mix(in srgb, var(--color-acento) 26%, transparent);
+}
+
+/* Fio de luz: substitui o filete reto por um traço que acende no centro. */
+.fio-luz {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-filete-forte) 22%,
+    color-mix(in srgb, var(--color-acento) 40%, transparent) 50%,
+    var(--color-filete-forte) 78%,
+    transparent
+  );
+}
+
+/* ---------------------------------------------------------------------
+   Revelações ligadas ao scroll
+   O estado inicial é o "escondido"; a classe .visivel entra por
+   IntersectionObserver (ver components/movimento/Revelar.tsx).
+   --------------------------------------------------------------------- */
+
+.revelar {
+  opacity: 0;
+  transform: translate3d(0, var(--revelar-y, 22px), 0)
+    scale(var(--revelar-escala, 1));
+  filter: blur(var(--revelar-desfoque, 6px));
+  transition:
+    opacity 760ms var(--curva-entrada),
+    transform 760ms var(--curva-entrada),
+    filter 760ms var(--curva-entrada);
+  transition-delay: var(--revelar-atraso, 0ms);
+  will-change: opacity, transform;
+}
+
+.revelar.visivel {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+/* Acima da dobra a entrada não pode depender do JS: se a hidratação
+   demorar num aparelho lento, a tela ficaria vazia. Aqui a animação é
+   CSS pura e termina visível mesmo que nada mais carregue. */
+@keyframes revelar-entrada {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--revelar-y, 22px), 0)
+      scale(var(--revelar-escala, 1));
+    filter: blur(var(--revelar-desfoque, 6px));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.revelar-imediato {
+  animation: revelar-entrada 760ms var(--curva-entrada) both;
+  animation-delay: var(--revelar-atraso, 0ms);
+}
+
+/* Palavra a palavra — reservado às telas manifesto (abertura, Home e
+   recomeço). Escalonamento curto, para ler como uma frase só, e sempre em
+   animação CSS: essas frases são a primeira coisa da tela. */
+@keyframes revelar-palavra {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.5em, 0);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+.palavra-revelada {
+  display: inline-block;
+  animation: revelar-palavra 620ms var(--curva-entrada) both;
+  animation-delay: var(--revelar-atraso, 0ms);
+}
+
+/* Parallax: o deslocamento é escrito pelo componente de camada. */
+.camada-parallax {
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
+  will-change: transform;
+}
+
+/* A palavra escolhida na frase de identidade — o único ponto quente da
+   tela. Brilho, não cor nova. */
+.palavra-escolhida {
+  color: var(--color-acento);
+  text-shadow: 0 0 28px rgb(201 123 58 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revelar,
+  .linha-mascara > span {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+  .revelar-imediato,
+  .palavra-revelada {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+  }
+  .atmosfera-bruma,
+  .pulso-respiracao {
+    animation: none !important;
+  }
+  .camada-parallax {
+    transform: none !important;
+  }
 }

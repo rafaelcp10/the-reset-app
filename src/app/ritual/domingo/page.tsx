@@ -22,7 +22,7 @@ export default async function RevisaoDomingoPage() {
   const estado = await buscarEstadoRevisao(supabase, user.id);
 
   return (
-    <div className="flex flex-col gap-10 px-6 pb-10 pt-6">
+    <div className="flex grow flex-col gap-10 px-6 pb-10 pt-6">
       <Link
         href="/ritual"
         aria-label="Voltar"

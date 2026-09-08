@@ -6,6 +6,7 @@ import { dividirNaLacuna, MARCADOR_LACUNA } from "@/lib/frases/modelo";
 import { salvarLacuna } from "@/lib/frases/acoes";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
+import FraseRevelada from "@/components/movimento/FraseRevelada";
 import GravacaoFrase from "./GravacaoFrase";
 
 const TAMANHOS = {
@@ -22,6 +23,7 @@ export default function FraseIdentidadeRitual({
   iniciarEditando = false,
   gravavel = false,
   urlGravacao = null,
+  revelarPalavras = false,
 }: {
   textoBase: string;
   preenchimento: string;
@@ -32,6 +34,8 @@ export default function FraseIdentidadeRitual({
   /** Ouvir/gravar só existem na Tela do Ritual — não na Home nem no domingo. */
   gravavel?: boolean;
   urlGravacao?: string | null;
+  /** Entrada palavra a palavra — só na Home, que é tela manifesto. */
+  revelarPalavras?: boolean;
 }) {
   const [editando, setEditando] = useState(iniciarEditando && editavel);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -62,15 +66,24 @@ export default function FraseIdentidadeRitual({
   if (!editando) {
     return (
       <div className="flex flex-col gap-2">
-        <p className={`${classeTamanho} text-texto`}>
-          {antes}
-          {preenchimento ? (
-            <span className="text-acento">{preenchimento}</span>
-          ) : (
-            <span className="text-auxiliar-fraco">{MARCADOR_LACUNA}</span>
-          )}
-          {depois}
-        </p>
+        {revelarPalavras ? (
+          <FraseRevelada
+            antes={antes}
+            destaque={preenchimento}
+            depois={depois}
+            className={`${classeTamanho} text-texto`}
+          />
+        ) : (
+          <p className={`${classeTamanho} text-texto`}>
+            {antes}
+            {preenchimento ? (
+              <span className="palavra-escolhida">{preenchimento}</span>
+            ) : (
+              <span className="text-auxiliar-fraco">{MARCADOR_LACUNA}</span>
+            )}
+            {depois}
+          </p>
+        )}
         {editavel &&
           (gravavel ? (
             <GravacaoFrase

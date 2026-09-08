@@ -29,6 +29,26 @@ PWA instalável. Sem app nativo, sem loja.
 - Tipografia: Archivo (frases) e Inter (interface), via Google Fonts.
 - Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela.
 
+## Linguagem visual (revisada em 2026-09-08)
+O handoff original proibia gradiente, sombra e movimento. Isso foi
+**afrouxado de propósito** para dar profundidade ao app — o que continua
+valendo é a lista acima, que não mudou. O que passou a ser permitido:
+
+- Gradiente, sombra, brilho e desfoque, **desde que sirvam à profundidade**
+  (separar planos) e não virem decoração ou segundo acento.
+- Movimento: revelações na entrada, parallax e escalonamento. Toda animação
+  respeita `prefers-reduced-motion`.
+- Fundo vivo (`components/movimento/Atmosfera.tsx`): luz âmbar, bruma que
+  deriva devagar, vinheta e grão. **Continua sem nenhuma imagem** — é tudo
+  gradiente e turbulência SVG, para não pesar no PWA offline.
+
+Duas regras novas que nasceram daí:
+- Bloco acima da dobra entra por animação CSS (`imediato` no `Revelar`),
+  nunca por IntersectionObserver: se a hidratação demora, a tela não pode
+  ficar vazia.
+- O âmbar continua tendo **uma aplicação por tela**. Brilho e sombra são luz
+  sobre a paleta existente, não cor nova.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

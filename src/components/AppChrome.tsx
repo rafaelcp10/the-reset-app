@@ -11,12 +11,14 @@ export default function AppChrome({ children }: { children: ReactNode }) {
   const semNav = PREFIXOS_SEM_NAV.some((prefixo) => pathname.startsWith(prefixo));
 
   if (semNav) {
-    return <>{children}</>;
+    return <div className="acima flex grow flex-col">{children}</div>;
   }
 
   return (
     <>
-      <main className="flex-1 pb-20">{children}</main>
+      {/* Coluna flex para que as telas curtas consigam ocupar a altura
+          disponível em vez de empilhar no topo e deixar um vão morto. */}
+      <main className="acima flex grow flex-col pb-24">{children}</main>
       <BottomNav />
     </>
   );
