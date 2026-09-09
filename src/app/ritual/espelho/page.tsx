@@ -27,14 +27,14 @@ export default async function EspelhoPage() {
     buscarEstadoTodo(supabase, user.id),
   ]);
 
-  // O que já está no dia: os inegociáveis da semana e as tarefas de hoje
-  // ainda não feitas. É entre essas que a linha do dia é escolhida.
-  const tarefasDeHoje = [
-    ...todo.inegociaveis
-      .map((slot) => slot.compromisso?.texto)
-      .filter((t): t is string => Boolean(t)),
-    ...todo.hoje.filter((item) => !item.feito).map((item) => item.tarefa.texto),
-  ];
+  // Só as tarefas de hoje ainda não feitas. Os inegociáveis ficam de fora
+  // de propósito: eles são o que não muda na semana e já estão decididos —
+  // não são candidatos a "linha do dia", que é justamente o que varia.
+  // Misturar os dois numa lista só apagaria a distinção que o app inteiro
+  // existe para manter.
+  const tarefasDeHoje = todo.hoje
+    .filter((item) => !item.feito)
+    .map((item) => item.tarefa.texto);
 
   const itens = FUNCOES.map((funcao) => {
     const frase = estado.frases[funcao];
