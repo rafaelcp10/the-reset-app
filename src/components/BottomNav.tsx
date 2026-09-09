@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sunrise, ListChecks, Target, Dumbbell } from "lucide-react";
+import { Home, Sunrise, CheckSquare, Target, Dumbbell } from "lucide-react";
 import type { ComponentType } from "react";
 
 type Tab = {
@@ -15,7 +15,7 @@ type Tab = {
 const TABS: Tab[] = [
   { label: "Home", href: "/", icon: Home, active: true },
   { label: "Ritual", href: "/ritual", icon: Sunrise, active: true },
-  { label: "To-do", href: "/todo", icon: ListChecks, active: false },
+  { label: "To-do", href: "/todo", icon: CheckSquare, active: true },
   { label: "Objetivos", href: "/objetivos", icon: Target, active: false },
   { label: "Academia", href: "/academia", icon: Dumbbell, active: false },
 ];

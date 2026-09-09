@@ -89,17 +89,11 @@ export default async function HomePage() {
       <div className="flex flex-col gap-6">
         <Revelar imediato atraso={280} y={16}>
           <PreviaBloqueada
-            titulo="To-do"
-            texto="As tarefas do dia, separadas dos inegociáveis."
-          />
-        </Revelar>
-        <Revelar imediato atraso={340} y={16}>
-          <PreviaBloqueada
             titulo="Objetivos"
             texto="O que você está construindo em meses, não em dias."
           />
         </Revelar>
-        <Revelar imediato atraso={400} y={16}>
+        <Revelar imediato atraso={340} y={16}>
           <PreviaBloqueada
             titulo="Academia"
             texto="Os treinos da semana e o registro de cada um."
