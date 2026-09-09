@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import BotaoGoogle from "@/components/conta/BotaoGoogle";
 import { vincularEmail, type EstadoVinculo } from "@/lib/conta/acoes";
 
 const INICIAL: EstadoVinculo = { status: "idle" };
@@ -42,6 +43,16 @@ export default function GuardarAcesso({
         histórico. Um e-mail resolve isso — serve só para trazer você de
         volta.
       </p>
+
+      <BotaoGoogle modo="vincular" rotulo="Guardar com Google" />
+
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-filete-media" />
+        <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
+          ou por e-mail
+        </span>
+        <span className="h-px flex-1 bg-filete-media" />
+      </div>
 
       {estado.status === "enviado" ? (
         <p className="text-[14px] leading-[1.6] text-texto">

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import BotaoGoogle from "@/components/conta/BotaoGoogle";
 import { enviarLinkMagico, type EstadoLogin } from "./actions";
 
 const ESTADO_INICIAL: EstadoLogin = { status: "idle" };
@@ -37,10 +38,22 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col justify-center px-6">
       <h1 className="font-frase text-2xl">Entrar</h1>
       <p className="mt-2 text-sm text-auxiliar">
-        Digite seu e-mail e mandamos um link para entrar, sem senha.
+        Entre com o Google, ou receba um link por e-mail.
       </p>
 
-      <form action={formAction} className="mt-8 flex flex-col gap-3">
+      <div className="mt-8">
+        <BotaoGoogle modo="entrar" rotulo="Entrar com Google" />
+      </div>
+
+      <div className="mt-7 flex items-center gap-3">
+        <span className="h-px flex-1 bg-filete-media" />
+        <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
+          ou
+        </span>
+        <span className="h-px flex-1 bg-filete-media" />
+      </div>
+
+      <form action={formAction} className="mt-7 flex flex-col gap-3">
         <input
           type="email"
           name="email"
