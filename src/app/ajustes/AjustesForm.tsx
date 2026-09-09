@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { salvarLembreteAtivo, salvarHorarioAjustes } from "@/lib/ajustes/acoes";
@@ -19,12 +19,15 @@ export default function AjustesForm({
   repsInicial,
   maosLivresInicial,
   chaveVapid,
+  guardarAcesso,
 }: {
   horarioInicial: string;
   lembreteInicial: boolean;
   repsInicial: number;
   maosLivresInicial: boolean;
   chaveVapid: string;
+  /** Bloco de recuperação de conta, montado no servidor. */
+  guardarAcesso: ReactNode;
 }) {
   const [horario, setHorario] = useState(horarioInicial);
   const [lembrete, setLembrete] = useState(lembreteInicial);
@@ -183,7 +186,9 @@ export default function AjustesForm({
         </section>
       </Revelar>
 
-      <Revelar imediato atraso={300}>
+      <Revelar imediato atraso={300}>{guardarAcesso}</Revelar>
+
+      <Revelar imediato atraso={360}>
         <section className="flex flex-col gap-3 text-[15px]">
           <Link
             href="/ritual/domingo"
