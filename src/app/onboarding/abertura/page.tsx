@@ -27,12 +27,22 @@ export default function AberturaPage() {
         />
       </div>
 
-      <Revelar imediato atraso={2400} y={16}>
+      <Revelar imediato atraso={2400} y={16} className="flex flex-col gap-4">
         <Link
           href="/onboarding/identidade"
           className="botao-acento tipo-rotulo block w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
         >
           Começar
+        </Link>
+
+        {/* Quem instalou o app num aparelho novo cai aqui como se fosse a
+            primeira vez — a sessão instalada não enxerga a do navegador.
+            Sem esta saída, a pessoa recomeçaria do zero sem entender. */}
+        <Link
+          href="/login"
+          className="self-center text-[13.5px] text-auxiliar underline underline-offset-4"
+        >
+          já tenho conta
         </Link>
       </Revelar>
     </div>

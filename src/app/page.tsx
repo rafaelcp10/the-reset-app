@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
+import { precisaDeOnboarding } from "@/lib/onboarding/entrada";
 import { buscarEstadoHome } from "@/lib/home/dados";
 import { FRASES_PADRAO } from "@/lib/frases/modelo";
 import Logo from "@/components/Logo";
@@ -20,6 +21,12 @@ export default async function HomePage() {
   if (!user) redirect("/login");
 
   await garantirUsuarioEFrasesPadrao(supabase, user);
+
+  // Quem nunca escolheu a palavra da frase 1 nunca foi conduzido: manda
+  // para o onboarding em vez de largar na tela com as frases padrão.
+  if (await precisaDeOnboarding(supabase, user.id)) {
+    redirect("/onboarding/abertura");
+  }
   const estado = await buscarEstadoHome(supabase, user.id);
   const { identidade } = estado;
 

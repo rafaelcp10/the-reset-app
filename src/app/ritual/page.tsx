@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
+import { precisaDeOnboarding } from "@/lib/onboarding/entrada";
 import { buscarEstadoRitual, buscarIntencao } from "@/lib/ritual/dados";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
 import Cabecalho from "@/components/ritual/Cabecalho";
@@ -29,6 +30,12 @@ export default async function RitualPage({
   // acesso por e-mail está desligado por enquanto, então essa é a única
   // garantia de que a linha em `usuarios` e as 5 frases padrão existem.
   await garantirUsuarioEFrasesPadrao(supabase, user);
+
+  // Quem nunca escolheu a palavra da frase 1 nunca foi conduzido: manda
+  // para o onboarding em vez de largar na tela com as frases padrão.
+  if (await precisaDeOnboarding(supabase, user.id)) {
+    redirect("/onboarding/abertura");
+  }
 
   const [estado, gravacoes] = await Promise.all([
     buscarEstadoRitual(supabase, user.id),
