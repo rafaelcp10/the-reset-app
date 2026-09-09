@@ -9,6 +9,7 @@ import { ativarPush, desativarPush } from "@/lib/push/cliente";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
 import GuiaSensorialForm from "./GuiaSensorialForm";
+import ApagarConta from "./ApagarConta";
 import Revelar from "@/components/movimento/Revelar";
 
 const OPCOES_HORARIO = ["20:30", "21:00", "21:30", "22:00", "22:30"] as const;
@@ -219,6 +220,7 @@ export default function AjustesForm({
           >
             Termos de uso
           </Link>
+          <ApagarConta />
         </section>
       </Revelar>
     </div>
