@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Music } from "lucide-react";
+import { Mic, Music, Play, Square } from "lucide-react";
 import { concluirEspelho } from "@/lib/ritual/acoes";
 
 type ItemFrase = {
   rotulo: string;
   texto: string;
   palavraEscolhida: string | null;
+  urlGravacao: string | null;
 };
 
 const OPCOES_REPETICOES = [1, 3, 5] as const;
@@ -194,9 +195,15 @@ function TelaFrase({
       </p>
 
       <div className="flex flex-col gap-3">
-        <div className="tipo-rotulo flex items-center gap-4 text-[10px] tracking-[.16em]">
-          <span className="text-auxiliar-fraco">Ouvir</span>
-          <span className="text-auxiliar-fraco">Gravar</span>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="tipo-rotulo flex items-center gap-4 text-[10px] tracking-[.16em]"
+        >
+          <OuvirGravacao url={item.urlGravacao} />
+          <span className="flex items-center gap-1.5 text-auxiliar-fraco">
+            <Mic className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            Gravar
+          </span>
           <span className="rounded-[3px] bg-superficie2 px-1.5 py-0.5 text-auxiliar-fraco">
             Em breve
           </span>
@@ -213,6 +220,68 @@ function TelaFrase({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Ouvir a própria voz durante o ritual. Sai de cena junto com a frase —
+ * TelaFrase é remontada a cada passo, então a limpeza corta o áudio se a
+ * frase virar antes de a gravação terminar.
+ */
+function OuvirGravacao({ url }: { url: string | null }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [tocando, setTocando] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    return () => audio?.pause();
+  }, []);
+
+  if (!url) {
+    return (
+      <span className="flex items-center gap-1.5 text-auxiliar-fraco">
+        <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
+        Ouvir
+      </span>
+    );
+  }
+
+  function alternar() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (tocando) {
+      audio.pause();
+      audio.currentTime = 0;
+      setTocando(false);
+      return;
+    }
+    audio.play().then(
+      () => setTocando(true),
+      () => setTocando(false),
+    );
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={alternar}
+        className="flex items-center gap-1.5 text-texto"
+      >
+        {tocando ? (
+          <Square className="h-[13px] w-[13px]" strokeWidth={1.5} />
+        ) : (
+          <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
+        )}
+        {tocando ? "Parar" : "Ouvir"}
+      </button>
+      <audio
+        ref={audioRef}
+        src={url}
+        preload="none"
+        onEnded={() => setTocando(false)}
+      />
+    </>
   );
 }
 

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
+import { buscarGravacoes } from "@/lib/gravacoes/dados";
 import {
   FUNCOES,
   FRASES_PADRAO,
@@ -19,7 +20,10 @@ export default async function EspelhoPage() {
 
   await garantirUsuarioEFrasesPadrao(supabase, user);
 
-  const estado = await buscarEstadoRitual(supabase, user.id);
+  const [estado, gravacoes] = await Promise.all([
+    buscarEstadoRitual(supabase, user.id),
+    buscarGravacoes(supabase, user.id),
+  ]);
 
   const itens = FUNCOES.map((funcao) => {
     const frase = estado.frases[funcao];
@@ -28,6 +32,7 @@ export default async function EspelhoPage() {
       texto: frase ? textoCompleto(frase) : FRASES_PADRAO[funcao].texto,
       palavraEscolhida:
         funcao === "identidade" ? (frase?.preenchimento_lacuna ?? null) : null,
+      urlGravacao: gravacoes[funcao],
     };
   });
 

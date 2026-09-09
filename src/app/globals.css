@@ -72,7 +72,11 @@ body {
 /* Uso 2 da tipografia (ver README do handoff): título de tela, rótulo de
    função, texto de botão, rótulo de aba — condensada, caixa alta, tracking
    largo. Nunca em frase longa. */
-.tipo-rotulo {
+/* Vale também para botões dentro do bloco: o Preflight do Tailwind zera
+   text-transform em `button`, então sem isto um controle vira caixa mista
+   no meio de uma fileira em caixa alta. */
+.tipo-rotulo,
+.tipo-rotulo button {
   font-stretch: 66%;
   text-transform: uppercase;
 }
