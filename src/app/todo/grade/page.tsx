@@ -85,28 +85,34 @@ export default async function GradePage({
         </p>
       ) : (
         <Revelar imediato atraso={120} className="-mx-6">
-          <div className="overflow-x-auto px-6 pb-2">
+          <div className="overflow-x-auto pb-2">
             <div className="min-w-max">
-              {/* Cabeçalho: número do dia, agrupado por semana */}
-              <div className="flex gap-4 pl-[132px]">
-                {semanas.map((semana, i) => (
-                  <div key={i} className="flex gap-1.5">
-                    {semana.map((dia) => (
-                      <span
-                        key={dia}
-                        className="tipo-rotulo w-5 text-center text-[8.5px] tracking-[.06em] text-auxiliar-minimo"
-                      >
-                        {INICIAIS_SEMANA[diaDaSemana(dia)]}
-                      </span>
-                    ))}
-                  </div>
-                ))}
+              {/* Cabeçalho: inicial do dia, agrupada por semana */}
+              <div className="flex items-center">
+                <span className="coluna-fixa" />
+                <div className="flex gap-4">
+                  {semanas.map((semana, i) => (
+                    <div key={i} className="flex gap-1.5">
+                      {semana.map((dia) => (
+                        <span
+                          key={dia}
+                          className="tipo-rotulo w-5 text-center text-[8.5px] tracking-[.06em] text-auxiliar-minimo"
+                        >
+                          {INICIAIS_SEMANA[diaDaSemana(dia)]}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                  <span className="w-6 shrink-0" />
+                </div>
               </div>
 
               <div className="mt-3 flex flex-col gap-3">
                 {grade.recorrentes.map((tarefa) => (
                   <div key={tarefa.id} className="flex items-center">
-                    <span className="w-[132px] shrink-0 truncate pr-3 text-[13.5px] text-texto">
+                    {/* A coluna de nomes acompanha a rolagem: sem ela, o
+                        olho perde a linha assim que o mês corre. */}
+                    <span className="coluna-fixa truncate text-[13.5px] text-texto">
                       {tarefa.texto}
                     </span>
                     <div className="flex gap-4">
@@ -121,25 +127,30 @@ export default async function GradePage({
                           ))}
                         </div>
                       ))}
+                      <span className="w-6 shrink-0" />
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Rodapé: número do dia, para localizar a coluna */}
-              <div className="mt-3 flex gap-4 pl-[132px]">
-                {semanas.map((semana, i) => (
-                  <div key={i} className="flex gap-1.5">
-                    {semana.map((dia) => (
-                      <span
-                        key={dia}
-                        className="w-5 text-center text-[9px] text-auxiliar-minimo"
-                      >
-                        {Number(dia.slice(8))}
-                      </span>
-                    ))}
-                  </div>
-                ))}
+              <div className="mt-3 flex items-center">
+                <span className="coluna-fixa" />
+                <div className="flex gap-4">
+                  {semanas.map((semana, i) => (
+                    <div key={i} className="flex gap-1.5">
+                      {semana.map((dia) => (
+                        <span
+                          key={dia}
+                          className="w-5 text-center text-[9px] text-auxiliar-minimo"
+                        >
+                          {Number(dia.slice(8))}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                  <span className="w-6 shrink-0" />
+                </div>
               </div>
             </div>
           </div>

@@ -329,6 +329,25 @@ body {
     0 0 0 1px color-mix(in srgb, var(--color-acento) 26%, transparent);
 }
 
+/* Coluna de nomes da grade mensal: acompanha a rolagem horizontal para o
+   olho não perder a linha. O fundo se dissolve na borda direita em vez de
+   virar uma caixa — mesmo recurso do véu do menu. */
+.coluna-fixa {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  width: 156px;
+  flex-shrink: 0;
+  padding-left: 24px;
+  padding-right: 14px;
+  background: linear-gradient(
+    to right,
+    var(--color-fundo) 0%,
+    var(--color-fundo) 74%,
+    transparent 100%
+  );
+}
+
 /* Fio de luz: substitui o filete reto por um traço que acende no centro. */
 .fio-luz {
   height: 1px;
