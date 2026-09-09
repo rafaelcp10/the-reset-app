@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { salvarLembreteAtivo, salvarHorarioAjustes } from "@/lib/ajustes/acoes";
 import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
+import { ativarPush, desativarPush } from "@/lib/push/cliente";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
 import Revelar from "@/components/movimento/Revelar";
@@ -17,26 +18,48 @@ export default function AjustesForm({
   lembreteInicial,
   repsInicial,
   maosLivresInicial,
+  chaveVapid,
 }: {
   horarioInicial: string;
   lembreteInicial: boolean;
   repsInicial: number;
   maosLivresInicial: boolean;
+  chaveVapid: string;
 }) {
   const [horario, setHorario] = useState(horarioInicial);
   const [lembrete, setLembrete] = useState(lembreteInicial);
   const [reps, setReps] = useState(repsInicial);
   const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
   const [estadoSalvo, executar] = useEstadoSalvo();
+  const [avisoPush, setAvisoPush] = useState<string | null>(null);
 
   function alterarHorario(valor: string) {
     setHorario(valor);
     executar(salvarHorarioAjustes(valor));
   }
 
-  function alternarLembrete() {
+  async function alternarLembrete() {
     const novo = !lembrete;
     setLembrete(novo);
+    setAvisoPush(null);
+
+    // Ligar o lembrete é pedir permissão de notificação e inscrever o
+    // aparelho: sem isso a preferência não faria nada.
+    if (novo) {
+      const resultado = await ativarPush(chaveVapid);
+      if (resultado !== "ativado") {
+        setLembrete(false);
+        setAvisoPush(
+          resultado === "negado"
+            ? "O navegador bloqueou as notificações. Libere nos ajustes do aparelho."
+            : "Este aparelho não recebe notificações. No iPhone, é preciso instalar o app na tela de início.",
+        );
+        return;
+      }
+    } else {
+      await desativarPush();
+    }
+
     executar(salvarLembreteAtivo(novo));
   }
 
@@ -88,6 +111,10 @@ export default function AjustesForm({
               />
             </button>
           </div>
+
+          {avisoPush && (
+            <p className="text-[12.5px] leading-[1.5] text-erro">{avisoPush}</p>
+          )}
 
           <div className="flex gap-2">
             {OPCOES_HORARIO.map((opcao) => (

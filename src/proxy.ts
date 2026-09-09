@@ -34,7 +34,13 @@ export async function proxy(request: NextRequest) {
   // anônima na hora, sem precisar digitar e-mail nem esperar link. RLS
   // continua funcionando normalmente (auth.uid() existe também pra
   // usuários anônimos) — os dados de cada visitante continuam isolados.
-  if (!user) {
+  //
+  // Só que isso vale para quem está navegando. Numa rota de API, criar
+  // sessão na marra faria cada batida de robô virar um usuário novo no
+  // banco — e ainda faria o endpoint responder como se houvesse alguém
+  // logado. Lá a ausência de sessão precisa continuar sendo ausência.
+  const ehApi = request.nextUrl.pathname.startsWith("/api/");
+  if (!user && !ehApi) {
     await supabase.auth.signInAnonymously();
   }
 
@@ -42,5 +48,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icone-).*)",
+  ],
 };

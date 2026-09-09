@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
 import AppChrome from "@/components/AppChrome";
 import Atmosfera from "@/components/movimento/Atmosfera";
+import RegistrarServiceWorker from "@/components/RegistrarServiceWorker";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 .palavra-revelada{opacity:1;transform:none;filter:none}`}</style>
         </noscript>
         <Atmosfera />
+        <RegistrarServiceWorker />
         <AppChrome>{children}</AppChrome>
       </body>
     </html>

@@ -21,6 +21,9 @@ export default async function AjustesPage() {
       lembreteInicial={usuario?.lembrete_ativo ?? true}
       repsInicial={usuario?.reps_padrao ?? 3}
       maosLivresInicial={usuario?.modo_maos_livres ?? false}
+      // A chave pública do VAPID precisa chegar ao navegador para assinar
+      // a inscrição; a privada nunca sai do servidor.
+      chaveVapid={process.env.VAPID_PUBLIC_KEY ?? ""}
     />
   );
 }

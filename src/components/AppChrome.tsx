@@ -4,7 +4,14 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import BottomNav from "@/components/BottomNav";
 
-const PREFIXOS_SEM_NAV = ["/login", "/auth", "/onboarding", "/ritual/espelho"];
+const PREFIXOS_SEM_NAV = [
+  "/login",
+  "/auth",
+  "/onboarding",
+  "/ritual/espelho",
+  // Sem rede não há para onde navegar; o menu só frustraria.
+  "/offline",
+];
 
 export default function AppChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
