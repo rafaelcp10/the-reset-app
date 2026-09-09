@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
@@ -34,6 +35,7 @@ export default async function RitualPage({
     buscarEstadoRitual(supabase, user.id),
     buscarGravacoes(supabase, user.id),
   ]);
+  const temGravacao = Object.values(gravacoes).some(Boolean);
   const intencaoAmanha = await buscarIntencao(
     supabase,
     user.id,
@@ -93,8 +95,19 @@ export default async function RitualPage({
       <Revelar imediato atraso={90} y={14} desfoque={4}>
         <MusicaPlayer musica={estado.musica} />
       </Revelar>
-      <Revelar imediato atraso={160}>
+      <Revelar imediato atraso={160} className="flex flex-col gap-3">
         <BotaoEspelho />
+        {temGravacao && (
+          <Link
+            href="/ritual/loop"
+            className="text-[13px] leading-[1.5] text-auxiliar"
+          >
+            <span className="underline underline-offset-4">ouvir em repetição</span>
+            <span className="text-auxiliar-fraco">
+              {" "}— as frases na sua voz, enquanto você se arruma
+            </span>
+          </Link>
+        )}
       </Revelar>
       <Revelar imediato atraso={240}>{frases}</Revelar>
       <Revelar>{inegociaveis}</Revelar>
