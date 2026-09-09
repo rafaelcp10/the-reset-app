@@ -12,6 +12,9 @@ type ItemLoop = {
 /** Pausa entre uma frase e a seguinte, para não virar enxurrada. */
 const RESPIRO_MS = 1800;
 
+/** A música fica por baixo: é cama para a voz, não concorrente dela. */
+const VOLUME_MUSICA = 0.3;
+
 /**
  * As frases gravadas na própria voz, em sequência e em repetição, por cima
  * da música. A tela pode ficar guardada: aqui não há nada para tocar.
@@ -70,7 +73,10 @@ export default function LoopDeVoz({
 
   function comecar() {
     setTocando(true);
-    musicaRef.current?.play().catch(() => {});
+    if (musicaRef.current) {
+      musicaRef.current.volume = VOLUME_MUSICA;
+      musicaRef.current.play().catch(() => {});
+    }
     tocarIndice(indice);
   }
 

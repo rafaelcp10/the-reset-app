@@ -28,6 +28,7 @@ export default function ModoEspelho({
   dataHoje,
   tarefasDeHoje,
   ditoOntem,
+  temGravacao,
 }: {
   frases: ItemFrase[];
   musicaUrl: string | null;
@@ -39,6 +40,8 @@ export default function ModoEspelho({
   tarefasDeHoje: string[];
   /** O que a pessoa disse ontem à noite que faria hoje. */
   ditoOntem: string | null;
+  /** Habilita o caminho de ouvir em vez de ler. */
+  temGravacao: boolean;
 }) {
   // passos: 0 = respiração, 1..N = frases, N+1 = eco, N+2 = escolha da linha
   const passoEco = frases.length + 1;
@@ -127,7 +130,7 @@ export default function ModoEspelho({
 
       <div className="flex flex-1 flex-col" onClick={aoTocarNaTela}>
         {passo === 0 ? (
-          <TelaRespiracao />
+          <TelaRespiracao temGravacao={temGravacao} />
         ) : passo <= frases.length ? (
           <TelaFrase
             key={passo}
@@ -155,7 +158,7 @@ export default function ModoEspelho({
   );
 }
 
-function TelaRespiracao() {
+function TelaRespiracao({ temGravacao }: { temGravacao: boolean }) {
   return (
     <div className="flex flex-1 flex-col px-6 py-8">
       <div className="flex flex-col gap-3">
@@ -183,12 +186,27 @@ function TelaRespiracao() {
         ))}
       </div>
 
-      <button
-        type="button"
-        className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
-      >
-        Começar as frases
-      </button>
+      {/* Dois caminhos para o mesmo ritual: ler em voz alta, ou escutar a
+          própria voz. O segundo só existe para quem já gravou. */}
+      <div className="flex flex-col gap-4">
+        <button
+          type="button"
+          className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
+        >
+          Ler as frases
+        </button>
+
+        {temGravacao && (
+          <Link
+            href="/ritual/loop"
+            onClick={(e) => e.stopPropagation()}
+            className="self-center text-[13.5px] text-auxiliar"
+          >
+            <span className="underline underline-offset-4">ouvir na minha voz</span>
+            <span className="text-auxiliar-fraco">{" "}— em repetição</span>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

@@ -65,6 +65,7 @@ export default async function EspelhoPage() {
       dataHoje={estado.dataRitual}
       tarefasDeHoje={tarefasDeHoje}
       ditoOntem={ditoOntem}
+      temGravacao={Object.values(gravacoes).some(Boolean)}
     />
   );
 }
