@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
-import { buscarEstadoRitual } from "@/lib/ritual/dados";
+import { buscarEstadoRitual, buscarIntencao } from "@/lib/ritual/dados";
+import { diaAnteriorISO } from "@/lib/ritual/tempo";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
 import { buscarEstadoTodo } from "@/lib/todo/dados";
 import {
@@ -26,6 +27,13 @@ export default async function EspelhoPage() {
     buscarGravacoes(supabase, user.id),
     buscarEstadoTodo(supabase, user.id),
   ]);
+
+  // O que a pessoa disse ontem à noite que faria hoje.
+  const ditoOntem = await buscarIntencao(
+    supabase,
+    user.id,
+    diaAnteriorISO(estado.dataRitual),
+  );
 
   // Só as tarefas de hoje ainda não feitas. Os inegociáveis ficam de fora
   // de propósito: eles são o que não muda na semana e já estão decididos —
@@ -56,6 +64,7 @@ export default async function EspelhoPage() {
       maosLivresInicial={estado.modoMaosLivres}
       dataHoje={estado.dataRitual}
       tarefasDeHoje={tarefasDeHoje}
+      ditoOntem={ditoOntem}
     />
   );
 }

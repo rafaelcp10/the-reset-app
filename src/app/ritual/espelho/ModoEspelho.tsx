@@ -27,6 +27,7 @@ export default function ModoEspelho({
   maosLivresInicial,
   dataHoje,
   tarefasDeHoje,
+  ditoOntem,
 }: {
   frases: ItemFrase[];
   musicaUrl: string | null;
@@ -36,11 +37,13 @@ export default function ModoEspelho({
   dataHoje: string;
   /** O que já está no dia — vira a escolha da linha no fim do ritual. */
   tarefasDeHoje: string[];
+  /** O que a pessoa disse ontem à noite que faria hoje. */
+  ditoOntem: string | null;
 }) {
   // passos: 0 = respiração, 1..N = frases, N+1 = eco, N+2 = escolha da linha
   const passoEco = frases.length + 1;
   const passoEscolha = frases.length + 2;
-  const temEscolha = tarefasDeHoje.length > 0;
+  const temEscolha = tarefasDeHoje.length > 0 || Boolean(ditoOntem);
   const [passo, setPasso] = useState(0);
   const [concluindo, setConcluindo] = useState(false);
 
@@ -137,7 +140,11 @@ export default function ModoEspelho({
         ) : passo === passoEco ? (
           <TelaEco palavra={palavraEco} />
         ) : (
-          <EscolhaDoDia tarefas={tarefasDeHoje} dataHoje={dataHoje} />
+          <EscolhaDoDia
+            tarefas={tarefasDeHoje}
+            ditoOntem={ditoOntem}
+            dataHoje={dataHoje}
+          />
         )}
       </div>
 

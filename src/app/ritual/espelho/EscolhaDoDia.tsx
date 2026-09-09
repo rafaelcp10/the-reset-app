@@ -13,9 +13,12 @@ import { concluirEspelho, concluirEspelhoComLinha } from "@/lib/ritual/acoes";
  */
 export default function EscolhaDoDia({
   tarefas,
+  ditoOntem,
   dataHoje,
 }: {
   tarefas: string[];
+  /** O que a pessoa deixou dito na noite anterior. */
+  ditoOntem: string | null;
   dataHoje: string;
 }) {
   const [escrevendo, setEscrevendo] = useState(false);
@@ -73,6 +76,25 @@ export default function EscolhaDoDia({
       ) : (
         <>
           <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
+            {/* O que ficou dito ontem vem primeiro e separado: não é uma
+                tarefa qualquer, é a pessoa se respondendo. */}
+            {ditoOntem && (
+              <div className="mb-4 flex flex-col gap-1">
+                <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+                  Você disse ontem
+                </span>
+                <button
+                  type="button"
+                  disabled={enviando}
+                  onClick={() => escolher(ditoOntem)}
+                  className="flex min-h-14 items-center text-left text-[19px] leading-[1.5] text-acento transition-opacity duration-200 disabled:opacity-40"
+                >
+                  {ditoOntem}
+                </button>
+                <div className="fio-luz mt-2" />
+              </div>
+            )}
+
             {tarefas.map((tarefa) => (
               <button
                 key={tarefa}

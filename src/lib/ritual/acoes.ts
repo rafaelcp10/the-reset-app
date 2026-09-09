@@ -160,6 +160,32 @@ export async function concluirEspelho(data: string) {
 }
 
 /**
+ * Guarda, na linha de hoje, o que a pessoa disse que vem amanhã. Fica como
+ * intenção, não como decisão: de manhã ela vira a primeira opção da
+ * escolha, e continua podendo ser trocada.
+ */
+export async function salvarIntencaoAmanha(
+  caminhoAtual: string,
+  data: string,
+  formData: FormData,
+) {
+  const texto = ((formData.get("amanha") as string) ?? "").trim();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase.from("dias").upsert(
+    { usuario_id: user.id, data, intencao_amanha: texto || null },
+    { onConflict: "usuario_id,data" },
+  );
+
+  revalidatePath(caminhoAtual);
+}
+
+/**
  * Fecha o espelho já com a linha escolhida. A pessoa acabou de dizer quem
  * quer ser; escolher o que vai fazer é o passo seguinte, e ele acontece
  * ali, não num campo em branco depois.

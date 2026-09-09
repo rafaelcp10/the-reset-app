@@ -56,6 +56,28 @@ const FUSO_PADRAO = "UTC";
 const REPS_PADRAO = 3;
 const SLOTS_INEGOCIAVEIS = [0, 1, 2] as const;
 
+/**
+ * Lê a intenção guardada num dia. Fica numa consulta à parte de propósito:
+ * se a coluna ainda não existir no banco, o erro morre aqui em vez de
+ * derrubar a busca inteira do ritual — já aconteceu neste projeto, e o
+ * sintoma é a tela inteira mentir em silêncio.
+ */
+export async function buscarIntencao(
+  supabase: SupabaseClient,
+  usuarioId: string,
+  data: string,
+): Promise<string | null> {
+  const { data: linha, error } = await supabase
+    .from("dias")
+    .select("intencao_amanha")
+    .eq("usuario_id", usuarioId)
+    .eq("data", data)
+    .maybeSingle();
+
+  if (error) return null;
+  return (linha?.intencao_amanha as string | null) ?? null;
+}
+
 export async function buscarEstadoRitual(
   supabase: SupabaseClient,
   usuarioId: string,

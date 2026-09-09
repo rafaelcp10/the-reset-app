@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
-import { buscarEstadoRitual } from "@/lib/ritual/dados";
+import { buscarEstadoRitual, buscarIntencao } from "@/lib/ritual/dados";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
 import Cabecalho from "@/components/ritual/Cabecalho";
 import MusicaPlayer from "@/components/ritual/MusicaPlayer";
@@ -34,6 +34,11 @@ export default async function RitualPage({
     buscarEstadoRitual(supabase, user.id),
     buscarGravacoes(supabase, user.id),
   ]);
+  const intencaoAmanha = await buscarIntencao(
+    supabase,
+    user.id,
+    estado.dataRitual,
+  );
 
   const cabecalho = (
     <Cabecalho
@@ -59,6 +64,7 @@ export default async function RitualPage({
       dataHoje={estado.dataRitual}
       caminhoAtual={CAMINHO}
       focoInicial={foco === "linha"}
+      intencaoAmanha={intencaoAmanha}
     />
   );
   const frases = (
