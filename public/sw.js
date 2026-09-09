@@ -13,6 +13,16 @@
 const CACHE = "the-reset-v1";
 const CASCO = ["/offline", "/manifest.webmanifest"];
 
+/*
+ * Em desenvolvimento os nomes dos arquivos do Next são estáveis, então
+ * guardar estático em cache faz o navegador servir código velho depois de
+ * cada edição — silenciosamente, o que é pior que quebrar. Em produção os
+ * nomes têm hash e o problema não existe.
+ */
+const EM_DESENVOLVIMENTO =
+  self.location.hostname === "localhost" ||
+  self.location.hostname === "127.0.0.1";
+
 self.addEventListener("install", (evento) => {
   evento.waitUntil(
     caches.open(CACHE).then((cache) => cache.addAll(CASCO)).then(() => self.skipWaiting()),
@@ -37,8 +47,8 @@ self.addEventListener("fetch", (evento) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Estático do Next: imutável, then cache primeiro.
-  if (url.pathname.startsWith("/_next/static/")) {
+  // Estático do Next: imutável em produção, então cache primeiro.
+  if (!EM_DESENVOLVIMENTO && url.pathname.startsWith("/_next/static/")) {
     evento.respondWith(
       caches.match(request).then(
         (guardado) =>
