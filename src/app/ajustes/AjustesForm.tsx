@@ -202,6 +202,18 @@ export default function AjustesForm({
           >
             Tela de recomeço
           </Link>
+          <Link
+            href="/privacidade"
+            className="text-auxiliar underline underline-offset-4"
+          >
+            Privacidade
+          </Link>
+          <Link
+            href="/termos"
+            className="text-auxiliar underline underline-offset-4"
+          >
+            Termos de uso
+          </Link>
         </section>
       </Revelar>
     </div>

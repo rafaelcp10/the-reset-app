@@ -39,8 +39,16 @@ export async function proxy(request: NextRequest) {
   // sessão na marra faria cada batida de robô virar um usuário novo no
   // banco — e ainda faria o endpoint responder como se houvesse alguém
   // logado. Lá a ausência de sessão precisa continuar sendo ausência.
-  const ehApi = request.nextUrl.pathname.startsWith("/api/");
-  if (!user && !ehApi) {
+  // O mesmo vale para as páginas públicas de privacidade e termos: elas
+  // são abertas pelo Google na tela de consentimento e por qualquer
+  // rastreador, e nada nelas depende de sessão.
+  const caminho = request.nextUrl.pathname;
+  const semSessao =
+    caminho.startsWith("/api/") ||
+    caminho.startsWith("/privacidade") ||
+    caminho.startsWith("/termos");
+
+  if (!user && !semSessao) {
     await supabase.auth.signInAnonymously();
   }
 

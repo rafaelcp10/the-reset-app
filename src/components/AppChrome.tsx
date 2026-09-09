@@ -11,6 +11,9 @@ const PREFIXOS_SEM_NAV = [
   "/ritual/espelho",
   // Sem rede não há para onde navegar; o menu só frustraria.
   "/offline",
+  // Documentos públicos: leem-se como documento, não como tela do app.
+  "/privacidade",
+  "/termos",
 ];
 
 export default function AppChrome({ children }: { children: ReactNode }) {
