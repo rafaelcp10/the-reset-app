@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Mic, Music, Play, Square } from "lucide-react";
 import { concluirEspelho } from "@/lib/ritual/acoes";
+import EscolhaDoDia from "./EscolhaDoDia";
 
 type ItemFrase = {
   rotulo: string;
@@ -25,6 +26,7 @@ export default function ModoEspelho({
   repeticoesIniciais,
   maosLivresInicial,
   dataHoje,
+  tarefasDeHoje,
 }: {
   frases: ItemFrase[];
   musicaUrl: string | null;
@@ -32,9 +34,13 @@ export default function ModoEspelho({
   repeticoesIniciais: number;
   maosLivresInicial: boolean;
   dataHoje: string;
+  /** O que já está no dia — vira a escolha da linha no fim do ritual. */
+  tarefasDeHoje: string[];
 }) {
-  // passos: 0 = respiração, 1..N = frases, N+1 = eco
+  // passos: 0 = respiração, 1..N = frases, N+1 = eco, N+2 = escolha da linha
   const passoEco = frases.length + 1;
+  const passoEscolha = frases.length + 2;
+  const temEscolha = tarefasDeHoje.length > 0;
   const [passo, setPasso] = useState(0);
   const [concluindo, setConcluindo] = useState(false);
 
@@ -65,10 +71,24 @@ export default function ModoEspelho({
       return () => clearTimeout(t);
     }
     if (passo === passoEco) {
-      const t = setTimeout(() => setConcluindo(true), DURACAO_ECO_MS);
+      // Depois do eco: se há dia para escolher, o ritual termina
+      // decidindo; se não há, fecha direto como antes.
+      const t = setTimeout(
+        () => (temEscolha ? setPasso(passoEscolha) : setConcluindo(true)),
+        DURACAO_ECO_MS,
+      );
       return () => clearTimeout(t);
     }
-  }, [passo, maosLivres, repeticoes, avancar, frases.length, passoEco]);
+  }, [
+    passo,
+    maosLivres,
+    repeticoes,
+    avancar,
+    frases.length,
+    passoEco,
+    passoEscolha,
+    temEscolha,
+  ]);
 
   // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
   // já que ela navega e não deve ser cancelada por uma limpeza de timeout.
@@ -114,8 +134,10 @@ export default function ModoEspelho({
             repeticoes={repeticoes}
             maosLivres={maosLivres}
           />
-        ) : (
+        ) : passo === passoEco ? (
           <TelaEco palavra={palavraEco} />
+        ) : (
+          <EscolhaDoDia tarefas={tarefasDeHoje} dataHoje={dataHoje} />
         )}
       </div>
 

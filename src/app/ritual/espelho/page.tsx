@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
+import { buscarEstadoTodo } from "@/lib/todo/dados";
 import {
   FUNCOES,
   FRASES_PADRAO,
@@ -20,10 +21,20 @@ export default async function EspelhoPage() {
 
   await garantirUsuarioEFrasesPadrao(supabase, user);
 
-  const [estado, gravacoes] = await Promise.all([
+  const [estado, gravacoes, todo] = await Promise.all([
     buscarEstadoRitual(supabase, user.id),
     buscarGravacoes(supabase, user.id),
+    buscarEstadoTodo(supabase, user.id),
   ]);
+
+  // O que já está no dia: os inegociáveis da semana e as tarefas de hoje
+  // ainda não feitas. É entre essas que a linha do dia é escolhida.
+  const tarefasDeHoje = [
+    ...todo.inegociaveis
+      .map((slot) => slot.compromisso?.texto)
+      .filter((t): t is string => Boolean(t)),
+    ...todo.hoje.filter((item) => !item.feito).map((item) => item.tarefa.texto),
+  ];
 
   const itens = FUNCOES.map((funcao) => {
     const frase = estado.frases[funcao];
@@ -44,6 +55,7 @@ export default async function EspelhoPage() {
       repeticoesIniciais={estado.repsPadrao}
       maosLivresInicial={estado.modoMaosLivres}
       dataHoje={estado.dataRitual}
+      tarefasDeHoje={tarefasDeHoje}
     />
   );
 }

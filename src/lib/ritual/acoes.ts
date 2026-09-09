@@ -158,3 +158,31 @@ export async function concluirEspelho(data: string) {
 
   redirect("/ritual?foco=linha");
 }
+
+/**
+ * Fecha o espelho já com a linha escolhida. A pessoa acabou de dizer quem
+ * quer ser; escolher o que vai fazer é o passo seguinte, e ele acontece
+ * ali, não num campo em branco depois.
+ */
+export async function concluirEspelhoComLinha(data: string, linha: string) {
+  const texto = linha.trim();
+  if (!texto) redirect("/ritual?foco=linha");
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  await supabase.from("dias").upsert(
+    {
+      usuario_id: user.id,
+      data,
+      linha_do_dia: texto,
+      espelho_feito_em: new Date().toISOString(),
+    },
+    { onConflict: "usuario_id,data" },
+  );
+
+  redirect("/ritual");
+}
