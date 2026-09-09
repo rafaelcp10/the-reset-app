@@ -1,0 +1,26 @@
+name: Check-in noturno
+
+# O cron da Vercel exige plano Pro para rodar mais de uma vez por dia, e o
+# app precisa de meia em meia hora para cobrir os cinco horários de
+# check-in nos fusos de cada pessoa. O Actions faz isso de graça.
+on:
+  schedule:
+    - cron: "0,30 * * * *"
+  # Permite disparar à mão pelo painel do GitHub, para testar.
+  workflow_dispatch:
+
+jobs:
+  disparar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar a rota do check-in
+        run: |
+          resposta=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/checkin")
+          corpo=$(echo "$resposta" | head -n -1)
+          status=$(echo "$resposta" | tail -n 1)
+          echo "status: $status"
+          echo "resposta: $corpo"
+          # Falha o job em erro para o GitHub avisar em vez de silenciar.
+          if [ "$status" != "200" ]; then exit 1; fi
