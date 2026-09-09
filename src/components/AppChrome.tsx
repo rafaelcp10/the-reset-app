@@ -9,7 +9,6 @@ const PREFIXOS_SEM_NAV = [
   "/auth",
   "/onboarding",
   "/ritual/espelho",
-  "/ritual/loop",
   // Sem rede não há para onde navegar; o menu só frustraria.
   "/offline",
   // Documentos públicos: leem-se como documento, não como tela do app.

@@ -18,6 +18,8 @@ const TOTAL_PONTOS_RESPIRACAO = 10;
 const DURACAO_RESPIRACAO_AUTOMATICA_MS = 30_000;
 const TEMPO_POR_REPETICAO_MS = 7_000;
 const DURACAO_ECO_MS = 2200;
+/** Respiro entre uma repetição e a seguinte, para não emendar. */
+const PAUSA_ENTRE_VOLTAS_MS = 1200;
 
 export default function ModoEspelho({
   frases,
@@ -49,6 +51,9 @@ export default function ModoEspelho({
   const temEscolha = tarefasDeHoje.length > 0 || Boolean(ditoOntem);
   const [passo, setPasso] = useState(0);
   const [concluindo, setConcluindo] = useState(false);
+  // Ouvir é um modo do mesmo ritual, não outro ritual: mesmos passos,
+  // mesmo eco, mesma decisão do dia no fim, mesma marcação de feito.
+  const [modoAudio, setModoAudio] = useState(false);
 
   const repeticoes = OPCOES_REPETICOES.includes(
     repeticoesIniciais as (typeof OPCOES_REPETICOES)[number],
@@ -68,11 +73,16 @@ export default function ModoEspelho({
   }, []);
 
   useEffect(() => {
+    // No modo de escuta a música é cama para a voz, não concorrente.
+    if (audioRef.current) audioRef.current.volume = modoAudio ? 0.3 : 1;
+  }, [modoAudio]);
+
+  useEffect(() => {
     if (passo === 0 && maosLivres) {
       const t = setTimeout(avancar, DURACAO_RESPIRACAO_AUTOMATICA_MS);
       return () => clearTimeout(t);
     }
-    if (passo >= 1 && passo <= frases.length && maosLivres) {
+    if (passo >= 1 && passo <= frases.length && maosLivres && !modoAudio) {
       const t = setTimeout(avancar, repeticoes * TEMPO_POR_REPETICAO_MS);
       return () => clearTimeout(t);
     }
@@ -94,6 +104,7 @@ export default function ModoEspelho({
     passoEco,
     passoEscolha,
     temEscolha,
+    modoAudio,
   ]);
 
   // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
@@ -130,7 +141,13 @@ export default function ModoEspelho({
 
       <div className="flex flex-1 flex-col" onClick={aoTocarNaTela}>
         {passo === 0 ? (
-          <TelaRespiracao temGravacao={temGravacao} />
+          <TelaRespiracao
+            temGravacao={temGravacao}
+            aoOuvir={() => {
+              setModoAudio(true);
+              avancar();
+            }}
+          />
         ) : passo <= frases.length ? (
           <TelaFrase
             key={passo}
@@ -139,6 +156,8 @@ export default function ModoEspelho({
             total={frases.length}
             repeticoes={repeticoes}
             maosLivres={maosLivres}
+            modoAudio={modoAudio}
+            aoConcluirFrase={avancar}
           />
         ) : passo === passoEco ? (
           <TelaEco palavra={palavraEco} />
@@ -158,7 +177,13 @@ export default function ModoEspelho({
   );
 }
 
-function TelaRespiracao({ temGravacao }: { temGravacao: boolean }) {
+function TelaRespiracao({
+  temGravacao,
+  aoOuvir,
+}: {
+  temGravacao: boolean;
+  aoOuvir: () => void;
+}) {
   return (
     <div className="flex flex-1 flex-col px-6 py-8">
       <div className="flex flex-col gap-3">
@@ -197,14 +222,17 @@ function TelaRespiracao({ temGravacao }: { temGravacao: boolean }) {
         </button>
 
         {temGravacao && (
-          <Link
-            href="/ritual/loop"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              aoOuvir();
+            }}
             className="self-center text-[13.5px] text-auxiliar"
           >
             <span className="underline underline-offset-4">ouvir na minha voz</span>
-            <span className="text-auxiliar-fraco">{" "}— em repetição</span>
-          </Link>
+            <span className="text-auxiliar-fraco">{" "}— elas tocam sozinhas</span>
+          </button>
         )}
       </div>
     </div>
@@ -217,13 +245,47 @@ function TelaFrase({
   total,
   repeticoes,
   maosLivres,
+  modoAudio,
+  aoConcluirFrase,
 }: {
   item: ItemFrase;
   indice: number;
   total: number;
   repeticoes: number;
   maosLivres: boolean;
+  modoAudio: boolean;
+  aoConcluirFrase: () => void;
 }) {
+  // No modo de escuta a frase toca o mesmo número de vezes que seria lida,
+  // e só então o ritual segue. Sem gravação para esta frase, o tempo faz o
+  // papel do áudio — ninguém fica preso numa tela muda.
+  const [volta, setVolta] = useState(1);
+  const vozRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (!modoAudio) return;
+    if (item.urlGravacao) {
+      vozRef.current?.play().catch(() => aoConcluirFrase());
+      return;
+    }
+    const t = setTimeout(aoConcluirFrase, repeticoes * TEMPO_POR_REPETICAO_MS);
+    return () => clearTimeout(t);
+    // Roda uma vez por frase: TelaFrase é remontada a cada passo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function aoTerminarVoz() {
+    if (volta >= repeticoes) {
+      aoConcluirFrase();
+      return;
+    }
+    setVolta((v) => v + 1);
+    const audio = vozRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    setTimeout(() => audio.play().catch(() => aoConcluirFrase()), PAUSA_ENTRE_VOLTAS_MS);
+  }
+
   return (
     <div className="entrada-frase flex flex-1 flex-col justify-between px-6 py-8">
       <div className="flex flex-col gap-2">
@@ -231,15 +293,21 @@ function TelaFrase({
           {item.rotulo} · frase {indice} de {total}
         </span>
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          {maosLivres
-            ? "A frase passa sozinha."
-            : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
+          {modoAudio
+            ? `Na sua voz · ${volta} de ${repeticoes}`
+            : maosLivres
+              ? "A frase passa sozinha."
+              : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
         </p>
       </div>
 
       <p className="text-[29px] leading-[1.5] text-texto">
         {formatarTexto(item.texto, item.palavraEscolhida)}
       </p>
+
+      {modoAudio && item.urlGravacao && (
+        <audio ref={vozRef} src={item.urlGravacao} onEnded={aoTerminarVoz} preload="auto" />
+      )}
 
       <div className="flex flex-col gap-3">
         <div
