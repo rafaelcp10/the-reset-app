@@ -35,10 +35,16 @@ export default function DetalheTarefa({
   const [dias, setDias] = useState<number[]>(tarefa.dias_semana ?? []);
   const [data, setData] = useState(tarefa.data ?? dataHoje);
   const [estadoSalvo, executar] = useEstadoSalvo();
+  // O texto é o único campo que a pessoa digita; os outros salvam no toque.
+  // Guardamos o último valor gravado para saber quando há algo pendente.
+  const [ultimoSalvo, setUltimoSalvo] = useState(tarefa.texto);
+  const [pendente, setPendente] = useState(false);
 
   function salvarTexto() {
     const texto = inputRef.current?.value.trim();
-    if (!texto || texto === tarefa.texto) return;
+    setPendente(false);
+    if (!texto || texto === ultimoSalvo) return;
+    setUltimoSalvo(texto);
     const fd = new FormData();
     fd.set("texto", texto);
     executar(salvarTextoTarefa(CAMINHO, tarefa.id, fd));
@@ -78,8 +84,28 @@ export default function DetalheTarefa({
           type="text"
           defaultValue={tarefa.texto}
           onBlur={salvarTexto}
+          onChange={(e) => setPendente(e.target.value.trim() !== ultimoSalvo)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              inputRef.current?.blur();
+            }
+          }}
+          enterKeyHint="done"
           className="w-full border-b border-filete-media bg-transparent py-2 text-[17px] leading-[1.6] text-texto outline-none transition-colors duration-200 focus:border-acento focus:bg-acento-escuro"
         />
+
+        {/* Salvar só aparece quando há mudança pendente: enquanto não há o
+            que gravar, ele seria um botão morto ocupando a tela. */}
+        {pendente && (
+          <button
+            type="button"
+            onClick={salvarTexto}
+            className="pilula tipo-rotulo mt-2 self-start rounded-[8px] px-5 py-2.5 text-[12px] tracking-[.09em] text-texto"
+          >
+            Salvar
+          </button>
+        )}
       </section>
 
       <section className="flex flex-col gap-3">
