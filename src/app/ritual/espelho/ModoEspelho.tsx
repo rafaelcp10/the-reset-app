@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Mic, Music, Play, Square } from "lucide-react";
 import { concluirEspelho } from "@/lib/ritual/acoes";
 import EscolhaDoDia from "./EscolhaDoDia";
+import { GuiaRespiracao, lerGuia } from "@/lib/ui/sensorial";
 
 type ItemFrase = {
   rotulo: string;
@@ -184,6 +185,14 @@ function TelaRespiracao({
   temGravacao: boolean;
   aoOuvir: () => void;
 }) {
+  // O guia sensorial é escolhido por aparelho, em Ajustes. Silencioso é o
+  // padrão: som só começa quando a pessoa pediu.
+  useEffect(() => {
+    const guia = new GuiaRespiracao(lerGuia());
+    guia.iniciar();
+    return () => guia.parar();
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col px-6 py-8">
       <div className="flex flex-col gap-3">

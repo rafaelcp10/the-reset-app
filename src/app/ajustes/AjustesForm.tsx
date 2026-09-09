@@ -8,6 +8,7 @@ import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
 import { ativarPush, desativarPush } from "@/lib/push/cliente";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
+import GuiaSensorialForm from "./GuiaSensorialForm";
 import Revelar from "@/components/movimento/Revelar";
 
 const OPCOES_HORARIO = ["20:30", "21:00", "21:30", "22:00", "22:30"] as const;
@@ -184,6 +185,10 @@ export default function AjustesForm({
             </button>
           </div>
         </section>
+      </Revelar>
+
+      <Revelar imediato atraso={260}>
+        <GuiaSensorialForm />
       </Revelar>
 
       <Revelar imediato atraso={300}>{guardarAcesso}</Revelar>

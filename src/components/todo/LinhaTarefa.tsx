@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUp, Calendar, CalendarClock, Check, Repeat } from "lucide-react";
 import type { TarefaItem } from "@/lib/todo/dados";
 import { alternarTarefaDia, puxarParaHoje } from "@/lib/todo/acoes";
+import { vibrarMarcacao } from "@/lib/ui/sensorial";
 
 const ICONE_TIPO = {
   recorrente: Repeat,
@@ -32,6 +33,7 @@ export default function LinhaTarefa({
   function alternar() {
     const novo = !feito;
     setFeito(novo);
+    vibrarMarcacao();
     alternarTarefaDia(caminhoAtual, tarefa.id, dataHoje, novo).catch(() =>
       setFeito(!novo),
     );
