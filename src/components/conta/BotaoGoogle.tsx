@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { entrarComGoogle, vincularGoogle } from "@/lib/conta/google";
+import { appInstalado } from "@/lib/ui/instalado";
 
 /**
  * Um botão para dois usos que parecem iguais e não são: entrar numa conta
  * que já existe, ou grudar o Google na conta anônima atual sem perder o
  * que foi escrito.
+ *
+ * Dentro do app instalado ele não aparece: ali o Google sai e não
+ * consegue voltar (ver `appInstalado`), e um botão que sempre falha é pior
+ * que botão nenhum — a pessoa tenta, volta para o login sem explicação e
+ * conclui que o app está quebrado.
  */
 export default function BotaoGoogle({
   modo,
@@ -17,6 +23,13 @@ export default function BotaoGoogle({
 }) {
   const [erro, setErro] = useState<string | null>(null);
   const [indo, setIndo] = useState(false);
+  const [instalado, setInstalado] = useState(false);
+
+  useEffect(() => {
+    // Só depois de montar: no servidor não existe janela para perguntar.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInstalado(appInstalado());
+  }, []);
 
   async function acionar() {
     setErro(null);
@@ -29,6 +42,8 @@ export default function BotaoGoogle({
     }
     // Sem erro o navegador sai para o Google; não há o que restaurar.
   }
+
+  if (instalado) return null;
 
   return (
     <div className="flex flex-col gap-2">

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import Link from "next/link";
 import BotaoGoogle from "@/components/conta/BotaoGoogle";
+import { appInstalado } from "@/lib/ui/instalado";
 import {
   entrarComSenha,
   pedirRecuperacao,
@@ -21,6 +22,23 @@ export default function LoginPage() {
     pedirRecuperacao,
     INICIAL,
   );
+  const [instalado, setInstalado] = useState(false);
+  const [erroRetorno, setErroRetorno] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Lido da janela, e não por useSearchParams, para esta página seguir
+    // sendo estática — e porque aqui isso é um aviso, não roteamento.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInstalado(appInstalado());
+    const motivo = new URLSearchParams(window.location.search).get("erro");
+    if (motivo === "google_sem_volta") {
+      setErroRetorno(
+        "O Google confirmou, mas o retorno se perdeu no caminho de volta para o app. Entre com e-mail e senha.",
+      );
+    } else if (motivo) {
+      setErroRetorno("Esse link não vale mais. Entre com e-mail e senha.");
+    }
+  }, []);
 
   if (esqueci) {
     return (
@@ -83,15 +101,25 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <BotaoGoogle modo="entrar" rotulo="Entrar com Google" />
+      {erroRetorno && (
+        <p className="text-[12.5px] leading-[1.5] text-erro">{erroRetorno}</p>
+      )}
 
-      <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-filete-media" />
-        <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
-          ou
-        </span>
-        <span className="h-px flex-1 bg-filete-media" />
-      </div>
+      {/* No app instalado o Google não tem como voltar, então nem aparece:
+          lá o caminho é e-mail e senha. No navegador ele continua valendo. */}
+      {!instalado && (
+        <>
+          <BotaoGoogle modo="entrar" rotulo="Entrar com Google" />
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-filete-media" />
+            <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
+              ou
+            </span>
+            <span className="h-px flex-1 bg-filete-media" />
+          </div>
+        </>
+      )}
 
       <form action={acaoEntrar} className="flex flex-col gap-4">
         <input
@@ -118,7 +146,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={entrando}
-          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[14px] tracking-[.09em] text-texto disabled:opacity-60"
+          className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-60"
         >
           {entrando ? "Entrando" : "Entrar com senha"}
         </button>

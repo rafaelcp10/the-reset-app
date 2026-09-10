@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import BotaoGoogle from "@/components/conta/BotaoGoogle";
 import Revelar from "@/components/movimento/Revelar";
 import { criarConta, type EstadoConta } from "@/lib/conta/senha";
 
@@ -58,15 +57,12 @@ export default function ContaPage() {
           </button>
         </form>
 
-        <div className="flex items-center gap-3">
-          <span className="h-px flex-1 bg-filete-media" />
-          <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
-            ou
-          </span>
-          <span className="h-px flex-1 bg-filete-media" />
-        </div>
-
-        <BotaoGoogle modo="entrar" rotulo="Continuar com Google" />
+        {/* Aqui não existe entrada pelo Google, e não é por preguiça.
+            Neste ponto tudo que a pessoa escreveu no onboarding está numa
+            conta anônima, e é `criarConta` que converte essa conta em
+            definitiva, com o texto junto. Entrar pelo Google faria o
+            contrário: abriria uma conta nova, vazia, e abandonaria a
+            anterior — o onboarding inteiro perdido sem um aviso. */}
 
         <Link
           href="/login"
