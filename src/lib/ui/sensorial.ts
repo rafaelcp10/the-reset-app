@@ -103,6 +103,12 @@ export class GuiaRespiracao {
     }
   }
 
+  /** O som já está saindo? No iOS costuma ser falso até um toque. */
+  tocando(): boolean {
+    if (this.modo !== "som") return true;
+    return this.contexto?.state === "running";
+  }
+
   private retomarNoPrimeiroToque() {
     const retomar = () => {
       this.contexto?.resume().catch(() => {});

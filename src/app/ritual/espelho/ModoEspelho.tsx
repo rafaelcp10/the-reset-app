@@ -55,6 +55,8 @@ export default function ModoEspelho({
   // Ouvir é um modo do mesmo ritual, não outro ritual: mesmos passos,
   // mesmo eco, mesma decisão do dia no fim, mesma marcação de feito.
   const [modoAudio, setModoAudio] = useState(false);
+  // A respiração acontece inteira antes de qualquer decisão.
+  const [escolhendoModo, setEscolhendoModo] = useState(false);
 
   const repeticoes = OPCOES_REPETICOES.includes(
     repeticoesIniciais as (typeof OPCOES_REPETICOES)[number],
@@ -79,8 +81,11 @@ export default function ModoEspelho({
   }, [modoAudio]);
 
   useEffect(() => {
-    if (passo === 0 && maosLivres) {
-      const t = setTimeout(avancar, DURACAO_RESPIRACAO_AUTOMATICA_MS);
+    if (passo === 0 && maosLivres && !escolhendoModo) {
+      const t = setTimeout(
+        () => setEscolhendoModo(true),
+        DURACAO_RESPIRACAO_AUTOMATICA_MS,
+      );
       return () => clearTimeout(t);
     }
     if (passo >= 1 && passo <= frases.length && maosLivres && !modoAudio) {
@@ -106,6 +111,7 @@ export default function ModoEspelho({
     passoEscolha,
     temEscolha,
     modoAudio,
+    escolhendoModo,
   ]);
 
   // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
@@ -115,8 +121,9 @@ export default function ModoEspelho({
   }, [concluindo, dataHoje]);
 
   function aoTocarNaTela() {
-    // toque avança respiração e frases; durante o eco é ignorado.
-    if (passo <= frases.length) avancar();
+    // A abertura (respiração e escolha) não avança por toque: lá o toque
+    // serve para destravar o áudio no iPhone, e avançar junto matava o som.
+    if (passo >= 1 && passo <= frases.length) avancar();
   }
 
   const mostrandoRodape = passo <= frases.length;
@@ -142,13 +149,18 @@ export default function ModoEspelho({
 
       <div className="flex flex-1 flex-col" onClick={aoTocarNaTela}>
         {passo === 0 ? (
-          <TelaRespiracao
-            temGravacao={temGravacao}
-            aoOuvir={() => {
-              setModoAudio(true);
-              avancar();
-            }}
-          />
+          escolhendoModo ? (
+            <EscolhaModo
+              temGravacao={temGravacao}
+              aoLer={() => avancar()}
+              aoOuvir={() => {
+                setModoAudio(true);
+                avancar();
+              }}
+            />
+          ) : (
+            <TelaRespiracao aoConcluir={() => setEscolhendoModo(true)} />
+          )
         ) : passo <= frases.length ? (
           <TelaFrase
             key={passo}
@@ -178,18 +190,80 @@ export default function ModoEspelho({
   );
 }
 
-function TelaRespiracao({
+/**
+ * A decisão vem depois da respiração, não durante. Assim ninguém precisa
+ * escolher no meio de um exercício que acabou de fazer — e o toque na
+ * respiração fica livre para destravar o áudio.
+ */
+function EscolhaModo({
   temGravacao,
+  aoLer,
   aoOuvir,
 }: {
   temGravacao: boolean;
+  aoLer: () => void;
   aoOuvir: () => void;
 }) {
+  return (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="entrada-frase flex flex-1 flex-col justify-center gap-8 px-6 py-8"
+    >
+      <div className="flex flex-col gap-2">
+        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+          As cinco frases
+        </span>
+        <h1 className="text-[26px] leading-[1.3] text-texto">Como hoje?</h1>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <button
+          type="button"
+          onClick={aoLer}
+          className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
+        >
+          Ler em voz alta
+        </button>
+
+        {temGravacao ? (
+          <button
+            type="button"
+            onClick={aoOuvir}
+            className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[14px] tracking-[.09em] text-texto"
+          >
+            Ouvir na minha voz
+          </button>
+        ) : (
+          <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
+            Grave sua voz em alguma frase e ela também poderá tocar aqui.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TelaRespiracao({ aoConcluir }: { aoConcluir: () => void }) {
+  const [precisaToque, setPrecisaToque] = useState(false);
+
   // O guia sensorial é escolhido por aparelho, em Ajustes. Silencioso é o
   // padrão: som só começa quando a pessoa pediu.
   useEffect(() => {
-    const guia = new GuiaRespiracao(lerGuia());
+    const modo = lerGuia();
+    const guia = new GuiaRespiracao(modo);
     guia.iniciar();
+    // No iPhone o áudio fica travado até um toque. Antes o toque avançava a
+    // tela, então o som morria no instante em que ia começar; agora a tela
+    // fica parada e o toque só destrava.
+    if (modo === "som") {
+      // Confere depois de um instante: destravar o contexto é assíncrono, e
+      // perguntar agora daria falso negativo em navegador que permite.
+      const conferir = setTimeout(() => setPrecisaToque(!guia.tocando()), 600);
+      return () => {
+        clearTimeout(conferir);
+        guia.parar();
+      };
+    }
     return () => guia.parar();
   }, []);
 
@@ -200,8 +274,9 @@ function TelaRespiracao({
           Respire dez vezes
         </h1>
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o
-          ritmo — não precisa tocar em nada.
+          {precisaToque
+            ? "Puxe o ar pelo nariz e solte fundo pela boca. Toque uma vez na tela para o som começar."
+            : "Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o ritmo — não precisa tocar em nada."}
         </p>
       </div>
 
@@ -220,29 +295,19 @@ function TelaRespiracao({
         ))}
       </div>
 
-      {/* Dois caminhos para o mesmo ritual: ler em voz alta, ou escutar a
-          própria voz. O segundo só existe para quem já gravou. */}
+      {/* A escolha do modo não fica aqui: a respiração é um momento
+          próprio, e decidir no meio dela custa a respiração já feita. */}
       <div className="flex flex-col gap-4">
         <button
           type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            aoConcluir();
+          }}
           className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
         >
-          Ler as frases
+          Respirei
         </button>
-
-        {temGravacao && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              aoOuvir();
-            }}
-            className="self-center text-[13.5px] text-auxiliar"
-          >
-            <span className="underline underline-offset-4">ouvir na minha voz</span>
-            <span className="text-auxiliar-fraco">{" "}— elas tocam sozinhas</span>
-          </button>
-        )}
       </div>
     </div>
   );
