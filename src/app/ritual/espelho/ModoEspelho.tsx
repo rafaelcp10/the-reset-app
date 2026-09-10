@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { Mic, Music, Play, Square } from "lucide-react";
-import { concluirEspelho } from "@/lib/ritual/acoes";
+import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
 import EscolhaDoDia from "./EscolhaDoDia";
 import { GuiaRespiracao, lerGuia } from "@/lib/ui/sensorial";
 
@@ -49,9 +49,7 @@ export default function ModoEspelho({
   // passos: 0 = respiração, 1..N = frases, N+1 = eco, N+2 = escolha da linha
   const passoEco = frases.length + 1;
   const passoEscolha = frases.length + 2;
-  const temEscolha = tarefasDeHoje.length > 0 || Boolean(ditoOntem);
   const [passo, setPasso] = useState(0);
-  const [concluindo, setConcluindo] = useState(false);
   // Ouvir é um modo do mesmo ritual, não outro ritual: mesmos passos,
   // mesmo eco, mesma decisão do dia no fim, mesma marcação de feito.
   const [modoAudio, setModoAudio] = useState(false);
@@ -63,7 +61,15 @@ export default function ModoEspelho({
   )
     ? repeticoesIniciais
     : 3;
-  const maosLivres = maosLivresInicial;
+  // Muda na própria tela de escolha e fica guardado na conta: quem achou
+  // o automático no meio do ritual não deveria ter que ir a Ajustes para
+  // mantê-lo amanhã.
+  const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
+
+  function trocarAvanco(automatico: boolean) {
+    setMaosLivres(automatico);
+    salvarPreferenciasRitual(repeticoes, automatico);
+  }
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -92,21 +98,14 @@ export default function ModoEspelho({
     // o contador de leituras na tela. Dois relógios para a mesma espera
     // saíam de sincronia e a barra terminava antes ou depois da virada.
     if (passo === passoEco) {
-      // Depois do eco: se há dia para escolher, o ritual termina
-      // decidindo; se não há, fecha direto como antes.
-      const t = setTimeout(
-        () => (temEscolha ? setPasso(passoEscolha) : setConcluindo(true)),
-        DURACAO_ECO_MS,
-      );
+      // O ritual sempre termina decidindo o dia — mesmo com o backlog
+      // vazio, que antes fazia o passo ser pulado em silêncio. Ler as
+      // frases e sair sem escolher nada deixa a manhã sem consequência,
+      // que é justamente o contrário do que o Espelho existe para fazer.
+      const t = setTimeout(() => setPasso(passoEscolha), DURACAO_ECO_MS);
       return () => clearTimeout(t);
     }
-  }, [passo, maosLivres, passoEco, passoEscolha, temEscolha, escolhendoModo]);
-
-  // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
-  // já que ela navega e não deve ser cancelada por uma limpeza de timeout.
-  useEffect(() => {
-    if (concluindo) concluirEspelho(dataHoje);
-  }, [concluindo, dataHoje]);
+  }, [passo, maosLivres, passoEco, passoEscolha, escolhendoModo]);
 
   function aoTocarNaTela() {
     // A abertura (respiração e escolha) não avança por toque: lá o toque
@@ -140,6 +139,8 @@ export default function ModoEspelho({
           escolhendoModo ? (
             <EscolhaModo
               temGravacao={temGravacao}
+              maosLivres={maosLivres}
+              aoTrocarAvanco={trocarAvanco}
               aoLer={() => avancar()}
               aoOuvir={() => {
                 setModoAudio(true);
@@ -188,10 +189,14 @@ export default function ModoEspelho({
  */
 function EscolhaModo({
   temGravacao,
+  maosLivres,
+  aoTrocarAvanco,
   aoLer,
   aoOuvir,
 }: {
   temGravacao: boolean;
+  maosLivres: boolean;
+  aoTrocarAvanco: (automatico: boolean) => void;
   aoLer: () => void;
   aoOuvir: () => void;
 }) {
@@ -229,6 +234,35 @@ function EscolhaModo({
             Grave sua voz em alguma frase e ela também poderá tocar aqui.
           </p>
         )}
+      </div>
+
+      {/* O automático morava só em Ajustes, onde ninguém o encontrava no
+          momento em que ele importa. A pergunta é a mesma — como hoje —
+          então a resposta fica aqui. */}
+      <div className="flex flex-col gap-3">
+        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+          A frase passa
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => aoTrocarAvanco(false)}
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[12px] tracking-[.09em] text-texto ${
+              !maosLivres ? "pilula-ativa" : ""
+            }`}
+          >
+            Quando eu tocar
+          </button>
+          <button
+            type="button"
+            onClick={() => aoTrocarAvanco(true)}
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[12px] tracking-[.09em] text-texto ${
+              maosLivres ? "pilula-ativa" : ""
+            }`}
+          >
+            Sozinha
+          </button>
+        </div>
       </div>
     </div>
   );

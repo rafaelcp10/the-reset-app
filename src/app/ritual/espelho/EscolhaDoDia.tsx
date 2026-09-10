@@ -21,14 +21,24 @@ export default function EscolhaDoDia({
   ditoOntem: string | null;
   dataHoje: string;
 }) {
-  const [escrevendo, setEscrevendo] = useState(false);
+  // Backlog vazio é o estado normal de quem começou hoje, não uma exceção.
+  // Nesse caso a tela já abre escrevendo: mostrar uma lista vazia e pedir
+  // que a pessoa procure o "escrever outra" é fazê-la caçar a única saída.
+  const vazio = !ditoOntem && tarefas.length === 0;
+  const [escrevendo, setEscrevendo] = useState(vazio);
   const [enviando, setEnviando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function escolher(texto: string) {
+    if (enviando || !texto.trim()) return;
+    setEnviando(true);
+    concluirEspelhoComLinha(dataHoje, texto.trim());
+  }
+
+  function adiar() {
     if (enviando) return;
     setEnviando(true);
-    concluirEspelhoComLinha(dataHoje, texto);
+    concluirEspelho(dataHoje);
   }
 
   return (
@@ -44,7 +54,9 @@ export default function EscolhaDoDia({
           Qual é a de hoje?
         </h1>
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          Do que já está no seu dia. Uma só.
+          {vazio
+            ? "Ainda não há nada no seu dia. Escreva a de hoje."
+            : "Do que já está no seu dia. Uma só."}
         </p>
       </div>
 
@@ -71,6 +83,14 @@ export default function EscolhaDoDia({
             className="botao-acento tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-60"
           >
             É essa
+          </button>
+          <button
+            type="button"
+            disabled={enviando}
+            onClick={vazio ? adiar : () => setEscrevendo(false)}
+            className="self-start text-[13.5px] text-auxiliar-fraco"
+          >
+            {vazio ? "decidir depois" : "voltar para a lista"}
           </button>
         </div>
       ) : (
@@ -119,10 +139,7 @@ export default function EscolhaDoDia({
             <button
               type="button"
               disabled={enviando}
-              onClick={() => {
-                setEnviando(true);
-                concluirEspelho(dataHoje);
-              }}
+              onClick={adiar}
               className="self-start text-[13.5px] text-auxiliar-fraco"
             >
               decidir depois
