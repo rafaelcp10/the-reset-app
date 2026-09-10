@@ -221,17 +221,22 @@ function EscolhaModo({
           Ler em voz alta
         </button>
 
-        {temGravacao ? (
-          <button
-            type="button"
-            onClick={aoOuvir}
-            className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[14px] tracking-[.09em] text-texto"
-          >
-            Ouvir na minha voz
-          </button>
-        ) : (
+        {/* Ouvir é um modo tão legítimo quanto ler, então ocupa o mesmo
+            espaço mesmo sem gravação — escondê-lo fazia parecer que só
+            existia um caminho. Sem voz gravada ele fica apagado e diz o
+            que falta, em vez de sumir. */}
+        <button
+          type="button"
+          onClick={aoOuvir}
+          disabled={!temGravacao}
+          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[14px] tracking-[.09em] text-texto disabled:opacity-40"
+        >
+          Ouvir na minha voz
+        </button>
+
+        {!temGravacao && (
           <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
-            Grave sua voz em alguma frase e ela também poderá tocar aqui.
+            Grave sua voz em alguma frase, na tela do Ritual, e ela toca aqui.
           </p>
         )}
       </div>
@@ -290,8 +295,13 @@ function TelaRespiracao({
       // Confere depois de um instante: destravar o contexto é assíncrono, e
       // perguntar agora daria falso negativo em navegador que permite.
       const conferir = setTimeout(() => setPrecisaToque(!guia.tocando()), 600);
+      // Depois do toque o pedido some — deixá-lo na tela faria a pessoa
+      // tocar de novo procurando um som que já está tocando.
+      const atendido = () => setPrecisaToque(false);
+      document.addEventListener("pointerdown", atendido, { once: true });
       return () => {
         clearTimeout(conferir);
+        document.removeEventListener("pointerdown", atendido);
         guia.parar();
       };
     }
@@ -368,10 +378,11 @@ function TelaFrase({
   // e só então o ritual segue. Sem gravação para esta frase, o tempo faz o
   // papel do áudio — ninguém fica preso numa tela muda.
   const [volta, setVolta] = useState(1);
+  const [esperandoToque, setEsperandoToque] = useState(false);
   const vozRef = useRef<HTMLAudioElement>(null);
   const porGravacao = modoAudio && Boolean(item.urlGravacao);
-  /** O tempo conduz: automático lendo em voz alta, ou escuta sem gravação. */
-  const porTempo = (maosLivres || modoAudio) && !porGravacao;
+  /** O tempo conduz só no automático; por toque quem conduz é a pessoa. */
+  const porTempo = maosLivres && !porGravacao;
 
   useEffect(() => {
     if (porGravacao) {
@@ -400,7 +411,10 @@ function TelaFrase({
 
   function aoTerminarVoz() {
     if (volta >= repeticoes) {
-      aoConcluirFrase();
+      // Ouvir e avançar são escolhas separadas: no modo por toque a voz
+      // termina e a frase espera, em vez de virar sozinha na cara da pessoa.
+      if (maosLivres) aoConcluirFrase();
+      else setEsperandoToque(true);
       return;
     }
     setVolta((v) => v + 1);
@@ -417,11 +431,13 @@ function TelaFrase({
           {item.rotulo} · frase {indice} de {total}
         </span>
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-          {modoAudio
-            ? `Na sua voz · ${volta} de ${repeticoes}`
-            : maosLivres
-              ? `Leia em voz alta · ${volta} de ${repeticoes}`
-              : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
+          {esperandoToque
+            ? "Na sua voz · um toque segue para a próxima."
+            : modoAudio
+              ? `Na sua voz · ${volta} de ${repeticoes}`
+              : maosLivres
+                ? `Leia em voz alta · ${volta} de ${repeticoes}`
+                : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
         </p>
       </div>
 

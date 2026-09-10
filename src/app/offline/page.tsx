@@ -15,7 +15,7 @@ export default function OfflinePage() {
         </h1>
         <p className="text-[15px] leading-[1.6] text-auxiliar">
           O ritual continua o mesmo: as cinco frases, em voz alta, e uma
-          linha sobre hoje. Quando a rede voltar, é só abrir de novo — nada
+          escolha para hoje. Quando a rede voltar, é só abrir de novo — nada
           se perde.
         </p>
       </div>

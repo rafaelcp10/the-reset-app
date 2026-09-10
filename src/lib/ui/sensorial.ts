@@ -49,6 +49,55 @@ export function vibrarMarcacao() {
 
 export const CICLO_RESPIRACAO_MS = 6000;
 
+/*
+ * O iOS não deixa um site fazer som antes de um gesto — e mente sobre
+ * isso: o contexto responde `running` e não sai nada. Então não dá para
+ * perguntar ao navegador se o som está saindo; é preciso saber se um
+ * gesto já destravou o áudio nesta sessão.
+ *
+ * O gesto certo é o toque em "Entrar no espelho": ele acontece uma tela
+ * antes, e como a navegação é do lado do cliente, o mesmo contexto
+ * atravessa e chega vivo na respiração. Assim o som começa sozinho, sem
+ * pedir um toque extra para uma tela que existe justamente para a pessoa
+ * não tocar em nada.
+ */
+let contextoCompartilhado: AudioContext | null = null;
+let audioDestravado = false;
+
+function novoContexto(): AudioContext | null {
+  const Contexto =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+  return Contexto ? new Contexto() : null;
+}
+
+/**
+ * Destrava o áudio. Só funciona chamado de dentro de um gesto do usuário
+ * (um clique, um toque) — fora disso não faz mal, mas também não destrava.
+ */
+export function destravarAudio() {
+  if (lerGuia() === "silencioso") return;
+  try {
+    contextoCompartilhado ??= novoContexto();
+    const contexto = contextoCompartilhado;
+    if (!contexto) return;
+
+    contexto.resume().catch(() => {});
+
+    // Um som de um sample, inaudível: o iOS só considera o contexto
+    // liberado depois que alguma coisa tocou dentro do gesto.
+    const fonte = contexto.createBufferSource();
+    fonte.buffer = contexto.createBuffer(1, 1, 22050);
+    fonte.connect(contexto.destination);
+    fonte.start(0);
+
+    audioDestravado = true;
+  } catch {
+    // Navegador sem Web Audio: a respiração segue pelos pontos na tela.
+  }
+}
+
 /**
  * A frequência é a diferença entre ouvir e não ouvir nada. O tom antigo
  * era de 96 Hz — bonito no fone, inexistente no alto-falante do celular,
@@ -74,6 +123,8 @@ export class GuiaRespiracao {
   private destravar: (() => void) | null = null;
   /** parar() pode chegar no meio de um await; daí em diante não recomeça. */
   private morto = false;
+  /** Contexto criado por esta instância — só esse pode ser fechado. */
+  private proprio = false;
   private readonly modo: GuiaSensorial;
 
   constructor(modo: GuiaSensorial) {
@@ -90,11 +141,12 @@ export class GuiaRespiracao {
     }
 
     try {
-      const Contexto =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext })
-          .webkitAudioContext;
-      const contexto = new Contexto();
+      // Reaproveita o contexto que o toque em "Entrar no espelho" já
+      // destravou. Criar um novo aqui seria criar um contexto travado.
+      const contexto = contextoCompartilhado ?? novoContexto();
+      if (!contexto) return;
+      this.proprio = contexto !== contextoCompartilhado;
+      contextoCompartilhado ??= contexto;
       this.contexto = contexto;
 
       const ganho = contexto.createGain();
@@ -119,10 +171,13 @@ export class GuiaRespiracao {
       if (contexto.state === "suspended") {
         await contexto.resume().catch(() => {});
         if (this.morto) return this.parar();
-        // No iOS o áudio só começa depois de um gesto, e chegar aqui foi
-        // uma navegação. Então esperamos o primeiro toque da pessoa em vez
-        // de desistir do som.
-        if (contexto.state === "suspended") return this.retomarNoPrimeiroToque();
+      }
+
+      // "running" não basta: sem um gesto nesta sessão o iOS deixa o
+      // contexto rodando e mudo. Sem gesto, espera o primeiro toque em vez
+      // de tocar para ninguém.
+      if (!audioDestravado || contexto.state === "suspended") {
+        return this.retomarNoPrimeiroToque();
       }
 
       this.ciclar();
@@ -131,10 +186,16 @@ export class GuiaRespiracao {
     }
   }
 
-  /** O som já está saindo? No iOS costuma ser falso até um toque. */
+  /**
+   * O som está mesmo saindo?
+   *
+   * Perguntar `contexto.state` não serve: no iOS ele responde "running"
+   * com o áudio ainda travado, e a tela concluía que estava tudo bem
+   * enquanto a pessoa ouvia silêncio. O que decide é ter havido um gesto.
+   */
   tocando(): boolean {
     if (this.modo !== "som") return true;
-    return this.contexto?.state === "running";
+    return audioDestravado && this.contexto?.state === "running";
   }
 
   private ciclar() {
@@ -147,6 +208,7 @@ export class GuiaRespiracao {
     const retomar = () => {
       document.removeEventListener("pointerdown", retomar);
       this.destravar = null;
+      destravarAudio();
       // O ciclo começa depois do resume, não antes: uma envoltória agendada
       // com o contexto suspenso era consumida no vazio e a pessoa destravava
       // o som bem a tempo de ouvir o silêncio.
@@ -198,8 +260,11 @@ export class GuiaRespiracao {
       }
     }
     this.osciladores = [];
+    // O contexto compartilhado sobrevive à tela: fechá-lo aqui obrigaria
+    // um gesto novo para destravar o áudio da próxima vez.
+    this.ganho?.disconnect();
     this.ganho = null;
-    this.contexto?.close().catch(() => {});
+    if (this.proprio) this.contexto?.close().catch(() => {});
     this.contexto = null;
   }
 }
