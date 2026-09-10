@@ -31,5 +31,5 @@ export async function salvarHorario(
     return { erro: "Não deu para salvar o horário. Tenta de novo." };
   }
 
-  redirect("/onboarding/instalar");
+  redirect("/onboarding/conta");
 }

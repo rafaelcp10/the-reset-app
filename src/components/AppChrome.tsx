@@ -8,6 +8,7 @@ const PREFIXOS_SEM_NAV = [
   "/login",
   "/auth",
   "/onboarding",
+  "/recuperar",
   "/ritual/espelho",
   // Sem rede não há para onde navegar; o menu só frustraria.
   "/offline",
