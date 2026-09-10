@@ -126,6 +126,22 @@ body {
   animation: pulso-respiracao 6s ease-in-out infinite;
 }
 
+/* Barra de progresso do modo automático. Sem ela a tela parada por 21s
+   parece travada — e a pessoa toca, que é justamente o que o automático
+   veio evitar. A duração vem do componente, via --duracao. */
+@keyframes preencher-tempo {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.preencher-tempo {
+  transform-origin: left center;
+  animation: preencher-tempo var(--duracao, 7s) linear forwards;
+}
+
 @keyframes entrada-eco {
   from {
     opacity: 0;

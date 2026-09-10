@@ -47,17 +47,33 @@ export function vibrarMarcacao() {
   }
 }
 
+export const CICLO_RESPIRACAO_MS = 6000;
+
+/**
+ * A frequência é a diferença entre ouvir e não ouvir nada. O tom antigo
+ * era de 96 Hz — bonito no fone, inexistente no alto-falante do celular,
+ * que praticamente não reproduz nada abaixo de uns 300 Hz. 220 Hz com um
+ * segundo tom uma oitava acima atravessa o alto-falante e continua sendo
+ * um zumbido calmo, não uma nota.
+ */
+const FUNDAMENTAL_HZ = 220;
+const HARMONICO_HZ = 440;
+/** Guia, não trilha — mas alto o bastante para existir num celular. */
+const PICO_GANHO = 0.16;
+
 /**
  * Ciclo de respiração de 6s — o mesmo dos pontos na tela. Sobe em 2,5s,
- * segura, e desce. Em som é um tom grave que incha e some; em vibração é
- * um pulso curto marcando o começo de cada ciclo.
+ * segura, e desce. Em som é um tom que incha e some; em vibração é um
+ * pulso curto marcando o começo de cada ciclo.
  */
 export class GuiaRespiracao {
   private contexto: AudioContext | null = null;
-  private oscilador: OscillatorNode | null = null;
+  private osciladores: OscillatorNode[] = [];
   private ganho: GainNode | null = null;
   private intervalo: ReturnType<typeof setInterval> | null = null;
   private destravar: (() => void) | null = null;
+  /** parar() pode chegar no meio de um await; daí em diante não recomeça. */
+  private morto = false;
   private readonly modo: GuiaSensorial;
 
   constructor(modo: GuiaSensorial) {
@@ -65,11 +81,11 @@ export class GuiaRespiracao {
   }
 
   async iniciar() {
-    if (this.modo === "silencioso") return;
+    if (this.modo === "silencioso" || this.morto) return;
 
     if (this.modo === "vibracao") {
       this.pulsar();
-      this.intervalo = setInterval(() => this.pulsar(), 6000);
+      this.intervalo = setInterval(() => this.pulsar(), CICLO_RESPIRACAO_MS);
       return;
     }
 
@@ -78,26 +94,38 @@ export class GuiaRespiracao {
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext })
           .webkitAudioContext;
-      this.contexto = new Contexto();
-      if (this.contexto.state === "suspended") {
-        await this.contexto.resume().catch(() => {});
+      const contexto = new Contexto();
+      this.contexto = contexto;
+
+      const ganho = contexto.createGain();
+      ganho.gain.value = 0;
+      ganho.connect(contexto.destination);
+      this.ganho = ganho;
+
+      for (const [hz, proporcao] of [
+        [FUNDAMENTAL_HZ, 1],
+        [HARMONICO_HZ, 0.35],
+      ] as const) {
+        const oscilador = contexto.createOscillator();
+        const mistura = contexto.createGain();
+        oscilador.type = "sine";
+        oscilador.frequency.value = hz;
+        mistura.gain.value = proporcao;
+        oscilador.connect(mistura).connect(ganho);
+        oscilador.start();
+        this.osciladores.push(oscilador);
+      }
+
+      if (contexto.state === "suspended") {
+        await contexto.resume().catch(() => {});
+        if (this.morto) return this.parar();
         // No iOS o áudio só começa depois de um gesto, e chegar aqui foi
         // uma navegação. Então esperamos o primeiro toque da pessoa em vez
         // de desistir do som.
-        if (this.contexto.state === "suspended") this.retomarNoPrimeiroToque();
+        if (contexto.state === "suspended") return this.retomarNoPrimeiroToque();
       }
 
-      this.oscilador = this.contexto.createOscillator();
-      this.ganho = this.contexto.createGain();
-      // Grave o bastante para não competir com a música nem com a voz.
-      this.oscilador.frequency.value = 96;
-      this.oscilador.type = "sine";
-      this.ganho.gain.value = 0;
-      this.oscilador.connect(this.ganho).connect(this.contexto.destination);
-      this.oscilador.start();
-
-      this.respirar();
-      this.intervalo = setInterval(() => this.respirar(), 6000);
+      this.ciclar();
     } catch {
       this.parar();
     }
@@ -109,13 +137,28 @@ export class GuiaRespiracao {
     return this.contexto?.state === "running";
   }
 
+  private ciclar() {
+    if (this.intervalo) clearInterval(this.intervalo);
+    this.respirar();
+    this.intervalo = setInterval(() => this.respirar(), CICLO_RESPIRACAO_MS);
+  }
+
   private retomarNoPrimeiroToque() {
     const retomar = () => {
-      this.contexto?.resume().catch(() => {});
       document.removeEventListener("pointerdown", retomar);
+      this.destravar = null;
+      // O ciclo começa depois do resume, não antes: uma envoltória agendada
+      // com o contexto suspenso era consumida no vazio e a pessoa destravava
+      // o som bem a tempo de ouvir o silêncio.
+      this.contexto
+        ?.resume()
+        .then(() => {
+          if (!this.morto) this.ciclar();
+        })
+        .catch(() => {});
     };
     this.destravar = retomar;
-    document.addEventListener("pointerdown", retomar, { once: true });
+    document.addEventListener("pointerdown", retomar);
   }
 
   private pulsar() {
@@ -132,27 +175,29 @@ export class GuiaRespiracao {
     if (!contexto || !ganho) return;
 
     const agora = contexto.currentTime;
-    const pico = 0.06; // baixo de propósito: guia, não trilha
     ganho.gain.cancelScheduledValues(agora);
     ganho.gain.setValueAtTime(ganho.gain.value, agora);
-    ganho.gain.linearRampToValueAtTime(pico, agora + 2.5);
-    ganho.gain.linearRampToValueAtTime(pico * 0.9, agora + 3);
+    ganho.gain.linearRampToValueAtTime(PICO_GANHO, agora + 2.5);
+    ganho.gain.linearRampToValueAtTime(PICO_GANHO * 0.9, agora + 3);
     ganho.gain.linearRampToValueAtTime(0, agora + 5.6);
   }
 
   parar() {
+    this.morto = true;
     if (this.intervalo) clearInterval(this.intervalo);
     this.intervalo = null;
     if (this.destravar) {
       document.removeEventListener("pointerdown", this.destravar);
       this.destravar = null;
     }
-    try {
-      this.oscilador?.stop();
-    } catch {
-      // Já parado.
+    for (const oscilador of this.osciladores) {
+      try {
+        oscilador.stop();
+      } catch {
+        // Já parado.
+      }
     }
-    this.oscilador = null;
+    this.osciladores = [];
     this.ganho = null;
     this.contexto?.close().catch(() => {});
     this.contexto = null;

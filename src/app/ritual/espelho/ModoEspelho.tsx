@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { Mic, Music, Play, Square } from "lucide-react";
 import { concluirEspelho } from "@/lib/ritual/acoes";
@@ -88,10 +88,9 @@ export default function ModoEspelho({
       );
       return () => clearTimeout(t);
     }
-    if (passo >= 1 && passo <= frases.length && maosLivres && !modoAudio) {
-      const t = setTimeout(avancar, repeticoes * TEMPO_POR_REPETICAO_MS);
-      return () => clearTimeout(t);
-    }
+    // O tempo das frases é contado dentro de TelaFrase: lá ele também move
+    // o contador de leituras na tela. Dois relógios para a mesma espera
+    // saíam de sincronia e a barra terminava antes ou depois da virada.
     if (passo === passoEco) {
       // Depois do eco: se há dia para escolher, o ritual termina
       // decidindo; se não há, fecha direto como antes.
@@ -101,18 +100,7 @@ export default function ModoEspelho({
       );
       return () => clearTimeout(t);
     }
-  }, [
-    passo,
-    maosLivres,
-    repeticoes,
-    avancar,
-    frases.length,
-    passoEco,
-    passoEscolha,
-    temEscolha,
-    modoAudio,
-    escolhendoModo,
-  ]);
+  }, [passo, maosLivres, passoEco, passoEscolha, temEscolha, escolhendoModo]);
 
   // Efeito separado: dispara a Server Action fora do corpo do outro efeito,
   // já que ela navega e não deve ser cancelada por uma limpeza de timeout.
@@ -159,7 +147,10 @@ export default function ModoEspelho({
               }}
             />
           ) : (
-            <TelaRespiracao aoConcluir={() => setEscolhendoModo(true)} />
+            <TelaRespiracao
+              automatico={maosLivres}
+              aoConcluir={() => setEscolhendoModo(true)}
+            />
           )
         ) : passo <= frases.length ? (
           <TelaFrase
@@ -243,7 +234,13 @@ function EscolhaModo({
   );
 }
 
-function TelaRespiracao({ aoConcluir }: { aoConcluir: () => void }) {
+function TelaRespiracao({
+  automatico,
+  aoConcluir,
+}: {
+  automatico: boolean;
+  aoConcluir: () => void;
+}) {
   const [precisaToque, setPrecisaToque] = useState(false);
 
   // O guia sensorial é escolhido por aparelho, em Ajustes. Silencioso é o
@@ -298,6 +295,9 @@ function TelaRespiracao({ aoConcluir }: { aoConcluir: () => void }) {
       {/* A escolha do modo não fica aqui: a respiração é um momento
           próprio, e decidir no meio dela custa a respiração já feita. */}
       <div className="flex flex-col gap-4">
+        {automatico && (
+          <BarraTempo duracaoMs={DURACAO_RESPIRACAO_AUTOMATICA_MS} />
+        )}
         <button
           type="button"
           onClick={(e) => {
@@ -335,15 +335,31 @@ function TelaFrase({
   // papel do áudio — ninguém fica preso numa tela muda.
   const [volta, setVolta] = useState(1);
   const vozRef = useRef<HTMLAudioElement>(null);
+  const porGravacao = modoAudio && Boolean(item.urlGravacao);
+  /** O tempo conduz: automático lendo em voz alta, ou escuta sem gravação. */
+  const porTempo = (maosLivres || modoAudio) && !porGravacao;
 
   useEffect(() => {
-    if (!modoAudio) return;
-    if (item.urlGravacao) {
+    if (porGravacao) {
       vozRef.current?.play().catch(() => aoConcluirFrase());
       return;
     }
-    const t = setTimeout(aoConcluirFrase, repeticoes * TEMPO_POR_REPETICAO_MS);
-    return () => clearTimeout(t);
+    if (!porTempo) return;
+
+    // Uma volta por vez, em vez de um único tempo no fim: assim o número de
+    // leituras anda na tela e a espera deixa de parecer travamento — foi
+    // exatamente por parecer travada que o automático foi dado como quebrado.
+    let atual = 1;
+    const relogio = setInterval(() => {
+      atual += 1;
+      if (atual > repeticoes) {
+        clearInterval(relogio);
+        aoConcluirFrase();
+        return;
+      }
+      setVolta(atual);
+    }, TEMPO_POR_REPETICAO_MS);
+    return () => clearInterval(relogio);
     // Roda uma vez por frase: TelaFrase é remontada a cada passo.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -370,7 +386,7 @@ function TelaFrase({
           {modoAudio
             ? `Na sua voz · ${volta} de ${repeticoes}`
             : maosLivres
-              ? "A frase passa sozinha."
+              ? `Leia em voz alta · ${volta} de ${repeticoes}`
               : `Leia em voz alta ${repeticoes} ${repeticoes === 1 ? "vez" : "vezes"}. Um toque segue para a próxima.`}
         </p>
       </div>
@@ -397,10 +413,19 @@ function TelaFrase({
             Em breve
           </span>
         </div>
+        {porTempo && (
+          <BarraTempo chave={volta} duracaoMs={TEMPO_POR_REPETICAO_MS} />
+        )}
+
         <div className="flex items-center gap-3">
           <div className="flex gap-1">
             {Array.from({ length: repeticoes }).map((_, i) => (
-              <span key={i} className="h-[2px] w-4 bg-auxiliar-minimo" />
+              <span
+                key={i}
+                className={`h-[2px] w-4 transition-colors duration-500 ${
+                  i < volta ? "bg-texto" : "bg-auxiliar-minimo"
+                }`}
+              />
             ))}
           </div>
           <span className="tipo-rotulo text-[10px] tracking-[.16em] text-auxiliar-minimo">
@@ -408,6 +433,30 @@ function TelaFrase({
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Quanto falta desta espera. Existe só no automático: quando é a pessoa
+ * que toca para avançar, não há tempo a mostrar. Cinza, nunca âmbar — o
+ * acento da tela já é a palavra escolhida na frase.
+ */
+function BarraTempo({
+  duracaoMs,
+  chave,
+}: {
+  duracaoMs: number;
+  /** Muda a cada volta para a animação recomeçar do zero. */
+  chave?: number;
+}) {
+  return (
+    <div className="h-[2px] w-full overflow-hidden rounded-full bg-superficie2">
+      <span
+        key={chave}
+        className="preencher-tempo block h-full w-full bg-auxiliar"
+        style={{ "--duracao": `${duracaoMs}ms` } as CSSProperties}
+      />
     </div>
   );
 }
