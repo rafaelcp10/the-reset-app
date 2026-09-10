@@ -50,6 +50,7 @@ export default async function RitualPage({
   const cabecalho = (
     <Cabecalho
       modo={estado.modo}
+      nome={estado.nome}
       dataExtenso={estado.dataExtenso}
       numeroSemana={estado.numeroSemana}
     />

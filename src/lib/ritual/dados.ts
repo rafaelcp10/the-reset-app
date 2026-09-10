@@ -35,6 +35,8 @@ export type InegociavelSlot = {
 };
 
 export type EstadoRitual = {
+  /** Como a pessoa pediu para ser chamada. Nulo até ela preencher. */
+  nome: string | null;
   modo: ModoRitual;
   dataRitual: string;
   semanaInicio: string;
@@ -84,7 +86,9 @@ export async function buscarEstadoRitual(
 ): Promise<EstadoRitual> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres")
+    .select(
+      "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres",
+    )
     .eq("id", usuarioId)
     .maybeSingle();
 
@@ -94,6 +98,10 @@ export async function buscarEstadoRitual(
   const criadoEm: string = usuario?.criado_em ?? new Date().toISOString();
   const repsPadrao: number = usuario?.reps_padrao ?? REPS_PADRAO;
   const modoMaosLivres: boolean = usuario?.modo_maos_livres ?? false;
+  // Só o primeiro nome: "Bom dia, Rafael Pires" soa como cadastro, não
+  // como alguém falando com você.
+  const nome: string | null =
+    (usuario?.nome as string | null)?.trim().split(/\s+/)[0] || null;
 
   const partes = agoraNoFuso(fuso);
   const hoje = dataRitual(partes);
@@ -158,6 +166,7 @@ export async function buscarEstadoRitual(
   const diaOntem = (dias ?? []).find((d) => d.data === ontem);
 
   return {
+    nome,
     modo,
     dataRitual: hoje,
     semanaInicio,

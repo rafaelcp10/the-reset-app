@@ -4,13 +4,17 @@ import Logo from "@/components/Logo";
 
 export default function Cabecalho({
   modo,
+  nome,
   dataExtenso,
   numeroSemana,
 }: {
   modo: "manha" | "noite";
+  /** Primeiro nome, quando existe. Sem ele a saudação segue sozinha. */
+  nome: string | null;
   dataExtenso: string;
   numeroSemana: number;
 }) {
+  const saudacao = modo === "manha" ? "Bom dia" : "Boa noite";
   return (
     <div className="flex flex-col gap-4">
       <Logo variante="topo" />
@@ -18,7 +22,7 @@ export default function Cabecalho({
       <div>
         <div className="flex items-center justify-between gap-3">
           <p className="text-xl leading-tight text-texto">
-            {modo === "manha" ? "Bom dia." : "Boa noite."}
+            {nome ? `${saudacao}, ${nome}.` : `${saudacao}.`}
           </p>
           <div className="flex items-center gap-4 text-auxiliar">
             <Link

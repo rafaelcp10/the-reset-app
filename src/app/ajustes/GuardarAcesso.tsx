@@ -1,12 +1,21 @@
 "use client";
 
-import { useActionState } from "react";
 import Link from "next/link";
-import BotaoGoogle from "@/components/conta/BotaoGoogle";
-import { vincularEmail, type EstadoVinculo } from "@/lib/conta/acoes";
+import { sairDaConta } from "@/lib/conta/sessao";
 
-const INICIAL: EstadoVinculo = { status: "idle" };
-
+/**
+ * Quem é a conta aberta neste aparelho, e como sair dela.
+ *
+ * O e-mail aparece sempre que existe — é a única coisa na tela que
+ * responde "estou conectado como quem?". Antes ele só aparecia depois de
+ * confirmado, então quem entrava com senha e olhava aqui não encontrava
+ * o próprio endereço.
+ *
+ * O bloco de "guardar por link de e-mail" saiu daqui: o link abre no
+ * navegador e chuta a pessoa para fora do app instalado. Quem ainda está
+ * numa conta anônima vai para a mesma tela de criar conta do onboarding,
+ * que converte a conta preservando tudo que já foi escrito.
+ */
 export default function GuardarAcesso({
   emailAtual,
   confirmado,
@@ -15,93 +24,63 @@ export default function GuardarAcesso({
   /** E-mail já verificado — a conta é recuperável de verdade. */
   confirmado: boolean;
 }) {
-  const [estado, acao, enviando] = useActionState(vincularEmail, INICIAL);
-
-  if (confirmado && emailAtual) {
+  if (!emailAtual) {
     return (
-      <section className="flex flex-col gap-2">
+      <section className="flex flex-col gap-3">
         <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
-          Seu acesso
+          Guardar seu acesso
         </h2>
-        <p className="text-[14px] leading-[1.6] text-auxiliar">
-          Guardado em <span className="text-texto">{emailAtual}</span>. Se
-          trocar de aparelho, entre com esse e-mail e tudo volta.
+
+        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+          Tudo o que você escreveu vive só neste aparelho. Limpar os dados ou
+          trocar de celular apaga as frases, as gravações e o histórico. Uma
+          conta resolve isso — e nada do que já está aqui se perde.
         </p>
+
+        <Link
+          href="/onboarding/conta"
+          className="botao-acento tipo-rotulo self-start rounded-[10px] px-6 py-3.5 text-[14px] tracking-[.09em] text-fundo"
+        >
+          Criar conta
+        </Link>
+
+        <Link
+          href="/login"
+          className="text-[13px] text-auxiliar underline underline-offset-4"
+        >
+          já tenho conta em outro aparelho
+        </Link>
       </section>
     );
   }
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-2">
       <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
-        Guardar seu acesso
+        Seu acesso
       </h2>
 
-      <p className="text-[13.5px] leading-[1.6] text-auxiliar">
-        Hoje tudo o que você escreveu vive só neste navegador. Limpar os
-        dados ou trocar de celular apaga as frases, as gravações e o
-        histórico. Um e-mail resolve isso — serve só para trazer você de
-        volta.
+      <p className="text-[14px] leading-[1.6] text-auxiliar">
+        Conectado como <span className="text-texto">{emailAtual}</span>. Se
+        trocar de aparelho, entre com esse e-mail e tudo volta.
       </p>
 
-      <BotaoGoogle modo="vincular" rotulo="Guardar com Google" />
-
-      <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-filete-media" />
-        <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
-          ou por e-mail
-        </span>
-        <span className="h-px flex-1 bg-filete-media" />
-      </div>
-
-      {estado.status === "enviado" ? (
-        <p className="text-[14px] leading-[1.6] text-texto">
-          Enviamos um link de confirmação. Abra pelo mesmo aparelho e o
-          acesso fica guardado.
-        </p>
-      ) : (
-        <form action={acao} className="flex flex-col gap-3">
-          <input
-            type="email"
-            name="email"
-            defaultValue={emailAtual ?? ""}
-            required
-            autoComplete="email"
-            inputMode="email"
-            enterKeyHint="done"
-            placeholder="seu e-mail"
-            className="w-full border-b border-filete-media bg-transparent py-2 text-[16px] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
-          />
-
-          {estado.status === "erro" && (
-            <p className="text-[12.5px] leading-[1.5] text-erro">
-              {estado.mensagem}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={enviando}
-            className="pilula tipo-rotulo self-start rounded-[8px] px-5 py-2.5 text-[12px] tracking-[.09em] text-texto disabled:opacity-50"
-          >
-            {enviando ? "Enviando" : "Guardar"}
-          </button>
-        </form>
-      )}
-
-      {emailAtual && !confirmado && (
-        <p className="text-[13px] leading-[1.6] text-auxiliar">
-          Falta confirmar <span className="text-texto">{emailAtual}</span>{" "}
-          pelo link que enviamos.
+      {!confirmado && (
+        <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
+          Falta confirmar esse endereço pelo link que enviamos.
         </p>
       )}
 
-      <Link
-        href="/login"
-        className="text-[13px] text-auxiliar underline underline-offset-4"
-      >
-        já tenho conta em outro aparelho
-      </Link>
+      {/* Sair fica separado de "apagar minha conta" por um bom espaço: um
+          guarda tudo e o outro não tem volta. */}
+      <form action={sairDaConta} className="mt-2">
+        <button
+          type="submit"
+          className="text-[13.5px] text-auxiliar underline underline-offset-4"
+        >
+          sair desta conta
+        </button>
+      </form>
     </section>
   );
 }
