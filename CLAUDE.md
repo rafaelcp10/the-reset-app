@@ -1,7 +1,9 @@
 # THE RESET
 
 App de ritual diário. A pessoa lê cinco frases em voz alta de manhã,
-escreve uma linha sobre o que vai fazer hoje, e confirma à noite.
+escolhe uma coisa para fazer hoje, e confirma à noite. A escolha sai do
+que já está no dia — o que ficou dito ontem à noite e as tarefas do
+to-do; escrever do zero existe, mas como último recurso.
 
 ## Stack
 Next.js (App Router) + Supabase (Postgres + auth por e-mail) + Vercel.

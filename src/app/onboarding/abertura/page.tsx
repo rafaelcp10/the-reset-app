@@ -14,7 +14,7 @@ export default function AberturaPage() {
           pessoa lê no app, e precisa chegar no ritmo de quem fala devagar. */}
       <div className="flex flex-col gap-6">
         <FraseRevelada
-          antes="De manhã você põe a música, lê cinco frases em voz alta e escreve uma linha: o que vai fazer hoje."
+          antes="De manhã você põe a música, lê cinco frases em voz alta e escolhe uma coisa: o que vai fazer hoje."
           className="text-2xl leading-relaxed text-texto"
           atrasoInicial={420}
           passo={38}

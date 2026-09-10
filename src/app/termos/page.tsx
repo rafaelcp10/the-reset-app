@@ -14,9 +14,8 @@ export default function TermosPage() {
       <Secao titulo="O que é o The Reset">
         <p>
           Um app de ritual diário. De manhã você lê cinco frases em voz alta
-          e escreve uma linha sobre o que vai fazer; de noite marca o que
-          fez. Ele guarda o que você escreve e devolve no dia seguinte. É
-          isso.
+          e escolhe uma coisa para fazer no dia; de noite marca o que fez.
+          Ele guarda o que é seu e devolve no dia seguinte. É isso.
         </p>
         <p>
           Ao usar o app, você concorda com estes termos. Se não concordar,
