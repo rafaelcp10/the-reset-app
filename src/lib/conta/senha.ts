@@ -42,7 +42,7 @@ export async function criarConta(
     const jaExiste = /already|registered|exists/i.test(error.message);
     return {
       erro: jaExiste
-        ? "Esse e-mail já tem conta. Entre por ela em vez de criar outra."
+        ? "Esse e-mail já tem conta. Toque em \"já tenho conta\" e entre por ela — se não lembrar a senha, use \"esqueci minha senha\"."
         : "Não deu para criar a conta agora. Tenta de novo.",
     };
   }
