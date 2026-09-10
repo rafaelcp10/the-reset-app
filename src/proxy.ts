@@ -39,16 +39,29 @@ export async function proxy(request: NextRequest) {
   // sessão na marra faria cada batida de robô virar um usuário novo no
   // banco — e ainda faria o endpoint responder como se houvesse alguém
   // logado. Lá a ausência de sessão precisa continuar sendo ausência.
-  // O mesmo vale para as páginas públicas de privacidade e termos: elas
-  // são abertas pelo Google na tela de consentimento e por qualquer
-  // rastreador, e nada nelas depende de sessão.
+  // Criar sessão em qualquer rota enchia o banco de contas órfãs: cada
+  // batida em /login, na abertura do onboarding ou numa página pública
+  // virava um usuário no auth que nunca chegava a existir no app.
+  //
+  // A sessão nasce só onde ela é realmente necessária — nas telas que
+  // guardam o que a pessoa escreve. Entrar, recuperar senha e ler os
+  // documentos públicos não precisam de conta nenhuma.
   const caminho = request.nextUrl.pathname;
-  const semSessao =
-    caminho.startsWith("/api/") ||
-    caminho.startsWith("/privacidade") ||
-    caminho.startsWith("/termos");
+  const SEM_SESSAO = [
+    "/api/",
+    "/login",
+    "/recuperar",
+    "/auth",
+    "/offline",
+    "/privacidade",
+    "/termos",
+    "/onboarding/abertura",
+  ];
+  const dispensaSessao = SEM_SESSAO.some((prefixo) =>
+    caminho.startsWith(prefixo),
+  );
 
-  if (!user && !semSessao) {
+  if (!user && !dispensaSessao) {
     await supabase.auth.signInAnonymously();
   }
 
