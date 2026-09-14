@@ -133,6 +133,15 @@ export default function DetalheTarefa({
           <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
             Em quais dias
           </h2>
+          {/* Sem isso, "Recorrente" parecia completo e o item não aparecia
+              em dia nenhum. Dizer o que falta é mais barato que deixar a
+              pessoa descobrir pela ausência. */}
+          {dias.length === 0 && (
+            <p className="text-[13px] leading-[1.6] text-auxiliar">
+              Marque os dias em que ele se repete. Enquanto nenhum estiver
+              marcado, ele fica esperando em Esta semana.
+            </p>
+          )}
           <div className="flex gap-1.5">
             {DIAS.map((rotulo, dia) => (
               <button

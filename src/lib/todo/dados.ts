@@ -118,7 +118,15 @@ export async function buscarEstadoTodo(
     const feitoHoje = marcadoEm.has(`${tarefa.id}|${hoje}`);
 
     if (tarefa.tipo === "recorrente") {
-      if (tarefa.dias_semana?.includes(diaHoje)) {
+      // Recorrente sem nenhum dia marcado não tem dia em que apareça — e
+      // sumia das duas listas de uma vez. Quem acabou de marcar "Recorrente"
+      // via o item desaparecer e concluía que não havia onde escolher os
+      // dias. Enquanto os dias não vierem, ele espera em "Esta semana".
+      if (!tarefa.dias_semana || tarefa.dias_semana.length === 0) {
+        semanaLista.push({ tarefa, feito: feitoHoje });
+        continue;
+      }
+      if (tarefa.dias_semana.includes(diaHoje)) {
         hojeLista.push({ tarefa, feito: feitoHoje });
       }
       continue;
