@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoTodo } from "@/lib/todo/dados";
 import BlocoInegociaveis from "@/components/todo/BlocoInegociaveis";
-import LinhaTarefa from "@/components/todo/LinhaTarefa";
+import ListaPorPeso from "@/components/todo/ListaPorPeso";
 import CampoAdicionar from "@/components/todo/CampoAdicionar";
 import Revelar from "@/components/movimento/Revelar";
 
@@ -56,16 +56,11 @@ export default async function TodoPage() {
             Nada marcado para hoje.
           </p>
         ) : (
-          <div className="flex flex-col">
-            {estado.hoje.map((item) => (
-              <LinhaTarefa
-                key={item.tarefa.id}
-                item={item}
-                dataHoje={estado.dataHoje}
-                caminhoAtual={CAMINHO}
-              />
-            ))}
-          </div>
+          <ListaPorPeso
+            itens={estado.hoje}
+            dataHoje={estado.dataHoje}
+            caminhoAtual={CAMINHO}
+          />
         )}
       </Revelar>
 
@@ -78,17 +73,12 @@ export default async function TodoPage() {
             Nada esperando.
           </p>
         ) : (
-          <div className="flex flex-col">
-            {estado.semana.map((item) => (
-              <LinhaTarefa
-                key={item.tarefa.id}
-                item={item}
-                dataHoje={estado.dataHoje}
-                caminhoAtual={CAMINHO}
-                podePuxar
-              />
-            ))}
-          </div>
+          <ListaPorPeso
+            itens={estado.semana}
+            dataHoje={estado.dataHoje}
+            caminhoAtual={CAMINHO}
+            podePuxar
+          />
         )}
       </Revelar>
 

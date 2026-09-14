@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { TipoTarefa } from "./dados";
+import { PESOS, TETO_PRIMEIRO, type PesoTarefa, type TipoTarefa } from "./dados";
 
 const TIPOS: TipoTarefa[] = ["recorrente", "semana", "data"];
 
@@ -153,6 +153,53 @@ export async function salvarDiasSemana(
     .eq("id", tarefaId);
 
   revalidatePath(caminhoAtual);
+}
+
+export type ResultadoPeso = { erro?: string };
+
+/**
+ * Troca a faixa de peso do item.
+ *
+ * "Primeiro" tem teto, e o teto é a única coisa que faz a faixa significar
+ * alguma coisa: numa escala livre todo item vira prioritário em uma semana
+ * e a lista volta a ser uma lista. Aqui, para promover um quarto item é
+ * preciso rebaixar um — a escolha acontece, em vez de ser adiada.
+ *
+ * O teto vale para a conta inteira, e não por dia, porque é assim que os
+ * três inegociáveis da semana já funcionam.
+ */
+export async function salvarPesoTarefa(
+  caminhoAtual: string,
+  tarefaId: string,
+  peso: PesoTarefa,
+): Promise<ResultadoPeso> {
+  if (!PESOS.includes(peso)) return {};
+
+  const { supabase, user } = await usuarioAtual();
+
+  if (peso === "primeiro") {
+    const { count } = await supabase
+      .from("tarefas")
+      .select("id", { count: "exact", head: true })
+      .eq("usuario_id", user.id)
+      .eq("peso", "primeiro")
+      .neq("id", tarefaId);
+
+    if ((count ?? 0) >= TETO_PRIMEIRO) {
+      return {
+        erro: "Três já é bastante. Tire um de Primeiro para colocar este.",
+      };
+    }
+  }
+
+  await supabase
+    .from("tarefas")
+    .update({ peso })
+    .eq("usuario_id", user.id)
+    .eq("id", tarefaId);
+
+  revalidatePath(caminhoAtual);
+  return {};
 }
 
 export async function salvarDataTarefa(

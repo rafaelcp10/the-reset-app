@@ -11,16 +11,59 @@ import {
 
 export type TipoTarefa = "recorrente" | "semana" | "data";
 
+/** As três faixas de peso. Palavras, não notas — nota vira placar. */
+export type PesoTarefa = "primeiro" | "depois" | "se_sobrar";
+
+/** Quantos itens cabem em "primeiro". O teto é o que faz a faixa valer. */
+export const TETO_PRIMEIRO = 3;
+
+/** Ordem de exibição. Não vem do banco: 'depois' < 'primeiro' no alfabeto. */
+const ORDEM_PESO: Record<PesoTarefa, number> = {
+  primeiro: 0,
+  depois: 1,
+  se_sobrar: 2,
+};
+
+export const ROTULO_PESO: Record<PesoTarefa, string> = {
+  primeiro: "Primeiro",
+  depois: "Depois",
+  se_sobrar: "Se sobrar",
+};
+
+export const PESOS: PesoTarefa[] = ["primeiro", "depois", "se_sobrar"];
+
 export type TarefaRow = {
   id: string;
   usuario_id: string;
   texto: string;
   tipo: TipoTarefa;
+  peso: PesoTarefa;
   dias_semana: number[];
   data: string | null;
   puxado_para: string | null;
   criado_em: string;
 };
+
+/** Ordena por faixa e, dentro dela, pela ordem em que foram escritas. */
+export function ordenarPorPeso(itens: TarefaItem[]): TarefaItem[] {
+  return [...itens].sort((a, b) => {
+    const faixa =
+      ORDEM_PESO[a.tarefa.peso ?? "depois"] -
+      ORDEM_PESO[b.tarefa.peso ?? "depois"];
+    if (faixa !== 0) return faixa;
+    return a.tarefa.criado_em.localeCompare(b.tarefa.criado_em);
+  });
+}
+
+/** Agrupa na ordem das faixas, pulando as que estão vazias. */
+export function agruparPorPeso(
+  itens: TarefaItem[],
+): { peso: PesoTarefa; itens: TarefaItem[] }[] {
+  return PESOS.map((peso) => ({
+    peso,
+    itens: itens.filter((i) => (i.tarefa.peso ?? "depois") === peso),
+  })).filter((grupo) => grupo.itens.length > 0);
+}
 
 export type TarefaItem = {
   tarefa: TarefaRow;
@@ -197,8 +240,8 @@ export async function buscarEstadoTodo(
     numeroSemana: numeroDaSemana(criadoEm, hoje),
     semanaInicio,
     inegociaveis,
-    hoje: hojeLista,
-    semana: semanaLista,
+    hoje: ordenarPorPeso(hojeLista),
+    semana: ordenarPorPeso(semanaLista),
   };
 }
 
