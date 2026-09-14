@@ -61,7 +61,15 @@ export async function proxy(request: NextRequest) {
     caminho.startsWith(prefixo),
   );
 
-  if (!user && !dispensaSessao) {
+  // E só uma navegação de verdade abre sessão. Um HEAD de monitoramento ou
+  // um prefetch do menu não são alguém chegando — o prefetch busca só o
+  // esqueleto da tela, que não depende de conta. Sem esta porta, cada
+  // batida dessas virava um usuário novo no banco.
+  const ehNavegacao =
+    request.method === "GET" &&
+    request.headers.get("next-router-prefetch") !== "1";
+
+  if (!user && !dispensaSessao && ehNavegacao) {
     await supabase.auth.signInAnonymously();
   }
 
