@@ -49,6 +49,10 @@ export type EstadoRitual = {
   feitoHoje: boolean | null;
   linhaOntem: string | null;
   feitoOntem: boolean | null;
+  /** O que a pessoa disse hoje à noite que faria amanhã. */
+  intencaoHoje: string | null;
+  /** O que ela disse ontem à noite que faria hoje. */
+  intencaoOntem: string | null;
   repsPadrao: number;
   modoMaosLivres: boolean;
 };
@@ -57,28 +61,6 @@ const HORARIO_PADRAO = "21:00";
 const FUSO_PADRAO = "UTC";
 const REPS_PADRAO = 3;
 const SLOTS_INEGOCIAVEIS = [0, 1, 2] as const;
-
-/**
- * Lê a intenção guardada num dia. Fica numa consulta à parte de propósito:
- * se a coluna ainda não existir no banco, o erro morre aqui em vez de
- * derrubar a busca inteira do ritual — já aconteceu neste projeto, e o
- * sintoma é a tela inteira mentir em silêncio.
- */
-export async function buscarIntencao(
-  supabase: SupabaseClient,
-  usuarioId: string,
-  data: string,
-): Promise<string | null> {
-  const { data: linha, error } = await supabase
-    .from("dias")
-    .select("intencao_amanha")
-    .eq("usuario_id", usuarioId)
-    .eq("data", data)
-    .maybeSingle();
-
-  if (error) return null;
-  return (linha?.intencao_amanha as string | null) ?? null;
-}
 
 export async function buscarEstadoRitual(
   supabase: SupabaseClient,
@@ -116,15 +98,19 @@ export async function buscarEstadoRitual(
 
   const [{ data: compromissos }, { data: dias }, { data: musicas }] =
     await Promise.all([
+      // A marcação de hoje vem junto com o compromisso, encaixada pelo
+      // próprio Postgres. Buscá-la depois exigia saber os ids primeiro, o
+      // que obrigava as duas consultas a andarem em fila.
       supabase
         .from("compromissos")
-        .select("*")
+        .select("*, compromissos_dia(feito)")
         .eq("usuario_id", usuarioId)
         .eq("semana_inicio", semanaInicio)
+        .eq("compromissos_dia.data", hoje)
         .order("ordem", { ascending: true }),
       supabase
         .from("dias")
-        .select("data, linha_do_dia, feito")
+        .select("data, linha_do_dia, feito, intencao_amanha")
         .eq("usuario_id", usuarioId)
         .in("data", [hoje, ontem]),
       supabase
@@ -135,34 +121,23 @@ export async function buscarEstadoRitual(
         .limit(1),
     ]);
 
+  type CompromissoComDia = CompromissoRow & {
+    compromissos_dia?: { feito: boolean | null }[];
+  };
   const compromissosPorOrdem = new Map(
-    ((compromissos ?? []) as CompromissoRow[]).map((c) => [c.ordem, c]),
+    ((compromissos ?? []) as CompromissoComDia[]).map((c) => [c.ordem, c]),
   );
 
-  let compromissoDiaPorId = new Map<string, boolean | null>();
-  const idsCompromissos = [...compromissosPorOrdem.values()].map((c) => c.id);
-  if (idsCompromissos.length > 0) {
-    const { data: compromissosDia } = await supabase
-      .from("compromissos_dia")
-      .select("compromisso_id, feito")
-      .eq("data", hoje)
-      .in("compromisso_id", idsCompromissos);
-    compromissoDiaPorId = new Map(
-      (compromissosDia ?? []).map((cd) => [
-        cd.compromisso_id as string,
-        cd.feito as boolean | null,
-      ]),
-    );
-  }
-
   const inegociaveis: InegociavelSlot[] = SLOTS_INEGOCIAVEIS.map((ordem) => {
-    const compromisso = compromissosPorOrdem.get(ordem) ?? null;
+    const linha = compromissosPorOrdem.get(ordem);
+    if (!linha) return { ordem, compromisso: null, feitoHoje: null };
+
+    // A marcação vem aninhada; o compromisso segue para a tela sem ela.
+    const { compromissos_dia: marcacoes, ...compromisso } = linha;
     return {
       ordem,
       compromisso,
-      feitoHoje: compromisso
-        ? (compromissoDiaPorId.get(compromisso.id) ?? null)
-        : null,
+      feitoHoje: marcacoes?.[0]?.feito ?? null,
     };
   });
 
@@ -183,6 +158,8 @@ export async function buscarEstadoRitual(
     feitoHoje: diaHoje?.feito ?? null,
     linhaOntem: diaOntem?.linha_do_dia ?? null,
     feitoOntem: diaOntem?.feito ?? null,
+    intencaoHoje: diaHoje?.intencao_amanha ?? null,
+    intencaoOntem: diaOntem?.intencao_amanha ?? null,
     repsPadrao,
     modoMaosLivres,
   };

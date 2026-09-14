@@ -24,14 +24,26 @@ export async function buscarGravacoes(
   const linhas = data ?? [];
   if (linhas.length === 0) return VAZIO();
 
-  const assinadas = await Promise.all(
-    linhas.map(async (linha) => {
-      const { data: assinada } = await supabase.storage
-        .from(BUCKET_GRAVACOES)
-        .createSignedUrl(linha.caminho as string, VALIDADE_URL_SEGUNDOS);
-      return [linha.funcao as Funcao, assinada?.signedUrl ?? null] as const;
-    }),
+  // Uma chamada para todas as gravações, não uma por gravação: com as
+  // cinco frases gravadas eram cinco idas ao Storage só para montar a tela.
+  const { data: assinadas } = await supabase.storage
+    .from(BUCKET_GRAVACOES)
+    .createSignedUrls(
+      linhas.map((linha) => linha.caminho as string),
+      VALIDADE_URL_SEGUNDOS,
+    );
+
+  const urlPorCaminho = new Map(
+    (assinadas ?? []).map((a) => [a.path, a.signedUrl ?? null]),
   );
 
-  return { ...VAZIO(), ...Object.fromEntries(assinadas) };
+  return {
+    ...VAZIO(),
+    ...Object.fromEntries(
+      linhas.map((linha) => [
+        linha.funcao as Funcao,
+        urlPorCaminho.get(linha.caminho as string) ?? null,
+      ]),
+    ),
+  };
 }
