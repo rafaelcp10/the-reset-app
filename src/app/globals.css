@@ -475,10 +475,28 @@ body {
     animation-delay: 0ms !important;
   }
   .atmosfera-bruma,
-  .pulso-respiracao {
+  .pulso-respiracao,
+  .esqueleto {
     animation: none !important;
   }
   .camada-parallax {
     transform: none !important;
   }
+}
+
+/* Esqueleto de carregamento. Respira devagar em vez de piscar: é uma
+   tela de espera de um app de calma, não um spinner de painel. */
+@keyframes respiro-esqueleto {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+.esqueleto {
+  background: var(--color-superficie2);
+  border-radius: 6px;
+  animation: respiro-esqueleto 1.8s ease-in-out infinite;
 }
