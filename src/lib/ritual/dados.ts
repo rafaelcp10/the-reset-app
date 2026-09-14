@@ -84,13 +84,18 @@ export async function buscarEstadoRitual(
   supabase: SupabaseClient,
   usuarioId: string,
 ): Promise<EstadoRitual> {
-  const { data: usuario } = await supabase
-    .from("usuarios")
-    .select(
-      "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres",
-    )
-    .eq("id", usuarioId)
-    .maybeSingle();
+  // As frases não dependem do fuso, então saem na mesma leva do perfil em
+  // vez de esperar uma travessia de rede inteira para começar.
+  const [{ data: usuario }, frases] = await Promise.all([
+    supabase
+      .from("usuarios")
+      .select(
+        "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres",
+      )
+      .eq("id", usuarioId)
+      .maybeSingle(),
+    buscarFrasesAtuais(supabase, usuarioId),
+  ]);
 
   const fuso: string = usuario?.fuso || FUSO_PADRAO;
   const horarioCheckin: string =
@@ -109,9 +114,8 @@ export async function buscarEstadoRitual(
   const semanaInicio = domingoDaSemana(hoje);
   const modo = modoRitual(partes, horarioCheckin);
 
-  const [frases, { data: compromissos }, { data: dias }, { data: musicas }] =
+  const [{ data: compromissos }, { data: dias }, { data: musicas }] =
     await Promise.all([
-      buscarFrasesAtuais(supabase, usuarioId),
       supabase
         .from("compromissos")
         .select("*")

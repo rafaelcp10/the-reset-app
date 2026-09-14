@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
-import { precisaDeOnboarding } from "@/lib/onboarding/entrada";
 import { buscarEstadoHome } from "@/lib/home/dados";
 import { FRASES_PADRAO } from "@/lib/frases/modelo";
 import Logo from "@/components/Logo";
@@ -22,13 +21,16 @@ export default async function HomePage() {
 
   await garantirUsuarioEFrasesPadrao(supabase, user);
 
-  // Quem nunca escolheu a palavra da frase 1 nunca foi conduzido: manda
-  // para o onboarding em vez de largar na tela com as frases padrão.
-  if (await precisaDeOnboarding(supabase, user.id)) {
-    redirect("/onboarding/abertura");
-  }
   const estado = await buscarEstadoHome(supabase, user.id);
   const { identidade } = estado;
+
+  // Quem nunca escolheu a palavra da frase 1 nunca foi conduzido: manda
+  // para o onboarding em vez de largar na tela com as frases padrão. A
+  // frase de identidade já veio na busca acima, então a pergunta custa
+  // zero — antes era uma ida ao banco só para reler o que já viria.
+  if (!identidade?.preenchimento_lacuna?.trim()) {
+    redirect("/onboarding/abertura");
+  }
 
   // "Vários dias sem abrir" — o exemplo do handoff usa 6 dias como cenário
   // de validação, por isso o limiar aqui. Não conta pra quem nunca abriu.

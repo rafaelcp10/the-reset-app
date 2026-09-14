@@ -10,14 +10,14 @@ export async function garantirUsuarioEFrasesPadrao(
   supabase: SupabaseClient,
   user: User,
 ) {
-  await supabase
-    .from("usuarios")
-    .upsert({ id: user.id, email: user.email ?? "" }, { onConflict: "id" });
-
-  const { data: existentes } = await supabase
-    .from("frases")
-    .select("funcao")
-    .eq("usuario_id", user.id);
+  // As duas não dependem uma da outra, e cada ida ao banco custa uma
+  // travessia de rede inteira numa função que roda a cada abertura de tela.
+  const [, { data: existentes }] = await Promise.all([
+    supabase
+      .from("usuarios")
+      .upsert({ id: user.id, email: user.email ?? "" }, { onConflict: "id" }),
+    supabase.from("frases").select("funcao").eq("usuario_id", user.id),
+  ]);
 
   const funcoesExistentes = new Set((existentes ?? []).map((f) => f.funcao));
   const faltando = FUNCOES.filter((funcao) => !funcoesExistentes.has(funcao));
