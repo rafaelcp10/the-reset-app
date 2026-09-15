@@ -184,3 +184,60 @@ export async function excluirExercicio(exercicioId: string, treinoId: string) {
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}`);
 }
+
+/**
+ * Grava o que foi levantado hoje.
+ *
+ * Uma linha por exercício por dia: registrar de novo no mesmo dia corrige
+ * o registro, não empilha um segundo. Corrigir para menos entra em
+ * silêncio — sem alerta, sem cor, sem "você regrediu" —, porque é isso que
+ * vira a base do próximo degrau.
+ */
+export async function registrarSerie(
+  exercicioId: string,
+  treinoId: string,
+  data: string,
+  valores: { carga: number | null; repeticoes: number; series: number },
+) {
+  const { supabase, user } = await usuarioAtual();
+
+  const carga =
+    valores.carga !== null && Number.isFinite(valores.carga) && valores.carga >= 0
+      ? Math.min(valores.carga, 1000)
+      : null;
+  const repeticoes = Math.min(Math.max(Math.round(valores.repeticoes), 1), 100);
+  const series = Math.min(Math.max(Math.round(valores.series), 1), 20);
+
+  await supabase.from("registros_exercicio").upsert(
+    {
+      usuario_id: user.id,
+      exercicio_id: exercicioId,
+      data,
+      carga_kg: carga,
+      repeticoes,
+      series,
+    },
+    { onConflict: "exercicio_id,data" },
+  );
+
+  revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
+  revalidatePath(`${CAMINHO}/exercicios/${exercicioId}`);
+}
+
+/** Desfaz o registro de hoje. Erro de dedo acontece. */
+export async function apagarRegistro(
+  exercicioId: string,
+  treinoId: string,
+  data: string,
+) {
+  const { supabase, user } = await usuarioAtual();
+  await supabase
+    .from("registros_exercicio")
+    .delete()
+    .eq("usuario_id", user.id)
+    .eq("exercicio_id", exercicioId)
+    .eq("data", data);
+
+  revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
+  revalidatePath(`${CAMINHO}/exercicios/${exercicioId}`);
+}

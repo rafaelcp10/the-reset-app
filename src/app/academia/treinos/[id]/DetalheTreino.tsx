@@ -150,16 +150,31 @@ function LinhaExercicio({
   treinoId: string;
   aoExecutar: (p: Promise<unknown>) => void;
 }) {
-  const [series, setSeries] = useState(exercicio.series);
-  const [reps, setReps] = useState(exercicio.repeticoes);
-  const [degrau, setDegrau] = useState(Number(exercicio.incremento_kg));
+  // Os campos guardam texto, não número.
+  //
+  // Com número, apagar o conteúdo virava `Number("")`, que é zero — o campo
+  // se reescrevia sozinho com "0" e não dava mais para digitar 12 sem antes
+  // vencer um zero que voltava a cada tecla. Agora o vazio continua vazio
+  // enquanto se digita, e só ao sair do campo vira número.
+  const [series, setSeries] = useState(String(exercicio.series));
+  const [reps, setReps] = useState(String(exercicio.repeticoes));
+  const [degrau, setDegrau] = useState(String(Number(exercicio.incremento_kg)));
 
-  function salvar(campos: Partial<{ series: number; reps: number; degrau: number }>) {
+  function numeroOu(bruto: string, padrao: number) {
+    const valor = Number(bruto.replace(",", "."));
+    return Number.isFinite(valor) && bruto.trim() !== "" ? valor : padrao;
+  }
+
+  function salvar() {
     const novo = {
-      series: campos.series ?? series,
-      repeticoes: campos.reps ?? reps,
-      incremento_kg: campos.degrau ?? degrau,
+      series: numeroOu(series, exercicio.series),
+      repeticoes: numeroOu(reps, exercicio.repeticoes),
+      incremento_kg: numeroOu(degrau, Number(exercicio.incremento_kg)),
     };
+    // Devolve à tela o que foi mesmo gravado, já corrigido pelos limites.
+    setSeries(String(novo.series));
+    setReps(String(novo.repeticoes));
+    setDegrau(String(novo.incremento_kg));
     aoExecutar(salvarExercicio(exercicio.id, treinoId, novo));
   }
 
@@ -198,8 +213,8 @@ function LinhaExercicio({
             min={1}
             max={20}
             value={series}
-            onChange={(e) => setSeries(Number(e.target.value))}
-            onBlur={() => salvar({ series })}
+            onChange={(e) => setSeries(e.target.value)}
+            onBlur={salvar}
             className={CAMPO}
           />
         </label>
@@ -213,8 +228,8 @@ function LinhaExercicio({
             min={1}
             max={100}
             value={reps}
-            onChange={(e) => setReps(Number(e.target.value))}
-            onBlur={() => salvar({ reps })}
+            onChange={(e) => setReps(e.target.value)}
+            onBlur={salvar}
             className={CAMPO}
           />
         </label>
@@ -229,8 +244,8 @@ function LinhaExercicio({
             min={0}
             max={50}
             value={degrau}
-            onChange={(e) => setDegrau(Number(e.target.value))}
-            onBlur={() => salvar({ degrau })}
+            onChange={(e) => setDegrau(e.target.value)}
+            onBlur={salvar}
             className={CAMPO}
           />
         </label>

@@ -58,7 +58,7 @@ export default async function AcademiaPage() {
             {deHoje.map((treino) => (
               <Link
                 key={treino.id}
-                href={`/academia/treinos/${treino.id}`}
+                href={`/academia/treinos/${treino.id}/sessao`}
                 className="flex min-h-14 items-center justify-between gap-3"
               >
                 <span className="text-[18px] leading-[1.5] text-texto">
