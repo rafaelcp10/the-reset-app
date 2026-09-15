@@ -17,7 +17,7 @@ const TABS: Tab[] = [
   { label: "Ritual", href: "/ritual", icon: Sunrise, active: true },
   { label: "To-do", href: "/todo", icon: CheckSquare, active: true },
   { label: "Objetivos", href: "/objetivos", icon: Target, active: false },
-  { label: "Academia", href: "/academia", icon: Dumbbell, active: false },
+  { label: "Academia", href: "/academia", icon: Dumbbell, active: true },
 ];
 
 export default function BottomNav() {
