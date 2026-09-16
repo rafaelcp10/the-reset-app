@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buscarGradeMensal, diaDaSemana } from "@/lib/todo/dados";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import Revelar from "@/components/movimento/Revelar";
+import GradeRolavel from "./GradeRolavel";
 
 const INICIAIS_SEMANA = ["D", "S", "T", "Q", "Q", "S", "S"];
 
@@ -33,6 +34,10 @@ export default async function GradePage({
   const mes = Number(mesParam) || mesHoje;
 
   const grade = await buscarGradeMensal(supabase, user.id, ano, mes);
+
+  // Navegando para outro mês, começar no dia 1 é o certo: ali não existe
+  // "onde eu estou", existe o mês inteiro.
+  const hojeNaGrade = ano === anoHoje && mes === mesHoje ? hoje : null;
 
   // Agrupa os dias por semana (a semana começa no domingo) para que a
   // grade tenha respiro entre os blocos em vez de virar uma fita só.
@@ -85,18 +90,21 @@ export default async function GradePage({
         </p>
       ) : (
         <Revelar imediato atraso={120} className="-mx-6">
-          <div className="overflow-x-auto pb-2">
+          <GradeRolavel hoje={hojeNaGrade}>
             <div className="min-w-max">
               {/* Cabeçalho: inicial do dia, agrupada por semana */}
               <div className="flex items-center">
-                <span className="coluna-fixa" />
+                <span className="coluna-fixa h-5 shrink-0" />
                 <div className="flex gap-4">
                   {semanas.map((semana, i) => (
                     <div key={i} className="flex gap-1.5">
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="tipo-rotulo w-5 text-center text-[12px] tracking-[0] text-auxiliar"
+                          data-dia={dia}
+                          className={`tipo-rotulo w-5 text-center text-[12px] tracking-[0] ${
+                            dia === hoje ? "text-texto" : "text-auxiliar"
+                          }`}
                         >
                           {INICIAIS_SEMANA[diaDaSemana(dia)]}
                         </span>
@@ -135,14 +143,16 @@ export default async function GradePage({
 
               {/* Rodapé: número do dia, para localizar a coluna */}
               <div className="mt-3 flex items-center">
-                <span className="coluna-fixa" />
+                <span className="coluna-fixa h-5 shrink-0" />
                 <div className="flex gap-4">
                   {semanas.map((semana, i) => (
                     <div key={i} className="flex gap-1.5">
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="w-5 text-center text-[12.5px] text-auxiliar-minimo"
+                          className={`w-5 text-center text-[12.5px] ${
+                            dia === hoje ? "text-texto" : "text-auxiliar-minimo"
+                          }`}
                         >
                           {Number(dia.slice(8))}
                         </span>
@@ -153,7 +163,7 @@ export default async function GradePage({
                 </div>
               </div>
             </div>
-          </div>
+          </GradeRolavel>
         </Revelar>
       )}
     </div>
