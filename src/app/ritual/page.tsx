@@ -86,40 +86,13 @@ export default async function RitualPage({
   const bgTemperatura =
     estado.modo === "manha" ? "temperatura-manha" : "temperatura-noite";
 
-  const moldura = `flex grow flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`;
-
-  /*
-   * A tela inverte à noite, e isso é desenho, não descuido.
-   *
-   * De manhã a pessoa chega para começar: a saudação abre, a música entra,
-   * e o Espelho é o próximo passo. À noite ela chega para fechar o dia —
-   * então o que ela veio marcar está no topo, e a saudação, que já cumpriu
-   * seu papel de manhã, afunda para o fim.
-   *
-   * Eu já unifiquei as duas ordens uma vez, achando que cabeçalho embaixo
-   * era erro. Não era. Fica registrado para ninguém "consertar" de novo.
-   */
-  if (estado.modo === "noite") {
-    return (
-      <div className={moldura}>
-        <Revelar imediato y={14} desfoque={4} className="flex flex-col gap-6">
-          {inegociaveis}
-          {linhaDoDia}
-        </Revelar>
-        <Revelar imediato atraso={160}>{frases}</Revelar>
-        <Revelar atraso={40}>
-          <BotaoEspelho />
-        </Revelar>
-        <Revelar atraso={80}>
-          <MusicaPlayer musica={estado.musica} />
-        </Revelar>
-        <Revelar atraso={120}>{cabecalho}</Revelar>
-      </div>
-    );
-  }
-
+  // Ordem das seções é fixa (manhã e noite) — só o fundo e o conteúdo
+  // interno de cada seção mudam com o horário. Ver README do handoff:
+  // "Tela do Ritual", lista 1-8.
   return (
-    <div className={moldura}>
+    <div
+      className={`flex grow flex-col gap-7 px-6 pb-[26px] pt-8 transition-colors duration-[600ms] ${bgTemperatura}`}
+    >
       <Revelar imediato y={14} desfoque={4}>
         {cabecalho}
       </Revelar>
