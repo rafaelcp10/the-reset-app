@@ -500,3 +500,48 @@ body {
   border-radius: 6px;
   animation: respiro-esqueleto 1.8s ease-in-out infinite;
 }
+
+/* ---------------------------------------------------------------------
+   Blocos — a linguagem de cartão da aba Academia.
+
+   O CLAUDE.md proíbe "cartão com borda", e continua proibindo: aqui não há
+   uma única borda. O que separa um bloco do fundo é elevação — superfície
+   mais clara e sombra —, que é justamente o que a revisão de linguagem
+   visual liberou para separar planos.
+
+   Existe porque a Academia é a única aba que se usa em pé, no meio de uma
+   série, com o celular a meio metro do rosto. Lá o alvo de toque precisa
+   ter contorno próprio; nas outras abas, que se leem sentado, a coluna
+   limpa continua certa.
+   --------------------------------------------------------------------- */
+
+.bloco {
+  background: var(--color-superficie1);
+  border-radius: 14px;
+  box-shadow: var(--elevacao-baixa);
+  transition:
+    background-color 200ms var(--curva-suave),
+    transform 200ms var(--curva-suave);
+}
+
+/* Só o que é tocável afunda. Bloco de leitura fica parado. */
+.bloco-toque:active {
+  background: var(--color-superficie2);
+  transform: scale(0.985);
+}
+
+/* O bloco da vez — o exercício em foco, o treino de hoje. Ganha luz âmbar
+   por baixo em vez de cor própria: continua sendo a mesma paleta. */
+.bloco-vez {
+  background: var(--color-superficie2);
+  box-shadow:
+    var(--elevacao-media),
+    inset 0 1px 0 0 rgb(201 123 58 / 0.14);
+}
+
+/* O cronômetro correndo. Números grandes e tabulares para não dançarem a
+   cada segundo que muda de largura. */
+.cronometro {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}

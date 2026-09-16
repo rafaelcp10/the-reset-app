@@ -241,3 +241,55 @@ export async function apagarRegistro(
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
   revalidatePath(`${CAMINHO}/exercicios/${exercicioId}`);
 }
+
+/**
+ * Começa o treino e liga o cronômetro.
+ *
+ * Se já havia uma sessão aberta, ela é fechada antes: quase sempre é um
+ * treino de ontem que ficou sem "finalizar", e deixar duas correndo faria
+ * o cronômetro mentir para as duas.
+ */
+export async function iniciarSessao(treinoId: string, data: string) {
+  const { supabase, user } = await usuarioAtual();
+
+  await supabase
+    .from("sessoes_treino")
+    .update({ fim: new Date().toISOString() })
+    .eq("usuario_id", user.id)
+    .is("fim", null);
+
+  await supabase
+    .from("sessoes_treino")
+    .insert({ usuario_id: user.id, treino_id: treinoId, data });
+
+  revalidatePath(CAMINHO);
+  redirect(`${CAMINHO}/treinos/${treinoId}/sessao`);
+}
+
+/** Encerra o treino. O tempo decorrido vira o registro da sessão. */
+export async function encerrarSessao(sessaoId: string, treinoId: string) {
+  const { supabase, user } = await usuarioAtual();
+
+  await supabase
+    .from("sessoes_treino")
+    .update({ fim: new Date().toISOString() })
+    .eq("usuario_id", user.id)
+    .eq("id", sessaoId);
+
+  revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
+  revalidatePath(CAMINHO);
+}
+
+/** Descarta a sessão aberta sem guardar tempo nenhum. */
+export async function descartarSessao(sessaoId: string, treinoId: string) {
+  const { supabase, user } = await usuarioAtual();
+
+  await supabase
+    .from("sessoes_treino")
+    .delete()
+    .eq("usuario_id", user.id)
+    .eq("id", sessaoId);
+
+  revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
+  revalidatePath(CAMINHO);
+}

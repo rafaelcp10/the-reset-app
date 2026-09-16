@@ -166,3 +166,74 @@ export async function buscarHistorico(
     ultimo: linhas[0] ?? null,
   };
 }
+
+export type SessaoAberta = {
+  id: string;
+  treino_id: string;
+  data: string;
+  inicio: string;
+  fim: string | null;
+};
+
+/**
+ * A sessão em curso, se houver.
+ *
+ * Existe uma só por vez de propósito: começar um treino sem ter terminado
+ * o anterior é quase sempre esquecimento, não intenção — e dois
+ * cronômetros correndo ao mesmo tempo não significam nada.
+ */
+export async function buscarSessaoAberta(
+  supabase: SupabaseClient,
+  usuarioId: string,
+): Promise<SessaoAberta | null> {
+  const { data } = await supabase
+    .from("sessoes_treino")
+    .select("id, treino_id, data, inicio, fim")
+    .eq("usuario_id", usuarioId)
+    .is("fim", null)
+    .order("inicio", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (data as SessaoAberta) ?? null;
+}
+
+/** As sessões já fechadas de um treino, da mais recente para a mais antiga. */
+export async function buscarSessoesDoTreino(
+  supabase: SupabaseClient,
+  usuarioId: string,
+  treinoId: string,
+  limite = 8,
+): Promise<SessaoAberta[]> {
+  const { data } = await supabase
+    .from("sessoes_treino")
+    .select("id, treino_id, data, inicio, fim")
+    .eq("usuario_id", usuarioId)
+    .eq("treino_id", treinoId)
+    .not("fim", "is", null)
+    .order("inicio", { ascending: false })
+    .limit(limite);
+
+  return (data ?? []) as SessaoAberta[];
+}
+
+/** Duração em segundos entre início e fim (ou agora, se ainda aberta). */
+export function duracaoSegundos(sessao: {
+  inicio: string;
+  fim: string | null;
+}): number {
+  const inicio = new Date(sessao.inicio).getTime();
+  const fim = sessao.fim ? new Date(sessao.fim).getTime() : Date.now();
+  return Math.max(0, Math.floor((fim - inicio) / 1000));
+}
+
+/** 1h 04min · 47min · 38s — o maior degrau que couber, sem zeros à toa. */
+export function formatarDuracao(segundos: number): string {
+  const h = Math.floor(segundos / 3600);
+  const m = Math.floor((segundos % 3600) / 60);
+  const s = segundos % 60;
+
+  if (h > 0) return `${h}h ${String(m).padStart(2, "0")}min`;
+  if (m > 0) return `${m}min`;
+  return `${s}s`;
+}

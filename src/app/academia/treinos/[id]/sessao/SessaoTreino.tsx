@@ -17,7 +17,7 @@ export default function SessaoTreino({
   data: string;
 }) {
   return (
-    <div className="flex flex-col gap-9">
+    <div className="flex flex-col gap-3">
       {itens.map((item) => (
         <LinhaSessao
           key={item.exercicio.id}
@@ -90,7 +90,11 @@ function LinhaSessao({
     "w-full border-b border-filete-media bg-transparent py-1.5 text-center text-[17px] text-texto outline-none transition-colors duration-200 focus:border-acento focus:bg-acento-escuro";
 
   return (
-    <div className="flex flex-col gap-3">
+    <div
+      className={`flex flex-col gap-3 rounded-[14px] px-4 py-4 ${
+        registrado ? "bloco-vez" : "bloco"
+      }`}
+    >
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[18px] leading-[1.4] text-texto">{exercicio.nome}</p>
         <Link
