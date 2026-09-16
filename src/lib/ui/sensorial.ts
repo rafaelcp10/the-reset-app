@@ -76,9 +76,33 @@ function novoContexto(): AudioContext | null {
  * Destrava o áudio. Só funciona chamado de dentro de um gesto do usuário
  * (um clique, um toque) — fora disso não faz mal, mas também não destrava.
  */
+/**
+ * O interruptor lateral do iPhone silencia a Web Audio API.
+ *
+ * Esta é a explicação que faltava: no iOS, som de página nasce na
+ * categoria "ambiente", que é justamente a que o botão de silencioso
+ * corta. Com o telefone no silencioso — que é como quase todo mundo anda —
+ * o app pode estar tocando certinho e não sair nada, sem erro nenhum para
+ * a tela mostrar.
+ *
+ * `audioSession.type = "playback"` move o áudio para a categoria de mídia,
+ * a mesma de um tocador de música, que ignora o interruptor. É o que
+ * permite a alguém pôr a respiração para tocar sem antes lembrar de virar
+ * uma chave física no lado do aparelho.
+ */
+function prepararSessaoDeAudio() {
+  try {
+    const nav = navigator as Navigator & { audioSession?: { type: string } };
+    if (nav.audioSession) nav.audioSession.type = "playback";
+  } catch {
+    // Navegador sem a API: segue no comportamento padrão.
+  }
+}
+
 export function destravarAudio() {
   if (lerGuia() === "silencioso") return;
   try {
+    prepararSessaoDeAudio();
     contextoCompartilhado ??= novoContexto();
     const contexto = contextoCompartilhado;
     if (!contexto) return;
@@ -266,5 +290,73 @@ export class GuiaRespiracao {
     this.ganho = null;
     if (this.proprio) this.contexto?.close().catch(() => {});
     this.contexto = null;
+  }
+}
+
+/** O som está destravado neste aparelho, agora? */
+export function audioLiberado(): boolean {
+  return audioDestravado && contextoCompartilhado?.state === "running";
+}
+
+export type ResultadoAmostra = "tocou" | "sem-audio";
+
+/**
+ * Toca uma amostra curta do tom da respiração.
+ *
+ * Existe porque a falha do som é invisível: sem isto, descobrir que não
+ * sai áudio custa entrar no Espelho, respirar e só então perceber. E como
+ * a causa costuma ser o interruptor de silencioso — que ninguém associa a
+ * um site —, a pessoa conclui que o app está quebrado.
+ *
+ * Precisa ser chamado de dentro de um toque, como qualquer som no iOS.
+ */
+export async function tocarAmostra(): Promise<ResultadoAmostra> {
+  try {
+    prepararSessaoDeAudio();
+    contextoCompartilhado ??= novoContexto();
+    const contexto = contextoCompartilhado;
+    if (!contexto) return "sem-audio";
+
+    await contexto.resume().catch(() => {});
+    audioDestravado = true;
+
+    const ganho = contexto.createGain();
+    ganho.gain.value = 0;
+    ganho.connect(contexto.destination);
+
+    const osciladores = [
+      [FUNDAMENTAL_HZ, 1],
+      [HARMONICO_HZ, 0.35],
+    ].map(([hz, proporcao]) => {
+      const osc = contexto.createOscillator();
+      const mistura = contexto.createGain();
+      osc.type = "sine";
+      osc.frequency.value = hz;
+      mistura.gain.value = proporcao;
+      osc.connect(mistura).connect(ganho);
+      osc.start();
+      return osc;
+    });
+
+    // Sobe e desce em 1,8s: o bastante para reconhecer o tom, curto o
+    // bastante para tocar de novo sem impaciência.
+    const agora = contexto.currentTime;
+    ganho.gain.linearRampToValueAtTime(PICO_GANHO, agora + 0.7);
+    ganho.gain.linearRampToValueAtTime(0, agora + 1.8);
+
+    setTimeout(() => {
+      for (const osc of osciladores) {
+        try {
+          osc.stop();
+        } catch {
+          // Já parou.
+        }
+      }
+      ganho.disconnect();
+    }, 2100);
+
+    return "tocou";
+  } catch {
+    return "sem-audio";
   }
 }

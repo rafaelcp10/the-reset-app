@@ -281,11 +281,17 @@ function TelaRespiracao({
   aoConcluir: () => void;
 }) {
   const [precisaToque, setPrecisaToque] = useState(false);
+  // O guia silencioso e o som quebrado davam exatamente a mesma tela. Quem
+  // tinha marcado "Som" em outro aparelho — a preferência é por aparelho —
+  // ficava esperando um tom que nunca tinha sido ligado aqui.
+  const [semSom, setSemSom] = useState(false);
 
   // O guia sensorial é escolhido por aparelho, em Ajustes. Silencioso é o
   // padrão: som só começa quando a pessoa pediu.
   useEffect(() => {
     const modo = lerGuia();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSemSom(modo === "silencioso");
     const guia = new GuiaRespiracao(modo);
     guia.iniciar();
     // No iPhone o áudio fica travado até um toque. Antes o toque avançava a
@@ -317,7 +323,9 @@ function TelaRespiracao({
         <p className="text-[15px] leading-[1.6] text-auxiliar">
           {precisaToque
             ? "Puxe o ar pelo nariz e solte fundo pela boca. Toque uma vez na tela para o som começar."
-            : "Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o ritmo — não precisa tocar em nada."}
+            : semSom
+              ? "Puxe o ar pelo nariz e solte fundo pela boca. Os pontos conduzem, em silêncio — o som se liga em Ajustes, neste aparelho."
+              : "Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o ritmo — não precisa tocar em nada."}
         </p>
       </div>
 

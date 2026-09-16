@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   gravarGuia,
   lerGuia,
+  tocarAmostra,
   vibracaoDisponivel,
   type GuiaSensorial,
 } from "@/lib/ui/sensorial";
@@ -22,6 +23,13 @@ const OPCOES: { valor: GuiaSensorial; rotulo: string }[] = [
 export default function GuiaSensorialForm() {
   const [guia, setGuia] = useState<GuiaSensorial>("silencioso");
   const [temVibracao, setTemVibracao] = useState(true);
+  const [amostra, setAmostra] = useState<"parado" | "tocando" | "erro">("parado");
+
+  async function ouvirAmostra() {
+    setAmostra("tocando");
+    const resultado = await tocarAmostra();
+    setAmostra(resultado === "tocou" ? "parado" : "erro");
+  }
 
   useEffect(() => {
     // Só depois de montar: localStorage e navigator não existem no
@@ -63,6 +71,27 @@ export default function GuiaSensorialForm() {
           </button>
         ))}
       </div>
+
+      {/* O teste tinha que existir: a falha do som é invisível. Sem isto,
+          descobrir que não sai áudio custava entrar no Espelho, respirar, e
+          só então perceber — e a causa mais comum é o interruptor de
+          silencioso, que ninguém associa a um app. */}
+      {guia === "som" && (
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={ouvirAmostra}
+            className="pilula tipo-rotulo min-h-11 self-start rounded-[10px] px-6 text-center text-[13.5px] tracking-[.09em] text-texto"
+          >
+            {amostra === "tocando" ? "Tocando" : "Ouvir uma amostra"}
+          </button>
+          <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+            {amostra === "erro"
+              ? "Este navegador não deixa o app fazer som."
+              : "Não ouviu nada? Confira o interruptor de silencioso na lateral do iPhone e o volume — no iOS ele corta o som de site mesmo com o volume alto."}
+          </p>
+        </div>
+      )}
 
       <p className="text-[14.5px] leading-[1.6] text-auxiliar">
         {guia === "som"
