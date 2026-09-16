@@ -51,11 +51,11 @@ export default function InstalarPage() {
               app estiver na sua tela de início. Leva 10 segundos:
             </p>
             <div className="flex items-center gap-3">
-              <Share className="h-5 w-5 shrink-0 text-texto" strokeWidth={1.5} />
+              <Share className="h-6 w-6 shrink-0 text-texto" strokeWidth={1.5} />
               <span>Toque no ícone de compartilhar, na barra do Safari.</span>
             </div>
             <div className="flex items-center gap-3">
-              <SquarePlus className="h-5 w-5 shrink-0 text-texto" strokeWidth={1.5} />
+              <SquarePlus className="h-6 w-6 shrink-0 text-texto" strokeWidth={1.5} />
               <span>Escolha &quot;Adicionar à Tela de Início&quot;.</span>
             </div>
           </div>
@@ -69,13 +69,13 @@ export default function InstalarPage() {
             </p>
             <div className="flex items-center gap-3">
               <MoreVertical
-                className="h-5 w-5 shrink-0 text-texto"
+                className="h-6 w-6 shrink-0 text-texto"
                 strokeWidth={1.5}
               />
               <span>Abra o menu do navegador.</span>
             </div>
             <div className="flex items-center gap-3">
-              <SquarePlus className="h-5 w-5 shrink-0 text-texto" strokeWidth={1.5} />
+              <SquarePlus className="h-6 w-6 shrink-0 text-texto" strokeWidth={1.5} />
               <span>Toque em &quot;Instalar app&quot; ou &quot;Adicionar à tela inicial&quot;.</span>
             </div>
           </div>

@@ -109,10 +109,10 @@ export default async function HomePage() {
             href="/academia"
             className="bloco bloco-toque flex flex-col gap-1 px-4 py-4"
           >
-            <h2 className="tipo-rotulo text-[11px] tracking-[.16em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[12.5px] tracking-[.16em] text-auxiliar">
               Academia
             </h2>
-            <p className="text-[13.5px] text-auxiliar-fraco">
+            <p className="text-[15px] text-auxiliar-fraco">
               Os treinos da semana e o registro de cada um.
             </p>
           </Link>
@@ -129,10 +129,10 @@ export default async function HomePage() {
 function PreviaBloqueada({ titulo, texto }: { titulo: string; texto: string }) {
   return (
     <div className="bloco flex flex-col gap-1 px-4 py-4">
-      <h2 className="tipo-rotulo text-[11px] tracking-[.16em] text-auxiliar-fraco">
+      <h2 className="tipo-rotulo text-[12.5px] tracking-[.16em] text-auxiliar-fraco">
         {titulo}
       </h2>
-      <p className="text-[13.5px] text-auxiliar-minimo">{texto}</p>
+      <p className="text-[15px] text-auxiliar-minimo">{texto}</p>
     </div>
   );
 }

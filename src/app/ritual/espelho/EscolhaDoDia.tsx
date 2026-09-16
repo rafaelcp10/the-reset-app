@@ -47,13 +47,13 @@ export default function EscolhaDoDia({
       className="entrada-frase flex flex-1 flex-col gap-8 px-6 py-8"
     >
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
           A linha de hoje
         </span>
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Qual é a de hoje?
         </h1>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[15px] leading-[1.6] text-auxiliar">
           {vazio
             ? "Ainda não há nada no seu dia. Escreva a de hoje."
             : "Do que já está no seu dia. Uma só."}
@@ -88,7 +88,7 @@ export default function EscolhaDoDia({
             type="button"
             disabled={enviando}
             onClick={vazio ? adiar : () => setEscrevendo(false)}
-            className="self-start text-[13.5px] text-auxiliar-fraco"
+            className="self-start text-[15px] text-auxiliar-fraco"
           >
             {vazio ? "decidir depois" : "voltar para a lista"}
           </button>
@@ -100,7 +100,7 @@ export default function EscolhaDoDia({
                 tarefa qualquer, é a pessoa se respondendo. */}
             {ditoOntem && (
               <div className="mb-4 flex flex-col gap-1">
-                <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
                   Você disse ontem
                 </span>
                 <button
@@ -132,7 +132,7 @@ export default function EscolhaDoDia({
             <button
               type="button"
               onClick={() => setEscrevendo(true)}
-              className="self-start text-[13.5px] text-auxiliar underline underline-offset-4"
+              className="self-start text-[15px] text-auxiliar underline underline-offset-4"
             >
               escrever outra
             </button>
@@ -140,7 +140,7 @@ export default function EscolhaDoDia({
               type="button"
               disabled={enviando}
               onClick={adiar}
-              className="self-start text-[13.5px] text-auxiliar-fraco"
+              className="self-start text-[15px] text-auxiliar-fraco"
             >
               decidir depois
             </button>

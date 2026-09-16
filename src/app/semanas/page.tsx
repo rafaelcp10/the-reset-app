@@ -22,7 +22,7 @@ export default async function SemanasPage() {
         aria-label="Voltar"
         className="-m-3 inline-flex self-start p-3 text-auxiliar"
       >
-        <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+        <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
       </Link>
 
       {/* Poucas semanas ocupam pouco espaço: em vez de deixar o número
@@ -38,10 +38,10 @@ export default async function SemanasPage() {
           >
             {estado.semanasCumpridas}
           </p>
-          <p className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+          <p className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
             semanas cumpridas
           </p>
-          <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+          <p className="text-[15px] leading-[1.6] text-auxiliar">
             Uma semana conta quando você abriu e respondeu. Não precisa ter sido
             uma boa semana.
           </p>
@@ -58,7 +58,7 @@ export default async function SemanasPage() {
             >
               <div className="flex flex-col gap-4">
                 {i > 0 && <div className="fio-luz" />}
-                <p className="text-[14.5px] text-texto">
+                <p className="text-[16px] text-texto">
                   <span className="tipo-rotulo tracking-[.1em] text-auxiliar">
                     Semana {String(semana.numero).padStart(2, "0")}
                   </span>{" "}

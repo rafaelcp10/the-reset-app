@@ -28,7 +28,7 @@ export default async function TreinoPage({
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
-          <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
       </div>
       <DetalheTreino treino={dados.treino} exercicios={dados.exercicios} />

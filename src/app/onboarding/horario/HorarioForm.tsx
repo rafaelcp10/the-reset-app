@@ -50,7 +50,7 @@ export default function HorarioForm({
         <h1 className="text-[24px] leading-[1.4] text-texto">
           Que horas você fecha o dia?
         </h1>
-        <p className="mt-3 text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="mt-3 text-[15px] leading-[1.6] text-auxiliar">
           À noite a mesma tela pede quatro toques: os três inegociáveis e a
           linha do dia.
         </p>

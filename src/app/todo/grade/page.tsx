@@ -50,7 +50,7 @@ export default async function GradePage({
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
-          <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
         <div className="flex items-center gap-1">
           <Link
@@ -58,28 +58,28 @@ export default async function GradePage({
             aria-label="Mês anterior"
             className="-m-2 inline-flex p-2 text-auxiliar"
           >
-            <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+            <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
           </Link>
           <Link
             href={`/todo/grade?ano=${grade.mesSeguinte.ano}&mes=${grade.mesSeguinte.mes}`}
             aria-label="Próximo mês"
             className="-m-2 inline-flex p-2 text-auxiliar"
           >
-            <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+            <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
           </Link>
         </div>
       </div>
 
       <Revelar imediato y={16} className="flex flex-col gap-1">
         <h1 className="text-[21px] text-texto">{grade.rotuloMes}</h1>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[15px] leading-[1.6] text-auxiliar">
           Só os itens recorrentes entram aqui. Dia cumprido acende; dia sem
           marca fica vazio.
         </p>
       </Revelar>
 
       {grade.recorrentes.length === 0 ? (
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16.5px] leading-[1.6] text-auxiliar">
           Nenhum item recorrente ainda. Um item vira recorrente no detalhe
           dele, na lista do to-do.
         </p>
@@ -96,7 +96,7 @@ export default async function GradePage({
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="tipo-rotulo w-5 text-center text-[10.5px] tracking-[0] text-auxiliar"
+                          className="tipo-rotulo w-5 text-center text-[12px] tracking-[0] text-auxiliar"
                         >
                           {INICIAIS_SEMANA[diaDaSemana(dia)]}
                         </span>
@@ -112,7 +112,7 @@ export default async function GradePage({
                   <div key={tarefa.id} className="flex items-center">
                     {/* A coluna de nomes acompanha a rolagem: sem ela, o
                         olho perde a linha assim que o mês corre. */}
-                    <span className="coluna-fixa truncate text-[13.5px] text-texto">
+                    <span className="coluna-fixa truncate text-[15px] text-texto">
                       {tarefa.texto}
                     </span>
                     <div className="flex gap-4">
@@ -142,7 +142,7 @@ export default async function GradePage({
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="w-5 text-center text-[11px] text-auxiliar-minimo"
+                          className="w-5 text-center text-[12.5px] text-auxiliar-minimo"
                         >
                           {Number(dia.slice(8))}
                         </span>

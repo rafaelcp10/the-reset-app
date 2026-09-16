@@ -23,12 +23,12 @@ export default function BlocoInegociaveis({
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
+      <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
         Inegociáveis da semana
       </h2>
 
       {definidos.length === 0 ? (
-        <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
+        <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
           Você ainda não definiu os três.{" "}
           <Link
             href="/ritual/domingo"
@@ -53,7 +53,7 @@ export default function BlocoInegociaveis({
 
           <Link
             href="/ritual/domingo"
-            className="px-1 text-[13px] text-auxiliar underline underline-offset-4"
+            className="px-1 text-[14.5px] text-auxiliar underline underline-offset-4"
           >
             editar no ritual de domingo
           </Link>
@@ -98,7 +98,7 @@ function LinhaInegociavel({
         >
           {marcado && (
             <Check
-              className="entrada-check h-4 w-4 text-texto"
+              className="entrada-check h-5 w-5 text-texto"
               strokeWidth={2}
             />
           )}

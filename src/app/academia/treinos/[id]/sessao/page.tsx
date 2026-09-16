@@ -43,14 +43,14 @@ export default async function SessaoPage({
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
-          <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
         <Link
           href={`/academia/treinos/${id}`}
           aria-label="Editar o treino"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
-          <Pencil className="h-[17px] w-[17px]" strokeWidth={1.5} />
+          <Pencil className="h-[22px] w-[22px]" strokeWidth={1.5} />
         </Link>
       </div>
 
@@ -58,7 +58,7 @@ export default async function SessaoPage({
         <h1 className="text-[26px] leading-tight text-texto">
           {sessao.treino.nome}
         </h1>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[15px] leading-[1.6] text-auxiliar">
           {emCurso
             ? "Confirme cada um conforme for fazendo."
             : ultima
@@ -79,7 +79,7 @@ export default async function SessaoPage({
 
       <Revelar imediato atraso={120}>
         {sessao.itens.length === 0 ? (
-          <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
             Este treino ainda não tem exercícios.
           </p>
         ) : (

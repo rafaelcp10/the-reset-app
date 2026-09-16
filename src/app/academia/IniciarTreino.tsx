@@ -50,7 +50,7 @@ export default function IniciarTreino({
         disabled={indo}
         className="botao-acento tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[14px] py-5 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-60"
       >
-        <Play className="h-[18px] w-[18px]" strokeWidth={2} />
+        <Play className="h-[22px] w-[22px]" strokeWidth={2} />
         {indo ? "Abrindo" : "Iniciar treino"}
       </button>
 
@@ -61,12 +61,12 @@ export default function IniciarTreino({
           className="flex min-h-14 items-center justify-between gap-3 px-4 text-left"
         >
           <span className="flex flex-col gap-0.5">
-            <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
+            <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
               {atual?.deHoje ? "O treino de hoje" : "Trocado para hoje"}
             </span>
             <span className="text-[16px] text-texto">{atual?.nome}</span>
           </span>
-          <span className="tipo-rotulo shrink-0 text-[11.5px] tracking-[.16em] text-auxiliar">
+          <span className="tipo-rotulo shrink-0 text-[13px] tracking-[.16em] text-auxiliar">
             {abrindo ? "fechar" : "trocar"}
           </span>
         </button>
@@ -84,13 +84,13 @@ export default function IniciarTreino({
                 className="flex min-h-12 items-center justify-between gap-3 text-left"
               >
                 <span
-                  className={`text-[15px] ${
+                  className={`text-[16.5px] ${
                     opcao.id === escolhido ? "text-acento" : "text-texto"
                   }`}
                 >
                   {opcao.nome}
                 </span>
-                <span className="tipo-rotulo shrink-0 text-[11px] tracking-[.18em] text-auxiliar-fraco">
+                <span className="tipo-rotulo shrink-0 text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
                   {opcao.dias.length
                     ? opcao.dias.map((d) => DIAS_ABREV[d]).join(" ")
                     : "sem dia"}

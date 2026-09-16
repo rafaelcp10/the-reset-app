@@ -30,7 +30,7 @@ export default function CampoInegociavelDomingo({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2 border-b border-filete-media focus-within:border-acento focus-within:bg-acento-escuro">
         {!valorAtual && (
-          <Plus className="h-4 w-4 shrink-0 text-auxiliar-fraco" strokeWidth={1.5} />
+          <Plus className="h-5 w-5 shrink-0 text-auxiliar-fraco" strokeWidth={1.5} />
         )}
         <input
           ref={inputRef}

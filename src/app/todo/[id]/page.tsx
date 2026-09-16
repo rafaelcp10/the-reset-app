@@ -35,7 +35,7 @@ export default async function TarefaPage({
         aria-label="Voltar"
         className="-m-3 inline-flex self-start p-3 text-auxiliar"
       >
-        <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+        <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
       </Link>
 
       <Revelar imediato y={16}>

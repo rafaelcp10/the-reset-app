@@ -47,13 +47,13 @@ export default function LoginPage() {
           <h1 className="text-[26px] leading-[1.3] text-texto">
             Recuperar o acesso
           </h1>
-          <p className="text-[14px] leading-[1.6] text-auxiliar">
+          <p className="text-[15.5px] leading-[1.6] text-auxiliar">
             Mandamos um link para você definir uma senha nova.
           </p>
         </div>
 
         {recuperacao.aviso ? (
-          <p className="text-[15px] leading-[1.6] text-texto">
+          <p className="text-[16.5px] leading-[1.6] text-texto">
             {recuperacao.aviso}
           </p>
         ) : (
@@ -69,7 +69,7 @@ export default function LoginPage() {
               className={CAMPO}
             />
             {recuperacao.erro && (
-              <p className="text-[12.5px] text-erro">{recuperacao.erro}</p>
+              <p className="text-[14px] text-erro">{recuperacao.erro}</p>
             )}
             <button
               type="submit"
@@ -84,7 +84,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={() => setEsqueci(false)}
-          className="self-center text-[13px] text-auxiliar underline underline-offset-4"
+          className="self-center text-[14.5px] text-auxiliar underline underline-offset-4"
         >
           voltar
         </button>
@@ -96,13 +96,13 @@ export default function LoginPage() {
     <div className="flex grow flex-col justify-center gap-7 px-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-[26px] leading-[1.3] text-texto">Entrar</h1>
-        <p className="text-[14px] leading-[1.6] text-auxiliar">
+        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
           Suas frases, suas gravações e seu histórico voltam com você.
         </p>
       </div>
 
       {erroRetorno && (
-        <p className="text-[12.5px] leading-[1.5] text-erro">{erroRetorno}</p>
+        <p className="text-[14px] leading-[1.5] text-erro">{erroRetorno}</p>
       )}
 
       {/* No app instalado o Google não tem como voltar, então nem aparece:
@@ -113,7 +113,7 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-filete" />
-            <span className="tipo-rotulo text-[11.5px] tracking-[.18em] text-auxiliar-minimo">
+            <span className="tipo-rotulo text-[13px] tracking-[.18em] text-auxiliar-minimo">
               ou
             </span>
             <span className="h-px flex-1 bg-filete" />
@@ -141,7 +141,7 @@ export default function LoginPage() {
           className={CAMPO}
         />
 
-        {estado.erro && <p className="text-[12.5px] text-erro">{estado.erro}</p>}
+        {estado.erro && <p className="text-[14px] text-erro">{estado.erro}</p>}
 
         <button
           type="submit"
@@ -156,13 +156,13 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={() => setEsqueci(true)}
-          className="text-[13px] text-auxiliar underline underline-offset-4"
+          className="text-[14.5px] text-auxiliar underline underline-offset-4"
         >
           esqueci minha senha
         </button>
         <Link
           href="/onboarding/abertura"
-          className="text-[13px] text-auxiliar-fraco underline underline-offset-4"
+          className="text-[14.5px] text-auxiliar-fraco underline underline-offset-4"
         >
           ainda não tenho conta
         </Link>

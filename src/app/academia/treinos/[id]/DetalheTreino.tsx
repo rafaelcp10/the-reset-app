@@ -47,7 +47,7 @@ export default function DetalheTreino({
     <div className="flex grow flex-col gap-10 px-6 pb-10 pt-6">
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
             O treino
           </h2>
           <IndicadorSalvo estado={estadoSalvo} />
@@ -69,11 +69,11 @@ export default function DetalheTreino({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+        <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           Em quais dias
         </h2>
         {dias.length === 0 && (
-          <p className="text-[13px] leading-[1.6] text-auxiliar">
+          <p className="text-[14.5px] leading-[1.6] text-auxiliar">
             Sem dia marcado ele não aparece em Hoje — fica guardado aqui até
             você escolher.
           </p>
@@ -85,7 +85,7 @@ export default function DetalheTreino({
               type="button"
               onClick={() => alternarDia(dia)}
               aria-pressed={dias.includes(dia)}
-              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[11px] tracking-[.06em] text-texto ${
+              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[12.5px] tracking-[.06em] text-texto ${
                 dias.includes(dia) ? "pilula-ativa" : ""
               }`}
             >
@@ -96,12 +96,12 @@ export default function DetalheTreino({
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+        <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           Exercícios
         </h2>
 
         {exercicios.length === 0 ? (
-          <p className="text-[15px] leading-[1.6] text-auxiliar">
+          <p className="text-[16.5px] leading-[1.6] text-auxiliar">
             Nenhum ainda. Escreva o nome abaixo — o app completa se conhecer, e
             aceita qualquer nome que você der.
           </p>
@@ -124,9 +124,9 @@ export default function DetalheTreino({
       <form action={excluirTreino.bind(null, treino.id)}>
         <button
           type="submit"
-          className="flex items-center gap-2 text-[13px] text-auxiliar"
+          className="flex items-center gap-2 text-[14.5px] text-auxiliar"
         >
-          <Trash2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
+          <Trash2 className="h-5 w-5" strokeWidth={1.5} />
           Excluir treino
         </button>
       </form>
@@ -191,20 +191,20 @@ function LinhaExercicio({
             aria-label={`Remover ${exercicio.nome}`}
             className="-m-2 inline-flex shrink-0 p-2 text-auxiliar-fraco"
           >
-            <Trash2 className="h-[14px] w-[14px]" strokeWidth={1.5} />
+            <Trash2 className="h-[19px] w-[19px]" strokeWidth={1.5} />
           </button>
         </form>
       </div>
 
       {exercicio.grupo && (
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
           {ROTULO_GRUPO[exercicio.grupo]}
         </span>
       )}
 
       <div className="flex items-end gap-4">
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Séries
           </span>
           <input
@@ -219,7 +219,7 @@ function LinhaExercicio({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Reps
           </span>
           <input
@@ -234,7 +234,7 @@ function LinhaExercicio({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Degrau
           </span>
           <input
@@ -299,7 +299,7 @@ function CampoExercicio({
           }}
           enterKeyHint="done"
           placeholder="adicionar exercício"
-          className="w-full bg-transparent py-3 text-[15px] text-texto outline-none placeholder:text-auxiliar-fraco"
+          className="w-full bg-transparent py-3 text-[16.5px] text-texto outline-none placeholder:text-auxiliar-fraco"
         />
         {texto.trim() && (
           <button
@@ -308,7 +308,7 @@ function CampoExercicio({
             aria-label="Adicionar exercício"
             className="-m-2 inline-flex shrink-0 p-2 text-texto"
           >
-            <Plus className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <Plus className="h-[22px] w-[22px]" strokeWidth={1.5} />
           </button>
         )}
       </div>
@@ -322,8 +322,8 @@ function CampoExercicio({
               onClick={() => adicionar(item)}
               className="flex min-h-11 items-center justify-between gap-3 text-left"
             >
-              <span className="text-[15px] text-texto">{item.nome}</span>
-              <span className="tipo-rotulo shrink-0 text-[11px] tracking-[.2em] text-auxiliar-fraco">
+              <span className="text-[16.5px] text-texto">{item.nome}</span>
+              <span className="tipo-rotulo shrink-0 text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
                 {ROTULO_GRUPO[item.grupo]}
               </span>
             </button>

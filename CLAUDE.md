@@ -31,8 +31,11 @@ PWA instalável. Sem app nativo, sem loja.
   (`superficie2`), nem contorno de campo abaixo de 3:1. Os cinzas foram
   recalibrados em 2026-09-16 por isso — `auxiliar` era #8A8C8F e ficava em
   5.2, mas `auxiliar-fraco` e `auxiliar-minimo` estavam em 3.2 e 2.6.
-- Nada de texto abaixo de 11px. Rótulo em caixa alta com tracking largo
-  cansa mais, não menos, e o app é usado com a vista cansada à noite.
+- Nada de texto abaixo de 12.5px, nem ícone abaixo de 18px. O piso era
+  11px e ainda custava esforço para ler: o app é usado com a vista cansada
+  à noite, e rótulo em caixa alta com tracking largo cansa mais, não menos.
+  Ícone pequeno é pior que texto pequeno — ele é alvo de toque e sinal de
+  função ao mesmo tempo.
 - Texto em botão âmbar é #101114, nunca branco.
 - Tipografia: Archivo (frases) e Inter (interface), via Google Fonts.
 - Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela.

@@ -48,7 +48,7 @@ export default function LinhaTarefa({
         className="flex min-h-11 shrink-0 items-center"
       >
         <span
-          className={`flex h-[18px] w-[18px] items-center justify-center rounded-[3px] border transition-colors duration-[250ms] ${
+          className={`flex h-[22px] w-[22px] items-center justify-center rounded-[3px] border transition-colors duration-[250ms] ${
             feito ? "border-acento bg-acento-escuro" : "border-filete-forte"
           }`}
         >
@@ -60,7 +60,7 @@ export default function LinhaTarefa({
 
       <Link
         href={`/todo/${tarefa.id}`}
-        className={`min-w-0 flex-1 truncate py-2 text-[15px] transition-colors duration-[250ms] ${
+        className={`min-w-0 flex-1 truncate py-2 text-[16.5px] transition-colors duration-[250ms] ${
           feito ? "text-auxiliar line-through decoration-1" : "text-texto"
         }`}
       >
@@ -74,12 +74,12 @@ export default function LinhaTarefa({
           aria-label="Trazer para hoje"
           className="-m-3 inline-flex shrink-0 p-3 text-auxiliar"
         >
-          <ArrowUp className="h-[15px] w-[15px]" strokeWidth={1.5} />
+          <ArrowUp className="h-5 w-5" strokeWidth={1.5} />
         </button>
       )}
 
       <IconeTipo
-        className="h-[13px] w-[13px] shrink-0 text-auxiliar-minimo"
+        className="h-[18px] w-[18px] shrink-0 text-auxiliar-minimo"
         strokeWidth={1.5}
         aria-hidden="true"
       />

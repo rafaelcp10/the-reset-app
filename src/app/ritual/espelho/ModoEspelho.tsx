@@ -121,14 +121,14 @@ export default function ModoEspelho({
       {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
       <div className="flex items-center justify-between px-6 pt-6">
-        <span className="tipo-rotulo text-[12px] tracking-[.18em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.18em] text-auxiliar">
           {mostrandoRodape
             ? `Passo ${passo + 1} de ${frases.length + 1}${maosLivres ? " · Automático" : ""}`
             : ""}
         </span>
         <Link
           href="/ritual"
-          className="tipo-rotulo -m-3 inline-flex p-3 text-[12px] tracking-[.18em] text-auxiliar"
+          className="tipo-rotulo -m-3 inline-flex p-3 text-[13.5px] tracking-[.18em] text-auxiliar"
         >
           Sair
         </Link>
@@ -206,7 +206,7 @@ function EscolhaModo({
       className="entrada-frase flex flex-1 flex-col justify-center gap-8 px-6 py-8"
     >
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
           As cinco frases
         </span>
         <h1 className="text-[26px] leading-[1.3] text-texto">Como hoje?</h1>
@@ -229,13 +229,13 @@ function EscolhaModo({
           type="button"
           onClick={aoOuvir}
           disabled={!temGravacao}
-          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[14px] tracking-[.09em] text-texto disabled:opacity-40"
+          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[15.5px] tracking-[.09em] text-texto disabled:opacity-40"
         >
           Ouvir na minha voz
         </button>
 
         {!temGravacao && (
-          <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
+          <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
             Grave sua voz em alguma frase, na tela do Ritual, e ela toca aqui.
           </p>
         )}
@@ -245,14 +245,14 @@ function EscolhaModo({
           momento em que ele importa. A pergunta é a mesma — como hoje —
           então a resposta fica aqui. */}
       <div className="flex flex-col gap-3">
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
           A frase passa
         </span>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => aoTrocarAvanco(false)}
-            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[12px] tracking-[.09em] text-texto ${
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
               !maosLivres ? "pilula-ativa" : ""
             }`}
           >
@@ -261,7 +261,7 @@ function EscolhaModo({
           <button
             type="button"
             onClick={() => aoTrocarAvanco(true)}
-            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[12px] tracking-[.09em] text-texto ${
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
               maosLivres ? "pilula-ativa" : ""
             }`}
           >
@@ -314,7 +314,7 @@ function TelaRespiracao({
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Respire dez vezes
         </h1>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[15px] leading-[1.6] text-auxiliar">
           {precisaToque
             ? "Puxe o ar pelo nariz e solte fundo pela boca. Toque uma vez na tela para o som começar."
             : "Puxe o ar pelo nariz e solte fundo pela boca. Os pontos marcam o ritmo — não precisa tocar em nada."}
@@ -427,10 +427,10 @@ function TelaFrase({
   return (
     <div className="entrada-frase flex flex-1 flex-col justify-between px-6 py-8">
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
           {item.rotulo} · frase {indice} de {total}
         </span>
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[15px] leading-[1.6] text-auxiliar">
           {esperandoToque
             ? "Na sua voz · um toque segue para a próxima."
             : modoAudio
@@ -452,11 +452,11 @@ function TelaFrase({
       <div className="flex flex-col gap-3">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="tipo-rotulo flex items-center gap-4 text-[11.5px] tracking-[.16em]"
+          className="tipo-rotulo flex items-center gap-4 text-[13px] tracking-[.16em]"
         >
           <OuvirGravacao url={item.urlGravacao} />
           <span className="flex items-center gap-1.5 text-auxiliar-fraco">
-            <Mic className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            <Mic className="h-[18px] w-[18px]" strokeWidth={1.5} />
             Gravar
           </span>
           <span className="rounded-[3px] bg-superficie2 px-1.5 py-0.5 text-auxiliar-fraco">
@@ -478,7 +478,7 @@ function TelaFrase({
               />
             ))}
           </div>
-          <span className="tipo-rotulo text-[11.5px] tracking-[.16em] text-auxiliar-minimo">
+          <span className="tipo-rotulo text-[13px] tracking-[.16em] text-auxiliar-minimo">
             {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
           </span>
         </div>
@@ -528,7 +528,7 @@ function OuvirGravacao({ url }: { url: string | null }) {
   if (!url) {
     return (
       <span className="flex items-center gap-1.5 text-auxiliar-fraco">
-        <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
+        <Play className="h-[18px] w-[18px]" strokeWidth={1.5} />
         Ouvir
       </span>
     );
@@ -557,9 +557,9 @@ function OuvirGravacao({ url }: { url: string | null }) {
         className="flex items-center gap-1.5 text-texto"
       >
         {tocando ? (
-          <Square className="h-[13px] w-[13px]" strokeWidth={1.5} />
+          <Square className="h-[18px] w-[18px]" strokeWidth={1.5} />
         ) : (
-          <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
+          <Play className="h-[18px] w-[18px]" strokeWidth={1.5} />
         )}
         {tocando ? "Parar" : "Ouvir"}
       </button>
@@ -621,8 +621,8 @@ function Rodape({
       onClick={(e) => e.stopPropagation()}
       className="vidro flex flex-col gap-4 px-6 pb-8 pt-4"
     >
-      <div className="flex items-center gap-2 text-[13px]">
-        <Music className="h-4 w-4 shrink-0 text-auxiliar" strokeWidth={1.5} />
+      <div className="flex items-center gap-2 text-[14.5px]">
+        <Music className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.5} />
         <span className="flex-1 truncate text-auxiliar">
           {musicaUrl ? musicaNome || "Sua música" : "Sem música"}
         </span>

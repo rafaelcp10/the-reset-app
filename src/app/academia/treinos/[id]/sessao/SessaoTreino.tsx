@@ -102,20 +102,20 @@ function LinhaSessao({
           aria-label={`Histórico de ${exercicio.nome}`}
           className="-m-2 inline-flex shrink-0 p-2 text-auxiliar-fraco"
         >
-          <History className="h-[15px] w-[15px]" strokeWidth={1.5} />
+          <History className="h-5 w-5" strokeWidth={1.5} />
         </Link>
       </div>
 
       {/* A memória, em uma linha. É ela que transforma a tela num registro
           em vez de um formulário. */}
-      <p className="text-[13px] leading-[1.6] text-auxiliar">
+      <p className="text-[14.5px] leading-[1.6] text-auxiliar">
         {ultimo
           ? `última vez · ${ultimo.series ?? exercicio.series}×${ultimo.repeticoes ?? exercicio.repeticoes} · ${kg(ultimo.carga_kg)}`
           : "primeira vez — o que você fizer hoje vira a base."}
       </p>
 
       {ultimo && !registrado && (
-        <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
+        <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
           {semCarga
             ? `hoje a proposta é uma repetição a mais: ${propostaReps}`
             : `hoje a proposta é ${kg(propostaCarga)}`}
@@ -124,7 +124,7 @@ function LinhaSessao({
 
       <div className="flex items-end gap-4">
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Séries
           </span>
           <input
@@ -138,7 +138,7 @@ function LinhaSessao({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Reps
           </span>
           <input
@@ -152,7 +152,7 @@ function LinhaSessao({
           />
         </label>
         <label className="flex flex-[1.4] flex-col gap-1">
-          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Carga (kg)
           </span>
           <input
@@ -171,21 +171,21 @@ function LinhaSessao({
 
       {registrado ? (
         <div className="flex items-center gap-4">
-          <span className="tipo-rotulo flex items-center gap-2 text-[12px] tracking-[.16em] text-acento">
-            <Check className="h-[14px] w-[14px]" strokeWidth={2} />
+          <span className="tipo-rotulo flex items-center gap-2 text-[13.5px] tracking-[.16em] text-acento">
+            <Check className="h-[19px] w-[19px]" strokeWidth={2} />
             Registrado
           </span>
           <button
             type="button"
             onClick={desfazer}
-            className="text-[13px] text-auxiliar-fraco underline underline-offset-4"
+            className="text-[14.5px] text-auxiliar-fraco underline underline-offset-4"
           >
             desfazer
           </button>
           <button
             type="button"
             onClick={registrar}
-            className="text-[13px] text-auxiliar underline underline-offset-4"
+            className="text-[14.5px] text-auxiliar underline underline-offset-4"
           >
             corrigir
           </button>
@@ -195,7 +195,7 @@ function LinhaSessao({
           type="button"
           onClick={registrar}
           disabled={salvando}
-          className="pilula tipo-rotulo min-h-11 self-start rounded-[8px] px-6 text-center text-[12px] tracking-[.09em] text-texto disabled:opacity-50"
+          className="pilula tipo-rotulo min-h-11 self-start rounded-[8px] px-6 text-center text-[13.5px] tracking-[.09em] text-texto disabled:opacity-50"
         >
           {salvando ? "Gravando" : "Registrar"}
         </button>

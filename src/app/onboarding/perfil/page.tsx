@@ -18,7 +18,7 @@ export default function PerfilPage() {
     <div className="flex grow flex-col gap-8 px-6 pb-10 pt-10">
       <Revelar imediato y={14} className="flex flex-col gap-3">
         <h1 className="text-[26px] leading-[1.3] text-texto">Quem é você?</h1>
-        <p className="text-[14px] leading-[1.6] text-auxiliar">
+        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
           Só o nome é obrigatório. O resto é para a aba Academia, que ainda
           está por vir — e fica guardado como dado seu, nunca como nota.
         </p>
@@ -31,7 +31,7 @@ export default function PerfilPage() {
           <div className="flex flex-col gap-2">
             <label
               htmlFor="nome"
-              className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar"
+              className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar"
             >
               Nome
             </label>
@@ -49,7 +49,7 @@ export default function PerfilPage() {
           <div className="flex flex-col gap-2">
             <label
               htmlFor="nascimento"
-              className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar"
+              className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar"
             >
               Nascimento
             </label>
@@ -65,7 +65,7 @@ export default function PerfilPage() {
             <div className="flex flex-1 flex-col gap-2">
               <label
                 htmlFor="altura"
-                className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar"
+                className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar"
               >
                 Altura (cm)
               </label>
@@ -83,7 +83,7 @@ export default function PerfilPage() {
             <div className="flex flex-1 flex-col gap-2">
               <label
                 htmlFor="peso"
-                className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar"
+                className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar"
               >
                 Peso (kg)
               </label>
@@ -102,7 +102,7 @@ export default function PerfilPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+            <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
               O que você quer
             </span>
             <div className="flex flex-wrap gap-2">
@@ -111,7 +111,7 @@ export default function PerfilPage() {
                   key={opcao.valor}
                   type="button"
                   onClick={() => setMeta(meta === opcao.valor ? "" : opcao.valor)}
-                  className={`pilula tipo-rotulo rounded-[8px] px-4 py-3 text-[12px] tracking-[.09em] text-texto ${
+                  className={`pilula tipo-rotulo rounded-[8px] px-4 py-3 text-[13.5px] tracking-[.09em] text-texto ${
                     meta === opcao.valor ? "pilula-ativa" : ""
                   }`}
                 >
@@ -122,7 +122,7 @@ export default function PerfilPage() {
           </div>
 
           {estado.erro && (
-            <p className="text-[12.5px] leading-[1.5] text-erro">{estado.erro}</p>
+            <p className="text-[14px] leading-[1.5] text-erro">{estado.erro}</p>
           )}
 
           <button

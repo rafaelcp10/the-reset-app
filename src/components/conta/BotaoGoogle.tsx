@@ -51,13 +51,13 @@ export default function BotaoGoogle({
         type="button"
         onClick={acionar}
         disabled={indo}
-        className="pilula tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[10px] py-3.5 text-[13px] tracking-[.09em] text-texto disabled:opacity-50"
+        className="pilula tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[10px] py-3.5 text-[14.5px] tracking-[.09em] text-texto disabled:opacity-50"
       >
         <MarcaGoogle />
         {indo ? "Abrindo" : rotulo}
       </button>
 
-      {erro && <p className="text-[12.5px] leading-[1.5] text-erro">{erro}</p>}
+      {erro && <p className="text-[14px] leading-[1.5] text-erro">{erro}</p>}
     </div>
   );
 }
@@ -66,7 +66,7 @@ export default function BotaoGoogle({
 function MarcaGoogle() {
   return (
     <svg
-      className="h-[17px] w-[17px] shrink-0"
+      className="h-[22px] w-[22px] shrink-0"
       viewBox="0 0 18 18"
       aria-hidden="true"
     >

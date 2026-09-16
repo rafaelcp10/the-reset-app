@@ -38,7 +38,7 @@ export default function NovoTreino() {
           }}
           enterKeyHint="done"
           placeholder="novo treino"
-          className="w-full bg-transparent py-3 text-[15px] text-texto outline-none placeholder:text-auxiliar-fraco"
+          className="w-full bg-transparent py-3 text-[16.5px] text-texto outline-none placeholder:text-auxiliar-fraco"
         />
         {temTexto && (
           <button
@@ -47,7 +47,7 @@ export default function NovoTreino() {
             aria-label="Criar treino"
             className="-m-2 inline-flex shrink-0 p-2 text-texto"
           >
-            <Plus className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <Plus className="h-[22px] w-[22px]" strokeWidth={1.5} />
           </button>
         )}
       </div>

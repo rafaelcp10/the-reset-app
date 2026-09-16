@@ -41,8 +41,8 @@ export default function BottomNav() {
                   aria-disabled="true"
                   className="flex select-none flex-col items-center gap-1 py-2 text-auxiliar/40"
                 >
-                  <Icon className="h-6 w-6" strokeWidth={1.5} />
-                  <span className="text-[11px] font-interface">
+                  <Icon className="h-7 w-7" strokeWidth={1.5} />
+                  <span className="text-[12.5px] font-interface">
                     {tab.label}
                   </span>
                   <span className="h-[3px] w-[3px]" />
@@ -60,12 +60,12 @@ export default function BottomNav() {
                 }`}
               >
                 <Icon
-                  className={`h-6 w-6 transition-transform duration-500 ${
+                  className={`h-7 w-7 transition-transform duration-500 ${
                     isCurrent ? "scale-105" : "scale-100"
                   }`}
                   strokeWidth={1.5}
                 />
-                <span className="text-[11px]">{tab.label}</span>
+                <span className="text-[12.5px]">{tab.label}</span>
                 <span
                   className={`h-[3px] w-[3px] rounded-full bg-acento transition-opacity duration-500 ${
                     isCurrent ? "opacity-100" : "opacity-0"

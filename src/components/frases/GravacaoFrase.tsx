@@ -155,7 +155,7 @@ export default function GravacaoFrase({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="tipo-rotulo flex items-center gap-5 text-[11.5px] tracking-[.16em]">
+      <div className="tipo-rotulo flex items-center gap-5 text-[13px] tracking-[.16em]">
         <button
           type="button"
           onClick={ouvir}
@@ -164,7 +164,7 @@ export default function GravacaoFrase({
             temGravacao && !gravando ? "text-auxiliar" : "text-auxiliar-fraco"
           }`}
         >
-          <Play className="h-[13px] w-[13px]" strokeWidth={1.5} />
+          <Play className="h-[18px] w-[18px]" strokeWidth={1.5} />
           {estado === "tocando" ? "Parar" : "Ouvir"}
         </button>
 
@@ -177,9 +177,9 @@ export default function GravacaoFrase({
           }`}
         >
           {gravando ? (
-            <Square className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            <Square className="h-[18px] w-[18px]" strokeWidth={1.5} />
           ) : (
-            <Mic className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            <Mic className="h-[18px] w-[18px]" strokeWidth={1.5} />
           )}
           {gravando
             ? "Parar"
@@ -197,14 +197,14 @@ export default function GravacaoFrase({
             aria-label="Apagar gravação"
             className="text-auxiliar-fraco"
           >
-            <X className="h-[13px] w-[13px]" strokeWidth={1.5} />
+            <X className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </button>
         )}
 
         {children}
       </div>
 
-      {erro && <p className="text-[11px] text-erro">{erro}</p>}
+      {erro && <p className="text-[12.5px] text-erro">{erro}</p>}
 
       {url && (
         <audio

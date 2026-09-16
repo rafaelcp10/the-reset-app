@@ -30,18 +30,18 @@ export default function Cabecalho({
               aria-label="Semanas"
               className="-m-[13.5px] inline-flex p-[13.5px]"
             >
-              <Calendar className="h-[17px] w-[17px]" strokeWidth={1.5} />
+              <Calendar className="h-[22px] w-[22px]" strokeWidth={1.5} />
             </Link>
             <Link
               href="/ajustes"
               aria-label="Ajustes"
               className="-m-[13.5px] inline-flex p-[13.5px]"
             >
-              <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
+              <Settings className="h-[22px] w-[22px]" strokeWidth={1.5} />
             </Link>
           </div>
         </div>
-        <p className="tipo-rotulo mt-1 text-[11px] tracking-[.18em] text-auxiliar">
+        <p className="tipo-rotulo mt-1 text-[12.5px] tracking-[.18em] text-auxiliar">
           {dataExtenso} · semana {numeroSemana}
         </p>
       </div>

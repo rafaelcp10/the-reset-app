@@ -44,7 +44,7 @@ export default function LinhaDoDia({
     return (
       <section className="bloco flex flex-col gap-3 px-4 py-4">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
+          <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-acento">
             A linha de hoje
           </h2>
           <IndicadorSalvo estado={estadoSalvo} />
@@ -65,7 +65,7 @@ export default function LinhaDoDia({
 
   return (
     <section className="bloco flex flex-col gap-3 px-4 py-4">
-      <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
+      <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-acento">
         A linha de hoje
       </h2>
 
@@ -109,7 +109,7 @@ export default function LinhaDoDia({
       </div>
 
       {feitoOntem !== null && (
-        <p className="text-[13.5px] text-auxiliar">
+        <p className="text-[15px] text-auxiliar">
           Ontem · {feitoOntem ? "feita" : "não feita"}
           {linhaOntem ? ` — ${linhaOntem}` : ""}
         </p>
@@ -150,7 +150,7 @@ function CampoAmanha({
   return (
     <div className="mt-2 flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+        <h3 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           E amanhã
         </h3>
         <IndicadorSalvo estado={estadoSalvo} />
@@ -168,7 +168,7 @@ function CampoAmanha({
         }}
         enterKeyHint="done"
         placeholder="se já souber, deixa dito"
-        className="w-full border-b border-filete-media bg-transparent px-2 py-1.5 text-[15px] leading-[1.6] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
+        className="w-full border-b border-filete-media bg-transparent px-2 py-1.5 text-[16.5px] leading-[1.6] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
       />
     </div>
   );

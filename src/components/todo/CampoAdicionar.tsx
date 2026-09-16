@@ -59,7 +59,7 @@ export default function CampoAdicionar({
           }}
           enterKeyHint="done"
           placeholder="adicionar"
-          className="w-full bg-transparent py-4 text-[15px] text-texto outline-none placeholder:text-auxiliar-fraco"
+          className="w-full bg-transparent py-4 text-[16.5px] text-texto outline-none placeholder:text-auxiliar-fraco"
         />
         {temTexto && (
           <button
@@ -68,7 +68,7 @@ export default function CampoAdicionar({
             aria-label="Adicionar"
             className="-m-2 inline-flex shrink-0 p-2 text-texto"
           >
-            <Plus className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <Plus className="h-[22px] w-[22px]" strokeWidth={1.5} />
           </button>
         )}
       </div>
@@ -82,7 +82,7 @@ export default function CampoAdicionar({
               onClick={() =>
                 setQuando(quando === opcao.valor ? null : opcao.valor)
               }
-              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[10px] px-3 text-center text-[11px] tracking-[.06em] text-texto ${
+              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[10px] px-3 text-center text-[12.5px] tracking-[.06em] text-texto ${
                 quando === opcao.valor ? "pilula-ativa" : ""
               }`}
             >

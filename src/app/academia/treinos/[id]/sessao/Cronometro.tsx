@@ -52,7 +52,7 @@ export default function Cronometro({
   return (
     <div className="bloco-vez flex flex-col gap-4 rounded-[14px] px-5 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
           Em treino
         </span>
         <span className="cronometro text-[34px] leading-none text-texto">
@@ -68,9 +68,9 @@ export default function Cronometro({
             setEncerrando(true);
             encerrarSessao(sessaoId, treinoId);
           }}
-          className="pilula tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[10px] text-center text-[12px] tracking-[.09em] text-texto disabled:opacity-50"
+          className="pilula tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[10px] text-center text-[13.5px] tracking-[.09em] text-texto disabled:opacity-50"
         >
-          <Square className="h-[13px] w-[13px]" strokeWidth={2} />
+          <Square className="h-[18px] w-[18px]" strokeWidth={2} />
           {encerrando ? "Encerrando" : "Finalizar treino"}
         </button>
         <button
@@ -80,7 +80,7 @@ export default function Cronometro({
             setEncerrando(true);
             descartarSessao(sessaoId, treinoId);
           }}
-          className="shrink-0 text-[13px] text-auxiliar-fraco underline underline-offset-4"
+          className="shrink-0 text-[14.5px] text-auxiliar-fraco underline underline-offset-4"
         >
           descartar
         </button>

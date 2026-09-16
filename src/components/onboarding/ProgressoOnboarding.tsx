@@ -21,12 +21,12 @@ export default function ProgressoOnboarding() {
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
-          <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+          <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
       ) : (
-        <div className="h-5 w-5" />
+        <div className="h-6 w-6" />
       )}
-      <span className="tipo-rotulo text-[12px] tracking-[.18em] text-auxiliar">
+      <span className="tipo-rotulo text-[13.5px] tracking-[.18em] text-auxiliar">
         {passoMacro ? `Passo ${passoMacro} de 5` : ""}
       </span>
     </div>

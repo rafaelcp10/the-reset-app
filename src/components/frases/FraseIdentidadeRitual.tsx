@@ -58,7 +58,7 @@ export default function FraseIdentidadeRitual({
       onClick={() => setEditando(true)}
       className="flex items-center gap-1.5 text-auxiliar"
     >
-      <Pencil className="h-[13px] w-[13px]" strokeWidth={1.5} />
+      <Pencil className="h-[18px] w-[18px]" strokeWidth={1.5} />
       Editar
     </button>
   );
@@ -95,7 +95,7 @@ export default function FraseIdentidadeRitual({
               <IndicadorSalvo estado={estadoSalvo} />
             </GravacaoFrase>
           ) : (
-            <div className="tipo-rotulo flex items-center gap-5 text-[11.5px] tracking-[.16em]">
+            <div className="tipo-rotulo flex items-center gap-5 text-[13px] tracking-[.16em]">
               {botaoEditar}
               <IndicadorSalvo estado={estadoSalvo} />
             </div>

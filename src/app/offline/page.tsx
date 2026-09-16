@@ -13,14 +13,14 @@ export default function OfflinePage() {
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Sem conexão agora.
         </h1>
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16.5px] leading-[1.6] text-auxiliar">
           O ritual continua o mesmo: as cinco frases, em voz alta, e uma
           escolha para hoje. Quando a rede voltar, é só abrir de novo — nada
           se perde.
         </p>
       </div>
 
-      <span className="tipo-rotulo text-[11.5px] tracking-[.18em] text-auxiliar-minimo">
+      <span className="tipo-rotulo text-[13px] tracking-[.18em] text-auxiliar-minimo">
         The Reset
       </span>
     </div>

@@ -28,7 +28,7 @@ export default async function RevisaoDomingoPage() {
         aria-label="Voltar"
         className="-m-3 inline-flex self-start p-3 text-auxiliar"
       >
-        <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+        <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
       </Link>
 
       <section className="flex flex-col gap-4">
@@ -36,14 +36,14 @@ export default async function RevisaoDomingoPage() {
         <div className="flex flex-col gap-3">
           {estado.dias.map((dia) => (
             <div key={dia.data} className="flex items-baseline gap-3">
-              <span className="tipo-rotulo w-8 shrink-0 text-[11.5px] tracking-[.14em] text-auxiliar">
+              <span className="tipo-rotulo w-8 shrink-0 text-[13px] tracking-[.14em] text-auxiliar">
                 {dia.diaAbrev}
               </span>
-              <span className="flex-1 text-[14.5px] text-texto">
+              <span className="flex-1 text-[16px] text-texto">
                 {dia.linha || "—"}
               </span>
               {dia.feito !== null && (
-                <span className="shrink-0 text-[13px] text-auxiliar-minimo">
+                <span className="shrink-0 text-[14.5px] text-auxiliar-minimo">
                   {dia.feito ? "fiz" : "não fiz"}
                 </span>
               )}
@@ -53,7 +53,7 @@ export default async function RevisaoDomingoPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
           Inegociáveis da semana que vem
         </h2>
         <div className="flex flex-col gap-4">
@@ -70,14 +70,14 @@ export default async function RevisaoDomingoPage() {
       </section>
 
       <section className="flex flex-col gap-6">
-        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
           As cinco frases
         </h2>
         {FUNCOES.map((funcao) => {
           const frase = estado.frases[funcao];
           return (
             <div key={funcao} className="flex flex-col gap-2">
-              <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
+              <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
                 {ROTULOS_FUNCAO[funcao]}
               </span>
               {funcao === "identidade" ? (

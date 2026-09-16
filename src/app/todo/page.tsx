@@ -25,7 +25,7 @@ export default async function TodoPage() {
     <div className="flex grow flex-col gap-10 px-5 pb-10 pt-8">
       <Revelar imediato y={14} desfoque={4}>
         <div className="flex items-start justify-between gap-3 px-1">
-          <p className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+          <p className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
             {estado.dataExtenso} · semana {estado.numeroSemana}
           </p>
           <Link
@@ -33,7 +33,7 @@ export default async function TodoPage() {
             aria-label="Abrir a grade do mês"
             className="-m-3 inline-flex shrink-0 p-3 text-auxiliar"
           >
-            <CalendarDays className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            <CalendarDays className="h-[22px] w-[22px]" strokeWidth={1.5} />
           </Link>
         </div>
       </Revelar>
@@ -48,11 +48,11 @@ export default async function TodoPage() {
 
       <Revelar imediato atraso={160} className="flex flex-col gap-4">
         {/* O âmbar desta tela pertence à marcação, não ao título. */}
-        <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
           Hoje
         </h2>
         {estado.hoje.length === 0 ? (
-          <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
             Nada marcado para hoje.
           </p>
         ) : (
@@ -65,11 +65,11 @@ export default async function TodoPage() {
       </Revelar>
 
       <Revelar atraso={40} className="flex flex-col gap-4">
-        <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
           Esta semana
         </h2>
         {estado.semana.length === 0 ? (
-          <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
             Nada esperando.
           </p>
         ) : (

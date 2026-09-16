@@ -16,7 +16,7 @@ export default function FormularioConta() {
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Agora guarde o que você escreveu.
         </h1>
-        <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Sem uma conta, tudo isso vive só neste aparelho — e some se você
           limpar o navegador ou trocar de celular. Leva vinte segundos.
         </p>
@@ -45,7 +45,7 @@ export default function FormularioConta() {
           />
 
           {estado.erro && (
-            <p className="text-[12.5px] leading-[1.5] text-erro">{estado.erro}</p>
+            <p className="text-[14px] leading-[1.5] text-erro">{estado.erro}</p>
           )}
 
           <button
@@ -66,7 +66,7 @@ export default function FormularioConta() {
 
         <Link
           href="/login"
-          className="self-center text-[13px] text-auxiliar underline underline-offset-4"
+          className="self-center text-[14.5px] text-auxiliar underline underline-offset-4"
         >
           já tenho conta
         </Link>

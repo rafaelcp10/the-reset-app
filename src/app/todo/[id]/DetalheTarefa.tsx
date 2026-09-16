@@ -92,7 +92,7 @@ export default function DetalheTarefa({
     <div className="flex flex-col gap-12">
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
             O item
           </h2>
           <IndicadorSalvo estado={estadoSalvo} />
@@ -119,7 +119,7 @@ export default function DetalheTarefa({
           <button
             type="button"
             onClick={salvarTexto}
-            className="pilula tipo-rotulo mt-2 self-start rounded-[8px] px-5 py-2.5 text-[12px] tracking-[.09em] text-texto"
+            className="pilula tipo-rotulo mt-2 self-start rounded-[8px] px-5 py-2.5 text-[13.5px] tracking-[.09em] text-texto"
           >
             Salvar
           </button>
@@ -127,7 +127,7 @@ export default function DetalheTarefa({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+        <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           Quando no dia
         </h2>
         <div className="flex gap-2">
@@ -136,7 +136,7 @@ export default function DetalheTarefa({
               key={opcao}
               type="button"
               onClick={() => trocarPeriodo(opcao)}
-              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[11px] tracking-[.06em] text-texto ${
+              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[12.5px] tracking-[.06em] text-texto ${
                 periodo === opcao ? "pilula-ativa" : ""
               }`}
             >
@@ -144,7 +144,7 @@ export default function DetalheTarefa({
             </button>
           ))}
         </div>
-        <p className="text-[13px] leading-[1.6] text-auxiliar">
+        <p className="text-[14.5px] leading-[1.6] text-auxiliar">
           {periodo
             ? "Toque de novo no mesmo para tirar a hora."
             : "Sem hora marcada ele espera em “A qualquer hora”."}
@@ -152,7 +152,7 @@ export default function DetalheTarefa({
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+        <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           Tipo
         </h2>
         <div className="flex gap-2">
@@ -161,7 +161,7 @@ export default function DetalheTarefa({
               key={opcao.valor}
               type="button"
               onClick={() => trocarTipo(opcao.valor)}
-              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[12px] tracking-[.09em] text-texto ${
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
                 tipo === opcao.valor ? "pilula-ativa" : ""
               }`}
             >
@@ -173,14 +173,14 @@ export default function DetalheTarefa({
 
       {tipo === "recorrente" && (
         <section className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
             Em quais dias
           </h2>
           {/* Sem isso, "Recorrente" parecia completo e o item não aparecia
               em dia nenhum. Dizer o que falta é mais barato que deixar a
               pessoa descobrir pela ausência. */}
           {dias.length === 0 && (
-            <p className="text-[13px] leading-[1.6] text-auxiliar">
+            <p className="text-[14.5px] leading-[1.6] text-auxiliar">
               Marque os dias em que ele se repete. Enquanto nenhum estiver
               marcado, ele fica esperando em Esta semana.
             </p>
@@ -192,7 +192,7 @@ export default function DetalheTarefa({
                 type="button"
                 onClick={() => alternarDia(dia)}
                 aria-pressed={dias.includes(dia)}
-                className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[11px] tracking-[.06em] text-texto ${
+                className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[12.5px] tracking-[.06em] text-texto ${
                   dias.includes(dia) ? "pilula-ativa" : ""
                 }`}
               >
@@ -205,7 +205,7 @@ export default function DetalheTarefa({
 
       {tipo === "data" && (
         <section className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
             Em que dia
           </h2>
           <input
@@ -220,9 +220,9 @@ export default function DetalheTarefa({
       <form action={excluirTarefa.bind(null, tarefa.id)}>
         <button
           type="submit"
-          className="flex items-center gap-2 text-[13px] text-auxiliar"
+          className="flex items-center gap-2 text-[14.5px] text-auxiliar"
         >
-          <Trash2 className="h-[15px] w-[15px]" strokeWidth={1.5} />
+          <Trash2 className="h-5 w-5" strokeWidth={1.5} />
           Excluir
         </button>
       </form>

@@ -43,7 +43,7 @@ export default function ConfigForm({
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Como você treina?
         </h1>
-        <p className="text-[14px] leading-[1.6] text-auxiliar">
+        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
           Cinco perguntas, uma vez. O app não vai montar treino nenhum — quem
           escreve os seus é você. Isto aqui só decide o que ele te mostra.
         </p>
@@ -58,7 +58,7 @@ export default function ConfigForm({
           ))}
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
               Onde
             </h2>
             <div className="flex gap-2">
@@ -67,7 +67,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => setLocal(opcao)}
-                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[12px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[13.5px] tracking-[.06em] text-texto ${
                     local === opcao ? "pilula-ativa" : ""
                   }`}
                 >
@@ -78,7 +78,7 @@ export default function ConfigForm({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
               Quanto tempo por sessão
             </h2>
             <div className="flex gap-2">
@@ -87,7 +87,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => setMinutos(minutos === opcao ? null : opcao)}
-                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[12px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[13.5px] tracking-[.06em] text-texto ${
                     minutos === opcao ? "pilula-ativa" : ""
                   }`}
                 >
@@ -98,7 +98,7 @@ export default function ConfigForm({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
               Onde costuma doer
             </h2>
             {/* Não é diagnóstico, e o app não vai proibir nada: fica
@@ -109,7 +109,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => alternarLimitacao(opcao)}
-                  className={`pilula tipo-rotulo min-h-11 rounded-[8px] px-4 text-center text-[12px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 rounded-[8px] px-4 text-center text-[13.5px] tracking-[.06em] text-texto ${
                     limitacoes.includes(opcao) ? "pilula-ativa" : ""
                   }`}
                 >
@@ -117,14 +117,14 @@ export default function ConfigForm({
                 </button>
               ))}
             </div>
-            <p className="text-[13px] leading-[1.6] text-auxiliar-fraco">
+            <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
               Nada aqui bloqueia exercício. Serve para você lembrar na hora de
               escolher a carga.
             </p>
           </section>
 
           {estado.erro && (
-            <p className="text-[12.5px] leading-[1.5] text-erro">{estado.erro}</p>
+            <p className="text-[14px] leading-[1.5] text-erro">{estado.erro}</p>
           )}
 
           <button

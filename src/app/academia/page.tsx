@@ -52,21 +52,21 @@ export default async function AcademiaPage() {
             aria-label="Ajustar como você treina"
             className="-m-3 inline-flex shrink-0 p-3 text-auxiliar"
           >
-            <Settings className="h-[17px] w-[17px]" strokeWidth={1.5} />
+            <Settings className="h-[22px] w-[22px]" strokeWidth={1.5} />
           </Link>
         </div>
       </Revelar>
 
       {treinos.length === 0 ? (
         <Revelar imediato atraso={80} className="flex flex-col gap-4 px-1">
-          <p className="text-[15px] leading-[1.6] text-auxiliar">
+          <p className="text-[16.5px] leading-[1.6] text-auxiliar">
             Um treino é um molde: os exercícios que você faz junto, nos dias em
             que faz. Dê um nome e monte dentro.
           </p>
         </Revelar>
       ) : (
         <Revelar imediato atraso={80} className="flex flex-col gap-4">
-          <p className="px-1 text-[14px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[15.5px] leading-[1.6] text-auxiliar">
             {temHoje
               ? "Hoje tem treino marcado."
               : "Hoje é descanso — mas se quiser treinar, é só escolher qual."}
@@ -77,7 +77,7 @@ export default async function AcademiaPage() {
 
       {treinos.length > 0 && (
         <Revelar atraso={40} className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo px-1 text-[11px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
             Seus treinos
           </h2>
           <div className="flex flex-col gap-2">
@@ -91,7 +91,7 @@ export default async function AcademiaPage() {
                   <span className="text-[16px] leading-[1.3] text-texto">
                     {treino.nome}
                   </span>
-                  <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
+                  <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
                     {treino.dias_semana?.length
                       ? treino.dias_semana.map((d) => DIAS_ABREV[d]).join(" · ")
                       : "sem dia marcado"}
@@ -101,7 +101,7 @@ export default async function AcademiaPage() {
                   </span>
                 </span>
                 <ChevronRight
-                  className="h-[17px] w-[17px] shrink-0 text-auxiliar-minimo"
+                  className="h-[22px] w-[22px] shrink-0 text-auxiliar-minimo"
                   strokeWidth={1.5}
                 />
               </Link>
