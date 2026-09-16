@@ -22,13 +22,13 @@ export default function BlocoInegociaveis({
   const definidos = inegociaveis.filter((slot) => slot.compromisso);
 
   return (
-    <section className="flex flex-col gap-5">
-      <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+    <section className="flex flex-col gap-4">
+      <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
         Inegociáveis da semana
       </h2>
 
       {definidos.length === 0 ? (
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
           Você ainda não definiu os três.{" "}
           <Link
             href="/ritual/domingo"
@@ -40,7 +40,7 @@ export default function BlocoInegociaveis({
         </p>
       ) : (
         <>
-          <div className="flex flex-col gap-1">
+          <div className="bloco flex flex-col px-4">
             {definidos.map((slot) => (
               <LinhaInegociavel
                 key={slot.ordem}
@@ -53,7 +53,7 @@ export default function BlocoInegociaveis({
 
           <Link
             href="/ritual/domingo"
-            className="text-[13px] text-auxiliar underline underline-offset-4"
+            className="px-1 text-[13px] text-auxiliar underline underline-offset-4"
           >
             editar no ritual de domingo
           </Link>

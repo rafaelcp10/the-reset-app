@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoTodo } from "@/lib/todo/dados";
 import BlocoInegociaveis from "@/components/todo/BlocoInegociaveis";
-import ListaPorPeso from "@/components/todo/ListaPorPeso";
+import ListaPorPeriodo from "@/components/todo/ListaPorPeriodo";
 import CampoAdicionar from "@/components/todo/CampoAdicionar";
 import Revelar from "@/components/movimento/Revelar";
 
@@ -22,9 +22,9 @@ export default async function TodoPage() {
   const estado = await buscarEstadoTodo(supabase, user.id);
 
   return (
-    <div className="flex grow flex-col gap-14 px-6 pb-10 pt-8">
+    <div className="flex grow flex-col gap-10 px-5 pb-10 pt-8">
       <Revelar imediato y={14} desfoque={4}>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 px-1">
           <p className="tipo-rotulo text-[9.5px] tracking-[.18em] text-auxiliar">
             {estado.dataExtenso} · semana {estado.numeroSemana}
           </p>
@@ -48,15 +48,15 @@ export default async function TodoPage() {
 
       <Revelar imediato atraso={160} className="flex flex-col gap-4">
         {/* O âmbar desta tela pertence à marcação, não ao título. */}
-        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
           Hoje
         </h2>
         {estado.hoje.length === 0 ? (
-          <p className="text-[15px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
             Nada marcado para hoje.
           </p>
         ) : (
-          <ListaPorPeso
+          <ListaPorPeriodo
             itens={estado.hoje}
             dataHoje={estado.dataHoje}
             caminhoAtual={CAMINHO}
@@ -65,15 +65,15 @@ export default async function TodoPage() {
       </Revelar>
 
       <Revelar atraso={40} className="flex flex-col gap-4">
-        <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
           Esta semana
         </h2>
         {estado.semana.length === 0 ? (
-          <p className="text-[15px] leading-[1.6] text-auxiliar">
+          <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
             Nada esperando.
           </p>
         ) : (
-          <ListaPorPeso
+          <ListaPorPeriodo
             itens={estado.semana}
             dataHoje={estado.dataHoje}
             caminhoAtual={CAMINHO}

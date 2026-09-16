@@ -3,9 +3,9 @@
 import { useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import {
-  PESOS,
-  ROTULO_PESO,
-  type PesoTarefa,
+  PERIODOS,
+  ROTULO_PERIODO,
+  type PeriodoTarefa,
   type TarefaRow,
   type TipoTarefa,
 } from "@/lib/todo/dados";
@@ -13,7 +13,7 @@ import {
   excluirTarefa,
   salvarDataTarefa,
   salvarDiasSemana,
-  salvarPesoTarefa,
+  salvarPeriodoTarefa,
   salvarTextoTarefa,
   salvarTipoTarefa,
 } from "@/lib/todo/acoes";
@@ -39,8 +39,9 @@ export default function DetalheTarefa({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [tipo, setTipo] = useState<TipoTarefa>(tarefa.tipo);
-  const [peso, setPeso] = useState<PesoTarefa>(tarefa.peso ?? "depois");
-  const [erroPeso, setErroPeso] = useState<string | null>(null);
+  const [periodo, setPeriodo] = useState<PeriodoTarefa | null>(
+    tarefa.periodo ?? null,
+  );
   const [dias, setDias] = useState<number[]>(tarefa.dias_semana ?? []);
   const [data, setData] = useState(tarefa.data ?? dataHoje);
   const [estadoSalvo, executar] = useEstadoSalvo();
@@ -66,17 +67,12 @@ export default function DetalheTarefa({
     );
   }
 
-  async function trocarPeso(novo: PesoTarefa) {
-    setErroPeso(null);
-    // Otimista, e desfeito se o teto recusar: a faixa precisa responder no
-    // toque, mas não pode mentir sobre onde o item ficou.
-    const anterior = peso;
-    setPeso(novo);
-    const resultado = await salvarPesoTarefa(CAMINHO, tarefa.id, novo);
-    if (resultado.erro) {
-      setPeso(anterior);
-      setErroPeso(resultado.erro);
-    }
+  function trocarPeriodo(novo: PeriodoTarefa) {
+    // Tocar no que já está marcado desmarca: "a qualquer hora" precisa ter
+    // caminho de volta, senão a escolha vira armadilha de mão única.
+    const valor = periodo === novo ? null : novo;
+    setPeriodo(valor);
+    executar(salvarPeriodoTarefa(CAMINHO, tarefa.id, valor));
   }
 
   function alternarDia(dia: number) {
@@ -132,26 +128,26 @@ export default function DetalheTarefa({
 
       <section className="flex flex-col gap-3">
         <h2 className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
-          Peso
+          Quando no dia
         </h2>
         <div className="flex gap-2">
-          {PESOS.map((opcao) => (
+          {PERIODOS.map((opcao) => (
             <button
               key={opcao}
               type="button"
-              onClick={() => trocarPeso(opcao)}
+              onClick={() => trocarPeriodo(opcao)}
               className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[11px] tracking-[.06em] text-texto ${
-                peso === opcao ? "pilula-ativa" : ""
+                periodo === opcao ? "pilula-ativa" : ""
               }`}
             >
-              {ROTULO_PESO[opcao]}
+              {ROTULO_PERIODO[opcao]}
             </button>
           ))}
         </div>
-        {/* O recado do teto não é erro de sistema, então não é vermelho:
-            é o app dizendo que a escolha ainda está com a pessoa. */}
         <p className="text-[13px] leading-[1.6] text-auxiliar">
-          {erroPeso ?? "“Primeiro” cabe três. É o que faz valer."}
+          {periodo
+            ? "Toque de novo no mesmo para tirar a hora."
+            : "Sem hora marcada ele espera em “A qualquer hora”."}
         </p>
       </section>
 

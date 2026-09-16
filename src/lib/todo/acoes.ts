@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PESOS, TETO_PRIMEIRO, type PesoTarefa, type TipoTarefa } from "./dados";
+import { PERIODOS, type PeriodoTarefa, type TipoTarefa } from "./dados";
 
 const TIPOS: TipoTarefa[] = ["recorrente", "semana", "data"];
 
@@ -20,14 +20,34 @@ async function usuarioAtual() {
  * Cria a tarefa só com o texto. O tipo se escolhe depois, no detalhe —
  * o campo de adicionar nunca vira formulário.
  */
+/**
+ * Cria a tarefa já com o quando.
+ *
+ * O campo continua sendo um só — escrever e pronto —, mas o período fica
+ * ali do lado, porque decidir "de manhã" no instante em que a tarefa nasce
+ * é barato, e voltar depois no detalhe para dizer isso é caro.
+ *
+ * "Recorrente" divide o mesmo espaço por ser a mesma pergunta em outra
+ * escala: quando isso acontece. Os dias da semana continuam no detalhe,
+ * que é onde eles cabem.
+ */
 export async function criarTarefa(caminhoAtual: string, formData: FormData) {
   const texto = ((formData.get("texto") as string) ?? "").trim();
   if (!texto) return;
 
+  const quando = ((formData.get("quando") as string) ?? "").trim();
+  const recorrente = quando === "recorrente";
+  const periodo = PERIODOS.includes(quando as PeriodoTarefa)
+    ? (quando as PeriodoTarefa)
+    : null;
+
   const { supabase, user } = await usuarioAtual();
-  await supabase
-    .from("tarefas")
-    .insert({ usuario_id: user.id, texto, tipo: "semana" });
+  await supabase.from("tarefas").insert({
+    usuario_id: user.id,
+    texto,
+    tipo: recorrente ? "recorrente" : "semana",
+    periodo,
+  });
 
   revalidatePath(caminhoAtual);
 }
@@ -155,51 +175,25 @@ export async function salvarDiasSemana(
   revalidatePath(caminhoAtual);
 }
 
-export type ResultadoPeso = { erro?: string };
-
 /**
- * Troca a faixa de peso do item.
- *
- * "Primeiro" tem teto, e o teto é a única coisa que faz a faixa significar
- * alguma coisa: numa escala livre todo item vira prioritário em uma semana
- * e a lista volta a ser uma lista. Aqui, para promover um quarto item é
- * preciso rebaixar um — a escolha acontece, em vez de ser adiada.
- *
- * O teto vale para a conta inteira, e não por dia, porque é assim que os
- * três inegociáveis da semana já funcionam.
+ * Troca o período do item. Tocar no que já está marcado desmarca — nem
+ * tudo tem hora, e "a qualquer hora" precisa ser alcançável de volta.
  */
-export async function salvarPesoTarefa(
+export async function salvarPeriodoTarefa(
   caminhoAtual: string,
   tarefaId: string,
-  peso: PesoTarefa,
-): Promise<ResultadoPeso> {
-  if (!PESOS.includes(peso)) return {};
+  periodo: PeriodoTarefa | null,
+) {
+  if (periodo !== null && !PERIODOS.includes(periodo)) return;
 
   const { supabase, user } = await usuarioAtual();
-
-  if (peso === "primeiro") {
-    const { count } = await supabase
-      .from("tarefas")
-      .select("id", { count: "exact", head: true })
-      .eq("usuario_id", user.id)
-      .eq("peso", "primeiro")
-      .neq("id", tarefaId);
-
-    if ((count ?? 0) >= TETO_PRIMEIRO) {
-      return {
-        erro: "Três já é bastante. Tire um de Primeiro para colocar este.",
-      };
-    }
-  }
-
   await supabase
     .from("tarefas")
-    .update({ peso })
+    .update({ periodo })
     .eq("usuario_id", user.id)
     .eq("id", tarefaId);
 
   revalidatePath(caminhoAtual);
-  return {};
 }
 
 export async function salvarDataTarefa(
