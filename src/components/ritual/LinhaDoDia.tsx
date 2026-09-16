@@ -42,7 +42,7 @@ export default function LinhaDoDia({
     }
 
     return (
-      <section className="flex flex-col gap-3">
+      <section className="bloco flex flex-col gap-3 px-4 py-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
             A linha de hoje
@@ -64,7 +64,7 @@ export default function LinhaDoDia({
   }
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="bloco flex flex-col gap-3 px-4 py-4">
       <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-acento">
         A linha de hoje
       </h2>

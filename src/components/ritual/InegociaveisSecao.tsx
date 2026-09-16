@@ -16,13 +16,13 @@ export default function InegociaveisSecao({
   const definidos = inegociaveis.filter((slot) => slot.compromisso);
 
   return (
-    <section className="flex flex-col gap-3.5 py-3.5">
-      <h2 className="tipo-rotulo text-[14px] tracking-[.18em] text-texto">
+    <section className="flex flex-col gap-3.5">
+      <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.18em] text-texto">
         Inegociáveis
       </h2>
 
       {temSlotVazio && (
-        <p className="text-[13.5px] leading-[1.6] text-auxiliar">
+        <p className="px-1 text-[13.5px] leading-[1.6] text-auxiliar">
           Os três inegociáveis são definidos na{" "}
           <Link href="/ritual/domingo" className="underline underline-offset-4">
             revisão de domingo
@@ -31,7 +31,7 @@ export default function InegociaveisSecao({
         </p>
       )}
 
-      <div className="flex flex-col">
+      <div className={definidos.length > 0 ? "bloco flex flex-col px-4" : "hidden"}>
         {definidos.map((slot) => (
           <LinhaInegociavel
             key={slot.ordem}

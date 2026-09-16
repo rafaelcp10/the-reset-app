@@ -39,10 +39,10 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex grow flex-col gap-14 px-[26px] pb-[30px] pt-[56px]">
+    <div className="flex grow flex-col gap-12 px-5 pb-[30px] pt-[56px]">
       {/* Plano da frente: a frase sobe mais devagar que o resto da página,
           então ela "segura" enquanto o conteúdo abaixo desliza. */}
-      <CamadaParallax fator={0.16} maximo={70}>
+      <CamadaParallax fator={0.16} maximo={70} className="px-1">
         <FraseIdentidadeRitual
           textoBase={identidade?.texto ?? FRASES_PADRAO.identidade.texto}
           preenchimento={identidade?.preenchimento_lacuna ?? ""}
@@ -53,7 +53,7 @@ export default async function HomePage() {
         />
       </CamadaParallax>
 
-      <Revelar imediato atraso={120} className="flex flex-col gap-3">
+      <Revelar imediato atraso={120} className="bloco flex flex-col gap-3 px-4 py-4">
         {estado.faixaSemanas.length > 1 && (
           <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
         )}
@@ -103,10 +103,19 @@ export default async function HomePage() {
           />
         </Revelar>
         <Revelar imediato atraso={340} y={16}>
-          <PreviaBloqueada
-            titulo="Academia"
-            texto="Os treinos da semana e o registro de cada um."
-          />
+          {/* A Academia saiu do "em breve" quando a aba entrou no ar; a Home
+              continuava mostrando ela trancada. */}
+          <Link
+            href="/academia"
+            className="bloco bloco-toque flex flex-col gap-1 px-4 py-4"
+          >
+            <h2 className="tipo-rotulo text-[11px] tracking-[.16em] text-auxiliar">
+              Academia
+            </h2>
+            <p className="text-[13.5px] text-auxiliar-fraco">
+              Os treinos da semana e o registro de cada um.
+            </p>
+          </Link>
         </Revelar>
       </div>
 
@@ -119,7 +128,7 @@ export default async function HomePage() {
 
 function PreviaBloqueada({ titulo, texto }: { titulo: string; texto: string }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="bloco flex flex-col gap-1 px-4 py-4">
       <h2 className="tipo-rotulo text-[11px] tracking-[.16em] text-auxiliar-fraco">
         {titulo}
       </h2>
