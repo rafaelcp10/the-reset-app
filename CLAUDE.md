@@ -23,7 +23,7 @@ PWA instalável. Sem app nativo, sem loja.
 - Check-in noturno resolvido em menos de 5 segundos.
 
 ## Regras de código
-- Mobile primeiro. Uma coluna, sem cartão com borda, sem divisória.
+- Mobile primeiro. Uma coluna.
 - Ícones apenas da biblioteca Lucide.
 - Cores: #101114 (fundo), #F7F7F5 (texto), #8A8C8F (auxiliar),
   #C97B3A (acento, uma aplicação por tela).
@@ -43,6 +43,22 @@ valendo é a lista acima, que não mudou. O que passou a ser permitido:
 - Fundo vivo (`components/movimento/Atmosfera.tsx`): luz âmbar, bruma que
   deriva devagar, vinheta e grão. **Continua sem nenhuma imagem** — é tudo
   gradiente e turbulência SVG, para não pesar no PWA offline.
+
+### Blocos (revisado em 2026-09-16)
+
+A proibição de "cartão com borda, sem divisória" **saiu**. Ela vinha do
+handoff e servia a uma tela que se lê sentado; a Academia mostrou o limite
+dela — aquela aba se usa em pé, no meio de uma série, com o celular longe
+do rosto, e ali o alvo de toque precisa de contorno próprio.
+
+O que substitui a regra:
+
+- Bloco se separa do fundo por **elevação** (`.bloco`, `.bloco-vez` no
+  globals.css): superfície um tom mais clara e sombra. **Borda continua
+  fora** — não porque é proibida, mas porque elevação já resolve e borda
+  soma peso sem somar informação.
+- Vale onde o uso justifica. A Academia usa; Ritual e To-do seguem na
+  coluna limpa até haver motivo, e não por inércia.
 
 Duas regras novas que nasceram daí:
 - Bloco acima da dobra entra por animação CSS (`imediato` no `Revelar`),
