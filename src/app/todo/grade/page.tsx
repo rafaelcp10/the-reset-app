@@ -96,7 +96,7 @@ export default async function GradePage({
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="tipo-rotulo w-5 text-center text-[8.5px] tracking-[.06em] text-auxiliar-minimo"
+                          className="tipo-rotulo w-5 text-center text-[10.5px] tracking-[0] text-auxiliar"
                         >
                           {INICIAIS_SEMANA[diaDaSemana(dia)]}
                         </span>
@@ -142,7 +142,7 @@ export default async function GradePage({
                       {semana.map((dia) => (
                         <span
                           key={dia}
-                          className="w-5 text-center text-[9px] text-auxiliar-minimo"
+                          className="w-5 text-center text-[11px] text-auxiliar-minimo"
                         >
                           {Number(dia.slice(8))}
                         </span>

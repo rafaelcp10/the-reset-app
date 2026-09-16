@@ -95,7 +95,7 @@ export default function FraseIdentidadeRitual({
               <IndicadorSalvo estado={estadoSalvo} />
             </GravacaoFrase>
           ) : (
-            <div className="tipo-rotulo flex items-center gap-5 text-[10px] tracking-[.16em]">
+            <div className="tipo-rotulo flex items-center gap-5 text-[11.5px] tracking-[.16em]">
               {botaoEditar}
               <IndicadorSalvo estado={estadoSalvo} />
             </div>

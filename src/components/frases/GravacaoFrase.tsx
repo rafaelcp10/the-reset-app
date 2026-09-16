@@ -155,7 +155,7 @@ export default function GravacaoFrase({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="tipo-rotulo flex items-center gap-5 text-[10px] tracking-[.16em]">
+      <div className="tipo-rotulo flex items-center gap-5 text-[11.5px] tracking-[.16em]">
         <button
           type="button"
           onClick={ouvir}

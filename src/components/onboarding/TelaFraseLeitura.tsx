@@ -34,7 +34,7 @@ export default async function TelaFraseLeitura({
   return (
     <AvancarAoTocar proximaRota={proximaRota}>
       <div className="flex flex-col gap-4">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           {ROTULOS_FUNCAO[funcao]} · {numero} de {FUNCOES.length}
         </span>
         <FraseLeituraEditavel

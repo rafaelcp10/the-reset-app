@@ -54,7 +54,7 @@ export default async function HistoricoExercicioPage({
           {exercicio.nome}
         </h1>
         {exercicio.grupo && (
-          <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
             {ROTULO_GRUPO[exercicio.grupo]}
           </span>
         )}
@@ -69,13 +69,13 @@ export default async function HistoricoExercicioPage({
           <Revelar imediato atraso={80} className="flex flex-col gap-5">
             <div className="flex gap-10">
               <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[9px] tracking-[.2em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[11px] tracking-[.2em] text-auxiliar-fraco">
                   Comecei
                 </span>
                 <span className="text-[19px] text-texto">{kg(inicial)}</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[9px] tracking-[.2em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[11px] tracking-[.2em] text-auxiliar-fraco">
                   Última vez
                 </span>
                 <span className="text-[19px] text-acento">{kg(atual)}</span>
@@ -103,7 +103,7 @@ export default async function HistoricoExercicioPage({
                   key={registro.id}
                   className="flex min-h-11 items-baseline justify-between gap-4"
                 >
-                  <span className="tipo-rotulo w-12 shrink-0 text-[10px] tracking-[.14em] text-auxiliar-fraco">
+                  <span className="tipo-rotulo w-12 shrink-0 text-[11.5px] tracking-[.14em] text-auxiliar-fraco">
                     {dataCurta(registro.data)}
                   </span>
                   <span className="flex-1 text-[15px] text-auxiliar">

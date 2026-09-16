@@ -124,7 +124,7 @@ function LinhaSessao({
 
       <div className="flex items-end gap-4">
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Séries
           </span>
           <input
@@ -138,7 +138,7 @@ function LinhaSessao({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Reps
           </span>
           <input
@@ -152,7 +152,7 @@ function LinhaSessao({
           />
         </label>
         <label className="flex flex-[1.4] flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Carga (kg)
           </span>
           <input
@@ -171,7 +171,7 @@ function LinhaSessao({
 
       {registrado ? (
         <div className="flex items-center gap-4">
-          <span className="tipo-rotulo flex items-center gap-2 text-[10.5px] tracking-[.16em] text-acento">
+          <span className="tipo-rotulo flex items-center gap-2 text-[12px] tracking-[.16em] text-acento">
             <Check className="h-[14px] w-[14px]" strokeWidth={2} />
             Registrado
           </span>

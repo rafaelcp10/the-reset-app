@@ -41,7 +41,7 @@ export default function IdentidadeForm({
       className="flex flex-1 flex-col justify-between px-6 pb-10 pt-10"
     >
       <div className="flex flex-col gap-4">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           Identidade
         </span>
         <p className="text-[28px] leading-[1.5] text-texto">

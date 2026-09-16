@@ -197,14 +197,14 @@ function LinhaExercicio({
       </div>
 
       {exercicio.grupo && (
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
           {ROTULO_GRUPO[exercicio.grupo]}
         </span>
       )}
 
       <div className="flex items-end gap-4">
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Séries
           </span>
           <input
@@ -219,7 +219,7 @@ function LinhaExercicio({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Reps
           </span>
           <input
@@ -234,7 +234,7 @@ function LinhaExercicio({
           />
         </label>
         <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
             Degrau
           </span>
           <input
@@ -323,7 +323,7 @@ function CampoExercicio({
               className="flex min-h-11 items-center justify-between gap-3 text-left"
             >
               <span className="text-[15px] text-texto">{item.nome}</span>
-              <span className="tipo-rotulo shrink-0 text-[9px] tracking-[.2em] text-auxiliar-fraco">
+              <span className="tipo-rotulo shrink-0 text-[11px] tracking-[.2em] text-auxiliar-fraco">
                 {ROTULO_GRUPO[item.grupo]}
               </span>
             </button>

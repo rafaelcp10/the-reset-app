@@ -36,7 +36,7 @@ export default async function RevisaoDomingoPage() {
         <div className="flex flex-col gap-3">
           {estado.dias.map((dia) => (
             <div key={dia.data} className="flex items-baseline gap-3">
-              <span className="tipo-rotulo w-8 shrink-0 text-[10px] tracking-[.14em] text-auxiliar">
+              <span className="tipo-rotulo w-8 shrink-0 text-[11.5px] tracking-[.14em] text-auxiliar">
                 {dia.diaAbrev}
               </span>
               <span className="flex-1 text-[14.5px] text-texto">
@@ -77,7 +77,7 @@ export default async function RevisaoDomingoPage() {
           const frase = estado.frases[funcao];
           return (
             <div key={funcao} className="flex flex-col gap-2">
-              <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+              <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
                 {ROTULOS_FUNCAO[funcao]}
               </span>
               {funcao === "identidade" ? (

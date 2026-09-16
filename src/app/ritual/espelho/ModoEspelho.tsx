@@ -121,14 +121,14 @@ export default function ModoEspelho({
       {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
       <div className="flex items-center justify-between px-6 pt-6">
-        <span className="tipo-rotulo text-[10.5px] tracking-[.18em] text-auxiliar">
+        <span className="tipo-rotulo text-[12px] tracking-[.18em] text-auxiliar">
           {mostrandoRodape
             ? `Passo ${passo + 1} de ${frases.length + 1}${maosLivres ? " · Automático" : ""}`
             : ""}
         </span>
         <Link
           href="/ritual"
-          className="tipo-rotulo -m-3 inline-flex p-3 text-[10.5px] tracking-[.18em] text-auxiliar"
+          className="tipo-rotulo -m-3 inline-flex p-3 text-[12px] tracking-[.18em] text-auxiliar"
         >
           Sair
         </Link>
@@ -206,7 +206,7 @@ function EscolhaModo({
       className="entrada-frase flex flex-1 flex-col justify-center gap-8 px-6 py-8"
     >
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           As cinco frases
         </span>
         <h1 className="text-[26px] leading-[1.3] text-texto">Como hoje?</h1>
@@ -245,7 +245,7 @@ function EscolhaModo({
           momento em que ele importa. A pergunta é a mesma — como hoje —
           então a resposta fica aqui. */}
       <div className="flex flex-col gap-3">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
           A frase passa
         </span>
         <div className="flex gap-2">
@@ -427,7 +427,7 @@ function TelaFrase({
   return (
     <div className="entrada-frase flex flex-1 flex-col justify-between px-6 py-8">
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           {item.rotulo} · frase {indice} de {total}
         </span>
         <p className="text-[13.5px] leading-[1.6] text-auxiliar">
@@ -452,7 +452,7 @@ function TelaFrase({
       <div className="flex flex-col gap-3">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="tipo-rotulo flex items-center gap-4 text-[10px] tracking-[.16em]"
+          className="tipo-rotulo flex items-center gap-4 text-[11.5px] tracking-[.16em]"
         >
           <OuvirGravacao url={item.urlGravacao} />
           <span className="flex items-center gap-1.5 text-auxiliar-fraco">
@@ -478,7 +478,7 @@ function TelaFrase({
               />
             ))}
           </div>
-          <span className="tipo-rotulo text-[10px] tracking-[.16em] text-auxiliar-minimo">
+          <span className="tipo-rotulo text-[11.5px] tracking-[.16em] text-auxiliar-minimo">
             {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
           </span>
         </div>

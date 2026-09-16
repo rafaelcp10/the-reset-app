@@ -27,7 +27,7 @@ export default function ListaMusicas({
         >
           <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
-        <span className="rounded-[3px] bg-superficie2 px-2 py-0.5 text-[10px] uppercase tracking-[.16em] text-auxiliar-fraco">
+        <span className="rounded-[3px] bg-superficie2 px-2 py-0.5 text-[11.5px] uppercase tracking-[.16em] text-auxiliar-fraco">
           Em breve
         </span>
       </div>

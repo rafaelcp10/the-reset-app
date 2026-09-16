@@ -91,7 +91,7 @@ export default async function AcademiaPage() {
                   <span className="text-[16px] leading-[1.3] text-texto">
                     {treino.nome}
                   </span>
-                  <span className="tipo-rotulo text-[9px] tracking-[.18em] text-auxiliar-fraco">
+                  <span className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar-fraco">
                     {treino.dias_semana?.length
                       ? treino.dias_semana.map((d) => DIAS_ABREV[d]).join(" · ")
                       : "sem dia marcado"}

@@ -47,7 +47,7 @@ export default function EscolhaDoDia({
       className="entrada-frase flex flex-1 flex-col gap-8 px-6 py-8"
     >
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           A linha de hoje
         </span>
         <h1 className="text-[26px] leading-[1.3] text-texto">
@@ -100,7 +100,7 @@ export default function EscolhaDoDia({
                 tarefa qualquer, é a pessoa se respondendo. */}
             {ditoOntem && (
               <div className="mb-4 flex flex-col gap-1">
-                <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
                   Você disse ontem
                 </span>
                 <button

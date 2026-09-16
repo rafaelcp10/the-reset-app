@@ -24,7 +24,7 @@ export default function PaginaLegal({
 
       <div className="flex flex-col gap-2">
         <h1 className="text-[28px] leading-[1.25] text-texto">{titulo}</h1>
-        <p className="tipo-rotulo text-[9.5px] tracking-[.18em] text-auxiliar">
+        <p className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
           Atualizado em {atualizadoEm}
         </p>
       </div>

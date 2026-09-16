@@ -112,11 +112,11 @@ export default function LoginPage() {
           <BotaoGoogle modo="entrar" rotulo="Entrar com Google" />
 
           <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-filete-media" />
-            <span className="tipo-rotulo text-[10px] tracking-[.18em] text-auxiliar-minimo">
+            <span className="h-px flex-1 bg-filete" />
+            <span className="tipo-rotulo text-[11.5px] tracking-[.18em] text-auxiliar-minimo">
               ou
             </span>
-            <span className="h-px flex-1 bg-filete-media" />
+            <span className="h-px flex-1 bg-filete" />
           </div>
         </>
       )}

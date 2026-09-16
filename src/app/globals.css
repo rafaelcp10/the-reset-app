@@ -8,12 +8,18 @@
   --color-superficie2: #17191d;
   --color-superficie3: #2a2d33;
   --color-texto: #f7f7f5;
-  --color-auxiliar: #8a8c8f;
-  --color-auxiliar-fraco: #66686d;
-  --color-auxiliar-minimo: #5a5c60;
+  /* Os cinzas foram recalibrados em 2026-09-16 para passar no AA da WCAG
+     sobre o fundo mais claro do app (superficie2). Antes, `auxiliar-fraco`
+     ficava em 3.16 e `auxiliar-minimo` em 2.63 — abaixo dos 4.5 exigidos
+     para texto normal, o que quer dizer ilegível para vista cansada e para
+     quem tem baixa visão. `filete-media` é contorno de campo, não enfeite:
+     a WCAG pede 3.0 para limite de controle e ele estava em 1.26. */
+  --color-auxiliar: #a2a4a7;
+  --color-auxiliar-fraco: #8a8c91;
+  --color-auxiliar-minimo: #7f8185;
   --color-aba-inativa: #2f3237;
   --color-filete: #1c1e22;
-  --color-filete-media: #2a2c31;
+  --color-filete-media: #63656a;
   --color-filete-forte: #33363b;
   --color-acento: #c97b3a;
   --color-acento-escuro: #3a2a1e;

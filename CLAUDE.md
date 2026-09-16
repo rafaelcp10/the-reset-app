@@ -25,8 +25,14 @@ PWA instalável. Sem app nativo, sem loja.
 ## Regras de código
 - Mobile primeiro. Uma coluna.
 - Ícones apenas da biblioteca Lucide.
-- Cores: #101114 (fundo), #F7F7F5 (texto), #8A8C8F (auxiliar),
+- Cores: #101114 (fundo), #F7F7F5 (texto), #A2A4A7 (auxiliar),
   #C97B3A (acento, uma aplicação por tela).
+- Contraste: nada abaixo de 4.5:1 sobre o fundo mais claro do app
+  (`superficie2`), nem contorno de campo abaixo de 3:1. Os cinzas foram
+  recalibrados em 2026-09-16 por isso — `auxiliar` era #8A8C8F e ficava em
+  5.2, mas `auxiliar-fraco` e `auxiliar-minimo` estavam em 3.2 e 2.6.
+- Nada de texto abaixo de 11px. Rótulo em caixa alta com tracking largo
+  cansa mais, não menos, e o app é usado com a vista cansada à noite.
 - Texto em botão âmbar é #101114, nunca branco.
 - Tipografia: Archivo (frases) e Inter (interface), via Google Fonts.
 - Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela.

@@ -25,7 +25,7 @@ export default async function TodoPage() {
     <div className="flex grow flex-col gap-10 px-5 pb-10 pt-8">
       <Revelar imediato y={14} desfoque={4}>
         <div className="flex items-start justify-between gap-3 px-1">
-          <p className="tipo-rotulo text-[9.5px] tracking-[.18em] text-auxiliar">
+          <p className="tipo-rotulo text-[11px] tracking-[.18em] text-auxiliar">
             {estado.dataExtenso} · semana {estado.numeroSemana}
           </p>
           <Link

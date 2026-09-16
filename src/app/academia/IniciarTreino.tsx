@@ -61,12 +61,12 @@ export default function IniciarTreino({
           className="flex min-h-14 items-center justify-between gap-3 px-4 text-left"
         >
           <span className="flex flex-col gap-0.5">
-            <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar-fraco">
+            <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar-fraco">
               {atual?.deHoje ? "O treino de hoje" : "Trocado para hoje"}
             </span>
             <span className="text-[16px] text-texto">{atual?.nome}</span>
           </span>
-          <span className="tipo-rotulo shrink-0 text-[10px] tracking-[.16em] text-auxiliar">
+          <span className="tipo-rotulo shrink-0 text-[11.5px] tracking-[.16em] text-auxiliar">
             {abrindo ? "fechar" : "trocar"}
           </span>
         </button>
@@ -90,7 +90,7 @@ export default function IniciarTreino({
                 >
                   {opcao.nome}
                 </span>
-                <span className="tipo-rotulo shrink-0 text-[9px] tracking-[.18em] text-auxiliar-fraco">
+                <span className="tipo-rotulo shrink-0 text-[11px] tracking-[.18em] text-auxiliar-fraco">
                   {opcao.dias.length
                     ? opcao.dias.map((d) => DIAS_ABREV[d]).join(" ")
                     : "sem dia"}

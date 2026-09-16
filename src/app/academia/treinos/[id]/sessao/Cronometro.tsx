@@ -52,7 +52,7 @@ export default function Cronometro({
   return (
     <div className="bloco-vez flex flex-col gap-4 rounded-[14px] px-5 py-5">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="tipo-rotulo text-[9px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[11px] tracking-[.22em] text-auxiliar">
           Em treino
         </span>
         <span className="cronometro text-[34px] leading-none text-texto">
