@@ -81,3 +81,23 @@ export async function desativarPush() {
     // Sem inscrição ativa não há o que desfazer.
   }
 }
+
+/**
+ * Este aparelho já está inscrito para receber push?
+ *
+ * A preferência `lembrete_ativo` nasce ligada na conta, então o botão de
+ * Ajustes dizia "ligado" mesmo sem nenhum aparelho registrado — e a pessoa
+ * esperava uma notificação que não tinha por onde chegar. Quem sabe a
+ * verdade é o navegador, não o banco: inscrição é por aparelho.
+ */
+export async function inscricaoDesteAparelho(): Promise<boolean> {
+  if (!pushDisponivel()) return false;
+  try {
+    if (Notification.permission !== "granted") return false;
+    const registro = await navigator.serviceWorker.getRegistration();
+    const inscricao = await registro?.pushManager.getSubscription();
+    return Boolean(inscricao);
+  } catch {
+    return false;
+  }
+}

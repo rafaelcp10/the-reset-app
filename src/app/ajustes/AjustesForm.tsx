@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { salvarLembreteAtivo, salvarHorarioAjustes } from "@/lib/ajustes/acoes";
 import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
-import { ativarPush, desativarPush } from "@/lib/push/cliente";
+import {
+  ativarPush,
+  desativarPush,
+  inscricaoDesteAparelho,
+} from "@/lib/push/cliente";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
 import GuiaSensorialForm from "./GuiaSensorialForm";
@@ -33,6 +37,13 @@ export default function AjustesForm({
 }) {
   const [horario, setHorario] = useState(horarioInicial);
   const [lembrete, setLembrete] = useState(lembreteInicial);
+  // Quem diz se o lembrete chega é o aparelho, não a conta: a preferência
+  // nasce ligada, e o botão mentia enquanto nenhum aparelho estava inscrito.
+  const [inscrito, setInscrito] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    inscricaoDesteAparelho().then(setInscrito);
+  }, []);
   const [reps, setReps] = useState(repsInicial);
   const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
   const [estadoSalvo, executar] = useEstadoSalvo();
@@ -43,8 +54,12 @@ export default function AjustesForm({
     executar(salvarHorarioAjustes(valor));
   }
 
+  // Enquanto a checagem não volta, segue a preferência: piscar de ligado
+  // para desligado seria pior que esperar um instante.
+  const ligado = inscrito === null ? lembrete : lembrete && inscrito;
+
   async function alternarLembrete() {
-    const novo = !lembrete;
+    const novo = !ligado;
     setLembrete(novo);
     setAvisoPush(null);
 
@@ -54,6 +69,7 @@ export default function AjustesForm({
       const resultado = await ativarPush(chaveVapid);
       if (resultado !== "ativado") {
         setLembrete(false);
+        setInscrito(false);
         setAvisoPush(
           resultado === "negado"
             ? "O navegador bloqueou as notificações. Libere nos ajustes do aparelho."
@@ -61,8 +77,10 @@ export default function AjustesForm({
         );
         return;
       }
+      setInscrito(true);
     } else {
       await desativarPush();
+      setInscrito(false);
     }
 
     executar(salvarLembreteAtivo(novo));
@@ -104,12 +122,12 @@ export default function AjustesForm({
               onClick={alternarLembrete}
               aria-label="Alternar lembrete noturno"
               className={`h-[26px] w-[44px] shrink-0 rounded-full p-[3px] transition-colors ${
-                lembrete ? "bg-superficie3" : "bg-superficie2"
+                ligado ? "bg-superficie3" : "bg-superficie2"
               }`}
             >
               <span
                 className={`block h-5 w-5 rounded-full transition-transform ${
-                  lembrete
+                  ligado
                     ? "translate-x-[18px] bg-texto"
                     : "translate-x-0 bg-auxiliar-fraco"
                 }`}
@@ -119,6 +137,17 @@ export default function AjustesForm({
 
           {avisoPush && (
             <p className="text-[12.5px] leading-[1.5] text-erro">{avisoPush}</p>
+          )}
+
+          {/* O caso silencioso: a conta quer o lembrete, mas este aparelho
+              nunca foi inscrito. Antes disso aparecer, a pessoa esperava
+              uma notificação que não tinha por onde chegar. */}
+          {inscrito === false && lembrete && !avisoPush && (
+            <p className="text-[13px] leading-[1.6] text-auxiliar">
+              Este aparelho ainda não recebe o aviso. Toque no botão acima
+              para ligar aqui. No iPhone, só funciona com o app instalado na
+              tela de início.
+            </p>
           )}
 
           <div className="flex gap-2">
