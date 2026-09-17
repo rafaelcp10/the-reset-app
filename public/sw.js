@@ -88,6 +88,14 @@ self.addEventListener("push", (evento) => {
     icon: "/icone-192.png",
     badge: "/icone-192.png",
     data: { url: dados.url || "/ritual", data: dados.data || null },
+    // Os dois botões só aparecem onde a plataforma os suporta — Android e
+    // desktop. O Safari, inclusive no iPhone, ignora `actions`: lá
+    // `Notification.maxActions` é zero, e segurar a notificação não revela
+    // botão nenhum porque não há botão nenhum. Não é bug para consertar.
+    //
+    // No iPhone, o caminho curto é o toque: a notificação aponta para a
+    // âncora do check-in, então abre já com Fiz e Não fiz na frente. Dois
+    // toques, que é o que sustenta a promessa dos cinco segundos ali.
     actions: dados.comAcoes
       ? [
           { action: "fiz", title: "Fiz" },

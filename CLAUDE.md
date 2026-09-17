@@ -20,7 +20,10 @@ PWA instalável. Sem app nativo, sem loja.
   usuários.
 - Nenhuma justificativa científica na interface.
 - O dia vira às 3h, não à meia-noite. A semana começa no domingo.
-- Check-in noturno resolvido em menos de 5 segundos.
+- Check-in noturno resolvido em menos de 5 segundos. No iPhone isso é dois
+  toques, não um: o Safari ignora `actions` em notificação (`maxActions` é
+  zero), então Fiz/Não fiz não existem no banner. A notificação aponta para
+  a âncora do check-in e abre com os botões na frente.
 
 ## Regras de código
 - Mobile primeiro. Uma coluna.
