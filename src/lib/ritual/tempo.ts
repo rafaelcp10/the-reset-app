@@ -61,6 +61,23 @@ export type ModoRitual = "manha" | "noite";
  * check-in até as 3h do dia seguinte é noite — é essa janela que aceita o
  * registro noturno "até as 3h do dia seguinte".
  */
+/**
+ * A hora do relógio, para saudação e cor.
+ *
+ * Separado de `modoRitual` de propósito. `modo` responde "em que fase do
+ * ritual estamos" — escrever a linha ou conferir o dia — e depende do
+ * horário de check-in que a pessoa escolheu. Isso não tem nada a ver com
+ * ser dia ou noite: com check-in às 21:30, o app dizia "Bom dia" às nove
+ * da noite, e a tela ficava quente até ali.
+ */
+export type PeriodoDoDia = "manha" | "tarde" | "noite";
+
+export function periodoDoDia(partes: PartesData): PeriodoDoDia {
+  if (partes.hora >= 18 || partes.hora < 3) return "noite";
+  if (partes.hora >= 12) return "tarde";
+  return "manha";
+}
+
 export function modoRitual(
   partes: PartesData,
   horarioCheckin: string,

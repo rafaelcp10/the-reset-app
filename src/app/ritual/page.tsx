@@ -47,7 +47,7 @@ export default async function RitualPage({
 
   const cabecalho = (
     <Cabecalho
-      modo={estado.modo}
+      periodo={estado.periodo}
       nome={estado.nome}
       dataExtenso={estado.dataExtenso}
       numeroSemana={estado.numeroSemana}
@@ -83,8 +83,10 @@ export default async function RitualPage({
     />
   );
 
+  // A tela esfria quando o dia esfria, e não quando o check-in abre: com
+  // check-in às 21:30, ela ficava quente até as nove da noite.
   const bgTemperatura =
-    estado.modo === "manha" ? "temperatura-manha" : "temperatura-noite";
+    estado.periodo === "noite" ? "temperatura-noite" : "temperatura-manha";
 
   // Ordem das seções é fixa (manhã e noite) — só o fundo e o conteúdo
   // interno de cada seção mudam com o horário. Ver README do handoff:

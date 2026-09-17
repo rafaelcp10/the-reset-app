@@ -3,18 +3,24 @@ import { Calendar, Settings } from "lucide-react";
 import Logo from "@/components/Logo";
 
 export default function Cabecalho({
-  modo,
+  periodo,
   nome,
   dataExtenso,
   numeroSemana,
 }: {
-  modo: "manha" | "noite";
+  /** A hora do relógio. A fase do ritual é outra coisa, e fica fora daqui. */
+  periodo: "manha" | "tarde" | "noite";
   /** Primeiro nome, quando existe. Sem ele a saudação segue sozinha. */
   nome: string | null;
   dataExtenso: string;
   numeroSemana: number;
 }) {
-  const saudacao = modo === "manha" ? "Bom dia" : "Boa noite";
+  const saudacao =
+    periodo === "manha"
+      ? "Bom dia"
+      : periodo === "tarde"
+        ? "Boa tarde"
+        : "Boa noite";
   return (
     <div className="flex flex-col gap-4">
       <Logo variante="topo" />

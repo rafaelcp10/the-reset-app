@@ -9,7 +9,9 @@ import {
   domingoDaSemana,
   modoRitual,
   numeroDaSemana,
+  periodoDoDia,
   type ModoRitual,
+  type PeriodoDoDia,
 } from "./tempo";
 
 export type CompromissoRow = {
@@ -38,6 +40,8 @@ export type EstadoRitual = {
   /** Como a pessoa pediu para ser chamada. Nulo até ela preencher. */
   nome: string | null;
   modo: ModoRitual;
+  /** A hora do relógio — saudação e cor. Não confundir com `modo`. */
+  periodo: PeriodoDoDia;
   dataRitual: string;
   semanaInicio: string;
   numeroSemana: number;
@@ -95,6 +99,7 @@ export async function buscarEstadoRitual(
   const ontem = diaAnteriorISO(hoje);
   const semanaInicio = domingoDaSemana(hoje);
   const modo = modoRitual(partes, horarioCheckin);
+  const periodo = periodoDoDia(partes);
 
   const [{ data: compromissos }, { data: dias }, { data: musicas }] =
     await Promise.all([
@@ -147,6 +152,7 @@ export async function buscarEstadoRitual(
   return {
     nome,
     modo,
+    periodo,
     dataRitual: hoje,
     semanaInicio,
     numeroSemana: numeroDaSemana(criadoEm, hoje),
