@@ -111,7 +111,11 @@ export async function GET(request: Request) {
         // A notificação carrega a própria linha da pessoa: ela decide sem
         // precisar lembrar o que escreveu de manhã.
         corpo: linha ? `Você disse: ${linha}` : "O que você fez hoje?",
-        url: "/ritual",
+        // Aponta para a seção do check-in, e não para o topo do Ritual:
+        // quem toca na notificação quer responder, e à noite a linha do dia
+        // é a última seção da tela — abrir no topo custava uma rolagem
+        // inteira para chegar onde a promessa dos cinco segundos mora.
+        url: "/ritual#linha-do-dia",
         data: porUsuario.get(inscricao.usuario_id) ?? null,
         comAcoes: Boolean(linha),
         tag: "checkin",

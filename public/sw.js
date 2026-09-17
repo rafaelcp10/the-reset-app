@@ -123,7 +123,17 @@ self.addEventListener("notificationclick", (evento) => {
   evento.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((janelas) => {
       for (const janela of janelas) {
-        if ("focus" in janela) return janela.focus();
+        if (!("focus" in janela)) continue;
+        // Focar sozinho devolvia a tela onde a pessoa tinha parado, que
+        // pode não ser o check-in. Navegar leva ao lugar certo; se o
+        // navegador não permitir, focar ainda é melhor que nada.
+        if ("navigate" in janela) {
+          return janela.navigate(destino).then(
+            (j) => (j || janela).focus(),
+            () => janela.focus(),
+          );
+        }
+        return janela.focus();
       }
       return self.clients.openWindow(destino);
     }),
