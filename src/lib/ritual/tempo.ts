@@ -135,6 +135,23 @@ export function diaSemanaAbreviado(dataISO: string): string {
 }
 
 /**
+ * Mesmo dia, N meses depois.
+ *
+ * Dia 31 + 1 mês não existe em fevereiro, e deixar o JS transbordar daria
+ * 3 de março. Aqui isso vira o último dia do mês de destino: o lembrete de
+ * quem fotografou dia 31 cai dia 28, não some nem pula para o mês seguinte.
+ */
+export function somarMesesISO(dataISO: string, meses: number): string {
+  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const alvo = new Date(Date.UTC(ano, mes - 1 + meses, 1));
+  const ultimoDoMes = new Date(
+    Date.UTC(alvo.getUTCFullYear(), alvo.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  alvo.setUTCDate(Math.min(dia, ultimoDoMes));
+  return alvo.toISOString().slice(0, 10);
+}
+
+/**
  * 0 = domingo. Vem das partes de parede, não de `dataRitual`: o corte das
  * 3h existe para o ritual da noite, e quem pergunta o dia da semana às 9h
  * da manhã quer o dia do calendário.

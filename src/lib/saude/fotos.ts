@@ -85,3 +85,44 @@ export async function buscarParDeFotos(
     hoje: montar(daquiHoje),
   };
 }
+
+/**
+ * Todas, da mais nova para a mais antiga.
+ *
+ * O teto existe para não assinar uma lista sem fim de uma vez: com o
+ * lembrete mensal, sessenta é meia década de fotos, e quem passar disso
+ * ganha paginação quando chegar lá.
+ */
+const TETO_GALERIA = 60;
+
+export async function buscarTodasAsFotos(
+  supabase: SupabaseClient,
+  usuarioId: string,
+): Promise<Foto[]> {
+  const { data } = await supabase
+    .from("fotos_evolucao")
+    .select("id, data, caminho")
+    .eq("usuario_id", usuarioId)
+    .order("data", { ascending: false })
+    .limit(TETO_GALERIA);
+
+  const linhas = (data ?? []) as { id: string; data: string; caminho: string }[];
+  if (linhas.length === 0) return [];
+
+  const { data: assinadas } = await supabase.storage
+    .from(BUCKET_FOTOS)
+    .createSignedUrls(
+      linhas.map((l) => l.caminho),
+      VALIDADE_URL_SEGUNDOS,
+    );
+
+  const urlPor = new Map(
+    (assinadas ?? []).map((a) => [a.path, a.signedUrl ?? null]),
+  );
+
+  return linhas.map((l) => ({
+    id: l.id,
+    data: l.data,
+    url: urlPor.get(l.caminho) ?? null,
+  }));
+}

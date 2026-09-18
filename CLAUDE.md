@@ -99,8 +99,12 @@ visual de carga que subiu.
   altura depois recalcularia o passado.
 - O sexo só é perguntado na Evolução, porque a fórmula tem dois ramos e não
   há padrão razoável. Não aparece em nenhuma outra tela.
-- Lembrete de medir: domingo às 9h locais, e só para quem já mediu alguma
-  vez. Não tem interruptor próprio — o interruptor é ter medido.
+- Dois lembretes, ambos às 9h locais, na mesma rota
+  (`api/cron/evolucao`): a fita é semanal e cai no domingo; a foto é mensal
+  e conta um mês **a partir da última foto**, não do calendário — quem
+  atrasa passa a ser lembrado na data nova. Caindo os dois na mesma manhã,
+  sai uma notificação só. Nenhum dos dois tem interruptor próprio: o
+  interruptor é ter medido, ou ter fotografado, alguma vez.
 - O tutorial de medição é todo em texto. Um desenho de onde fica a cintura
   ajudaria, e mesmo assim não entra: a exceção de imagem vale para foto do
   usuário, não para ilustração.
@@ -111,6 +115,12 @@ A regra era "nenhuma imagem em nenhuma tela". Ela continua valendo em todo
 o resto do app. O que passou a caber, e só isso:
 
 - **Foto tirada pelo próprio usuário, mostrada só para ele, na Evolução.**
+
+A tela da Evolução mostra sempre duas: a primeira e a mais recente. As do
+meio ficam na galeria (`/saude/evolucao/fotos`), da mais nova para a mais
+antiga, uma por linha e grande — em miniatura não se vê o que a foto tem
+para dizer. Apagar mora só lá, e pede dois toques: a foto de hoje se tira
+de novo, a de um ano atrás não existe em lugar nenhum além dali.
 
 O motivo: ver o próprio corpo em duas fotos diz o que 4 pontos percentuais
 não dizem. Não é ilustração nem decoração — é dado do usuário, da mesma

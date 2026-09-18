@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import { Camera, X } from "lucide-react";
-import { apagarFoto, salvarFoto } from "@/lib/saude/acoes";
+import { useRef, useState } from "react";
+import Link from "next/link";
+import { Camera, Images } from "lucide-react";
+import { salvarFoto } from "@/lib/saude/acoes";
 import type { ParDeFotos } from "@/lib/saude/fotos";
 
 /** Lado maior depois da redução. Suficiente para a tela, longe dos 4MB. */
@@ -19,6 +20,10 @@ const QUALIDADE = 0.82;
  * A redução acontece aqui, antes de qualquer envio: foto de celular crua
  * passa de 4MB, e o que sobe é um JPEG de 1200px no lado maior. Serve à
  * tela e, de quebra, é menos foto de corpo trafegando do que o necessário.
+ *
+ * Aqui só se acrescenta e se troca. Apagar mora na galeria, onde a foto
+ * aparece grande e com a data — apagar sem ver o que se apaga é como se
+ * perde a foto de um ano atrás.
  */
 export default function FotosEvolucao({
   data,
@@ -30,7 +35,6 @@ export default function FotosEvolucao({
   const entrada = useRef<HTMLInputElement>(null);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  const [apagando, iniciarApagar] = useTransition();
 
   async function aoEscolher(arquivo: File | undefined) {
     if (!arquivo) return;
@@ -51,18 +55,20 @@ export default function FotosEvolucao({
     }
   }
 
-  const ocupado = enviando || apagando;
-
   return (
     <div className="bloco flex flex-col gap-4 px-4 py-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           Antes e depois
         </h2>
-        {fotos.total > 2 && (
-          <span className="text-[14px] text-auxiliar-fraco">
-            {fotos.total} fotos
-          </span>
+        {fotos.total > 0 && (
+          <Link
+            href="/saude/evolucao/fotos"
+            className="inline-flex min-h-11 items-center gap-1.5 text-[14.5px] text-auxiliar"
+          >
+            <Images className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            {fotos.total === 1 ? "Ver a foto" : `Ver as ${fotos.total}`}
+          </Link>
         )}
       </div>
 
@@ -84,7 +90,7 @@ export default function FotosEvolucao({
         </div>
       ) : (
         <p className="text-[15.5px] leading-[1.6] text-auxiliar">
-          Uma foto agora, outra daqui a alguns meses. É o que os números não
+          Uma foto agora, outra daqui a um mês. É o que os números não
           conseguem mostrar.
         </p>
       )}
@@ -100,7 +106,7 @@ export default function FotosEvolucao({
       <div className="flex flex-col gap-2">
         <button
           type="button"
-          disabled={ocupado}
+          disabled={enviando}
           onClick={() => entrada.current?.click()}
           className="tipo-rotulo inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-superficie3 px-4 text-[13px] tracking-[.09em] text-texto disabled:opacity-60"
         >
@@ -111,18 +117,6 @@ export default function FotosEvolucao({
               ? "Trocar a foto de hoje"
               : "Tirar a foto de hoje"}
         </button>
-
-        {fotos.hoje && (
-          <button
-            type="button"
-            disabled={ocupado}
-            onClick={() => iniciarApagar(() => void apagarFoto(data))}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 text-[14.5px] text-auxiliar disabled:opacity-60"
-          >
-            <X className="h-[18px] w-[18px]" strokeWidth={1.5} />
-            Apagar a de hoje
-          </button>
-        )}
       </div>
 
       {erro && <p className="text-[14.5px] text-erro">{erro}</p>}

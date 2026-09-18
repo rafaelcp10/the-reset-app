@@ -67,8 +67,12 @@ export default async function EvolucaoPage() {
         />
       </Revelar>
 
+      <Revelar imediato atraso={140}>
+        <FotosEvolucao data={evo.hoje} fotos={fotos} />
+      </Revelar>
+
       {nada && (
-        <Revelar imediato atraso={140} className="px-1">
+        <Revelar imediato atraso={200} className="px-1">
           <p className="text-[16.5px] leading-[1.6] text-auxiliar">
             Ainda não há de onde para onde. Registre seu peso e termine um
             treino — a partir do segundo, esta tela passa a ter história.
@@ -198,10 +202,6 @@ export default async function EvolucaoPage() {
           </div>
         </Revelar>
       )}
-
-      <Revelar atraso={40}>
-        <FotosEvolucao data={evo.hoje} fotos={fotos} />
-      </Revelar>
 
       {evo.cargas.length > 0 && (
         <Revelar atraso={60} className="flex flex-col gap-3">
