@@ -8,7 +8,8 @@ import CabecalhoSaude from "../CabecalhoSaude";
 import CampoMedidas from "./CampoMedidas";
 import FotosEvolucao from "./FotosEvolucao";
 import Metrica from "@/components/saude/Metrica";
-import Grafico, { type Ponto } from "@/components/saude/Grafico";
+import PainelSerie from "@/components/saude/PainelSerie";
+import type { Ponto } from "@/components/saude/Grafico";
 import Revelar from "@/components/movimento/Revelar";
 
 /** 60, não 60,00. */
@@ -16,31 +17,6 @@ function kg(valor: number | null): string {
   if (valor === null) return "—";
   const n = Number(valor);
   return n % 1 === 0 ? String(n) : n.toFixed(1).replace(".", ",");
-}
-
-function dataCurta(iso: string): string {
-  const [, mes, dia] = iso.split("-");
-  return `${dia}/${mes}`;
-}
-
-/**
- * "−1,1 kg desde 25/11."
- *
- * Sem seta, sem percentual e sem cor: subir não é vitória nem derrota —
- * depende do que a pessoa quer, e isso o app não sabe. O sinal é o de
- * menos de verdade (−), não o hífen, porque ao lado de um número grande o
- * hífen parece sujeira.
- */
-function desde(
-  inicial: number,
-  atual: number,
-  data: string,
-  unidade: string,
-): string {
-  const delta = atual - inicial;
-  if (Math.abs(delta) < 0.05) return `Igual a ${dataCurta(data)}`;
-  const sinal = delta > 0 ? "+" : "−";
-  return `${sinal}${umaCasa(Math.abs(delta))}${unidade} desde ${dataCurta(data)}`;
 }
 
 /** Só a diferença, sem a data: nos painéis de duas colunas ela não cabe
@@ -121,54 +97,33 @@ export default async function EvolucaoPage() {
         </Revelar>
       )}
 
-      {/* O painel principal da tela, e a única aplicação de âmbar: é o número
-          que se abre a aba para conferir. */}
-      {evo.pesoAtual !== null && (
+      {/* Os dois painéis que mandam na tela: número grande e curva que se
+          arrasta. O âmbar é deles — ver "Número e curva" no CLAUDE.md. */}
+      {evo.pesoAtual !== null && curvaPeso.length > 0 && (
         <Revelar atraso={40} className="pt-3">
-          <Metrica
-            destaque
+          <PainelSerie
             rotulo="Peso"
-            valor={kg(evo.pesoAtual)}
             unidade="kg"
-            nota={
-              evo.pesoInicial !== null && pesagens.length > 1
-                ? desde(
-                    Number(evo.pesoInicial),
-                    Number(evo.pesoAtual),
-                    pesagens[0].data,
-                    " kg",
-                  )
-                : "Primeira pesagem"
-            }
-          >
-            <Grafico
-              acento
-              pontos={curvaPeso}
-              descricao={`Peso de ${kg(evo.pesoInicial)} a ${kg(evo.pesoAtual)} quilos, em ${curvaPeso.length} registros.`}
-            />
-          </Metrica>
+            pontos={curvaPeso}
+            formato="enxuto"
+            descricao={`Peso, ${curvaPeso.length} ${curvaPeso.length === 1 ? "registro" : "registros"}. Arraste para ver cada um.`}
+          />
         </Revelar>
       )}
 
       {composicao && (
         <>
-          <Revelar atraso={60}>
-            <Metrica
-              rotulo="Gordura"
-              valor={umaCasa(composicao.gordura)}
-              unidade="%"
-              nota={
-                temSerieDeGordura
-                  ? desde(inicial.gordura, composicao.gordura, dataInicial, " p.p.")
-                  : "Primeira medida"
-              }
-            >
-              <Grafico
+          {curvaGordura.length > 0 && (
+            <Revelar atraso={60}>
+              <PainelSerie
+                rotulo="Gordura"
+                unidade="%"
                 pontos={curvaGordura}
-                descricao={`Percentual de gordura de ${umaCasa(inicial?.gordura ?? composicao.gordura)} a ${umaCasa(composicao.gordura)} por cento.`}
+                formato="uma-casa"
+                descricao={`Percentual de gordura, ${curvaGordura.length} ${curvaGordura.length === 1 ? "medida" : "medidas"}. Arraste para ver cada uma.`}
               />
-            </Metrica>
-          </Revelar>
+            </Revelar>
+          )}
 
           {composicao.massaMagra !== null && composicao.massaGorda !== null && (
             <Revelar atraso={80} className="grid grid-cols-2 gap-3">

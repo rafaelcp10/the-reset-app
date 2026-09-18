@@ -79,8 +79,11 @@ Duas regras novas que nasceram daí:
 - Bloco acima da dobra entra por animação CSS (`imediato` no `Revelar`),
   nunca por IntersectionObserver: se a hidratação demora, a tela não pode
   ficar vazia.
-- O âmbar continua tendo **uma aplicação por tela**. Brilho e sombra são luz
-  sobre a paleta existente, não cor nova.
+- O âmbar tem **uma aplicação por tela** — revisado em 2026-09-18 para
+  "uma **função** por tela", não um elemento. Na Evolução as duas curvas são
+  âmbar porque são a mesma função (a série que se arrasta); seriam duas
+  aplicações se uma fosse curva e a outra, botão. Brilho e sombra continuam
+  sendo luz sobre a paleta existente, não cor nova.
 
 ### Número e curva (2026-09-18)
 
@@ -94,13 +97,21 @@ O que substituiu:
   uma linha de nota, e a curva sangrando até a borda do bloco. A curva é
   fundo do número, não elemento ao lado dele.
 - **`components/saude/Grafico.tsx`**: SVG escrito à mão, sem biblioteca —
-  o PWA precisa abrir offline, e uma lib de gráfico pesa mais que trinta
+  o PWA precisa abrir offline, e uma lib de gráfico pesa mais que cem
   linhas. Sem eixo, sem grade, sem zero forçado na base, sem cor que muda
-  conforme a direção: a curva descreve o caminho, não julga.
-- Painéis pequenos em grade de dois. Nota de painel pequeno não leva data
-   — não cabe numa linha, e quebrar em duas desalinha as alturas.
-- **Um `destaque` por tela**, como o âmbar: se tudo é grande, nada é. Na
-  Evolução o destaque e o âmbar são a mesma coisa, a curva do peso.
+  conforme a direção: a curva descreve o caminho, não julga. Vermelho e
+  verde por direção estão fora por regra, e continuariam fora sem ela.
+- **`components/saude/PainelSerie.tsx`**: a curva se arrasta com o dedo, e
+  o número grande obedece ao ponto escolhido. Foi isso que substituiu a
+  lista de dez pesagens em texto. O ponto fica onde a pessoa soltou — não
+  "volta ao normal", porque conferir uma medida de três meses atrás é
+  motivo legítimo para abrir a aba.
+- **O seletor de período abre em "Tudo"**, ao contrário do Zepp, que abre no
+  período mais curto. A pergunta desta aba é "como comecei e como estou":
+  abrir em três meses esconde metade da resposta. E ele só aparece quando
+  há período para escolher.
+- Painéis pequenos em grade de dois, sem curva e sem data na nota — data
+  não cabe numa linha ali, e quebrar em duas desalinha as alturas.
 
 A referência é o Zepp, e é só de layout: número primeiro, curva embaixo,
 painel como unidade. O conteúdo dele — prontidão, nota, elogio — continua

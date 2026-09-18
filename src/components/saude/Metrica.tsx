@@ -7,15 +7,15 @@ import type { ReactNode } from "react";
  * para um dado que cabe em dois números. Ler frase cansa mais que ler
  * número, e esta aba se abre para conferir, não para ler.
  *
- * `destaque` é o painel principal da tela. Só um por tela, como o âmbar:
- * se tudo é grande, nada é.
+ * O painel de série grande, com curva que se arrasta, é o `PainelSerie`.
+ * Este aqui é o painel parado: número que não tem histórico para mostrar,
+ * ou que não merece a tela inteira.
  */
 export default function Metrica({
   rotulo,
   valor,
   unidade,
   nota,
-  destaque = false,
   children,
 }: {
   rotulo: string;
@@ -23,7 +23,6 @@ export default function Metrica({
   unidade?: string;
   /** De onde veio, ou em quanto tempo. Uma linha, nunca duas. */
   nota?: string | null;
-  destaque?: boolean;
   /** A curva, quando há série suficiente para desenhar uma. */
   children?: ReactNode;
 }) {
@@ -35,19 +34,11 @@ export default function Metrica({
         </span>
 
         <span className="flex items-baseline gap-1.5">
-          <span
-            className={`tabular-nums leading-none text-texto ${
-              destaque ? "text-[38px]" : "text-[26px]"
-            }`}
-          >
+          <span className="text-[26px] leading-none tabular-nums text-texto">
             {valor}
           </span>
           {unidade && (
-            <span
-              className={`text-auxiliar ${destaque ? "text-[18px]" : "text-[15px]"}`}
-            >
-              {unidade}
-            </span>
+            <span className="text-[15px] text-auxiliar">{unidade}</span>
           )}
         </span>
 
