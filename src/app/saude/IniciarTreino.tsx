@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Play } from "lucide-react";
-import { iniciarSessao } from "@/lib/academia/acoes";
-import { DIAS_ABREV } from "@/lib/academia/semana";
+import { iniciarSessao } from "@/lib/saude/acoes";
+import { DIAS_ABREV } from "@/lib/saude/semana";
 
 type Opcao = {
   id: string;

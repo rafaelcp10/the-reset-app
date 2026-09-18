@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Plus } from "lucide-react";
-import { criarTreino } from "@/lib/academia/acoes";
+import { criarTreino } from "@/lib/saude/acoes";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
 

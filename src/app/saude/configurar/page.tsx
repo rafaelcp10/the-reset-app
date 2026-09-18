@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { buscarConfig } from "@/lib/academia/dados";
+import { buscarConfig } from "@/lib/saude/dados";
 import ConfigForm from "./ConfigForm";
 
 export default async function ConfigurarAcademiaPage() {

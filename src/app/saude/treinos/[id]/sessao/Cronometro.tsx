@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Square } from "lucide-react";
-import { descartarSessao, encerrarSessao } from "@/lib/academia/acoes";
-import { duracaoSegundos } from "@/lib/academia/sessao";
+import { descartarSessao, encerrarSessao } from "@/lib/saude/acoes";
+import { duracaoSegundos } from "@/lib/saude/sessao";
 
 /**
  * O cronômetro do treino.

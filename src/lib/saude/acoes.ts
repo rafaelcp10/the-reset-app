@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 
-const CAMINHO = "/academia";
+const CAMINHO = "/saude";
 
 async function usuarioAtual() {
   const supabase = await createClient();
@@ -292,4 +292,36 @@ export async function descartarSessao(sessaoId: string, treinoId: string) {
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
   revalidatePath(CAMINHO);
+}
+
+/**
+ * Registra o peso de hoje.
+ *
+ * Uma linha por dia: pesar de novo corrige, não empilha. Vazio apaga o
+ * registro do dia — errar o número na balança acontece, e não deve exigir
+ * ir a outro lugar para desfazer.
+ */
+export async function salvarPeso(data: string, bruto: string) {
+  const { supabase, user } = await usuarioAtual();
+  const limpo = bruto.replace(",", ".").trim();
+
+  if (limpo === "") {
+    await supabase
+      .from("medidas")
+      .delete()
+      .eq("usuario_id", user.id)
+      .eq("data", data);
+    revalidatePath(`${CAMINHO}/evolucao`);
+    return;
+  }
+
+  const valor = Number(limpo);
+  if (!Number.isFinite(valor) || valor < 25 || valor > 400) return;
+
+  await supabase.from("medidas").upsert(
+    { usuario_id: user.id, data, peso_kg: valor },
+    { onConflict: "usuario_id,data" },
+  );
+
+  revalidatePath(`${CAMINHO}/evolucao`);
 }

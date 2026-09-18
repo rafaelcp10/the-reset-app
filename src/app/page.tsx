@@ -106,14 +106,14 @@ export default async function HomePage() {
           {/* A Academia saiu do "em breve" quando a aba entrou no ar; a Home
               continuava mostrando ela trancada. */}
           <Link
-            href="/academia"
+            href="/saude"
             className="bloco bloco-toque flex flex-col gap-1 px-4 py-4"
           >
             <h2 className="tipo-rotulo text-[12.5px] tracking-[.16em] text-auxiliar">
-              Academia
+              Saúde
             </h2>
             <p className="text-[15px] text-auxiliar-fraco">
-              Os treinos da semana e o registro de cada um.
+              Os treinos da semana, e como você começou.
             </p>
           </Link>
         </Revelar>

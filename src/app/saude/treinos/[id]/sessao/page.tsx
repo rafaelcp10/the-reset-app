@@ -8,7 +8,7 @@ import {
   buscarSessoesDoTreino,
   duracaoSegundos,
   formatarDuracao,
-} from "@/lib/academia/sessao";
+} from "@/lib/saude/sessao";
 import Cronometro from "./Cronometro";
 import SessaoTreino from "./SessaoTreino";
 import Revelar from "@/components/movimento/Revelar";
@@ -39,14 +39,14 @@ export default async function SessaoPage({
     <div className="flex grow flex-col gap-7 px-5 pb-10 pt-6">
       <div className="flex items-center justify-between gap-3">
         <Link
-          href="/academia"
+          href="/saude"
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >
           <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
         <Link
-          href={`/academia/treinos/${id}`}
+          href={`/saude/treinos/${id}`}
           aria-label="Editar o treino"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >

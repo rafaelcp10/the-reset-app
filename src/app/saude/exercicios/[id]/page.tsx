@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { buscarHistorico } from "@/lib/academia/sessao";
-import { ROTULO_GRUPO } from "@/lib/academia/catalogo";
+import { buscarHistorico } from "@/lib/saude/sessao";
+import { ROTULO_GRUPO } from "@/lib/saude/catalogo";
 import Revelar from "@/components/movimento/Revelar";
 
 /** 60, não 60,00. */
@@ -42,7 +42,7 @@ export default async function HistoricoExercicioPage({
   return (
     <div className="flex grow flex-col gap-9 px-6 pb-10 pt-6">
       <Link
-        href={`/academia/treinos/${exercicio.treino_id}/sessao`}
+        href={`/saude/treinos/${exercicio.treino_id}/sessao`}
         aria-label="Voltar"
         className="-m-3 inline-flex self-start p-3 text-auxiliar"
       >

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, History } from "lucide-react";
-import { apagarRegistro, registrarSerie } from "@/lib/academia/acoes";
-import type { ItemSessao } from "@/lib/academia/sessao";
+import { apagarRegistro, registrarSerie } from "@/lib/saude/acoes";
+import type { ItemSessao } from "@/lib/saude/sessao";
 import { vibrarMarcacao } from "@/lib/ui/sensorial";
 
 export default function SessaoTreino({
@@ -98,7 +98,7 @@ function LinhaSessao({
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[18px] leading-[1.4] text-texto">{exercicio.nome}</p>
         <Link
-          href={`/academia/exercicios/${exercicio.id}`}
+          href={`/saude/exercicios/${exercicio.id}`}
           aria-label={`Histórico de ${exercicio.nome}`}
           className="-m-2 inline-flex shrink-0 p-2 text-auxiliar-fraco"
         >

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { buscarTreino } from "@/lib/academia/dados";
+import { buscarTreino } from "@/lib/saude/dados";
 import DetalheTreino from "./DetalheTreino";
 
 export default async function TreinoPage({
@@ -24,7 +24,7 @@ export default async function TreinoPage({
     <>
       <div className="px-6 pt-6">
         <Link
-          href="/academia"
+          href="/saude"
           aria-label="Voltar"
           className="-m-3 inline-flex p-3 text-auxiliar"
         >

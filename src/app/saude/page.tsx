@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronRight, Settings } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
-import { buscarConfig, buscarTreinos, hojeDaPessoa } from "@/lib/academia/dados";
-import { buscarSessaoAberta } from "@/lib/academia/sessao";
-import { DIAS_ABREV } from "@/lib/academia/semana";
+import { buscarConfig, buscarTreinos, hojeDaPessoa } from "@/lib/saude/dados";
+import { buscarSessaoAberta } from "@/lib/saude/sessao";
+import { DIAS_ABREV } from "@/lib/saude/semana";
+import CabecalhoSaude from "./CabecalhoSaude";
 import IniciarTreino from "./IniciarTreino";
 import NovoTreino from "./NovoTreino";
 import Revelar from "@/components/movimento/Revelar";
@@ -27,11 +28,11 @@ export default async function AcademiaPage() {
   ]);
 
   // Quem nunca respondeu as cinco perguntas começa por elas.
-  if (!config.configurada) redirect("/academia/configurar");
+  if (!config.configurada) redirect("/saude/configurar");
 
   // Com treino em curso, a aba inteira é esse treino: qualquer outra coisa
   // aqui seria convite para abandonar o que já está começado.
-  if (aberta) redirect(`/academia/treinos/${aberta.treino_id}/sessao`);
+  if (aberta) redirect(`/saude/treinos/${aberta.treino_id}/sessao`);
 
   const opcoes = treinos.map((t) => ({
     id: t.id,
@@ -45,16 +46,7 @@ export default async function AcademiaPage() {
   return (
     <div className="flex grow flex-col gap-10 px-5 pb-10 pt-8">
       <Revelar imediato y={14} desfoque={4}>
-        <div className="flex items-start justify-between gap-3 px-1">
-          <h1 className="text-[26px] leading-tight text-texto">Academia</h1>
-          <Link
-            href="/academia/configurar"
-            aria-label="Ajustar como você treina"
-            className="-m-3 inline-flex shrink-0 p-3 text-auxiliar"
-          >
-            <Settings className="h-[22px] w-[22px]" strokeWidth={1.5} />
-          </Link>
-        </div>
+        <CabecalhoSaude aba="treino" />
       </Revelar>
 
       {treinos.length === 0 ? (
@@ -84,7 +76,7 @@ export default async function AcademiaPage() {
             {treinos.map((treino) => (
               <Link
                 key={treino.id}
-                href={`/academia/treinos/${treino.id}`}
+                href={`/saude/treinos/${treino.id}`}
                 className="bloco bloco-toque flex min-h-[64px] items-center justify-between gap-3 px-4"
               >
                 <span className="flex flex-col gap-1">

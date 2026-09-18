@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Revelar from "@/components/movimento/Revelar";
-import { salvarConfigAcademia, type EstadoConfig } from "@/lib/academia/acoes";
+import { salvarConfigAcademia, type EstadoConfig } from "@/lib/saude/acoes";
 import {
   LIMITACOES,
   LOCAIS,
@@ -11,7 +11,7 @@ import {
   ROTULO_LOCAL,
   type Limitacao,
   type LocalTreino,
-} from "@/lib/academia/dados";
+} from "@/lib/saude/dados";
 
 const INICIAL: EstadoConfig = {};
 

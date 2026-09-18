@@ -9,10 +9,10 @@ import {
   salvarDiasTreino,
   salvarExercicio,
   salvarNomeTreino,
-} from "@/lib/academia/acoes";
-import { ROTULO_GRUPO, sugerir, type ExercicioCatalogo } from "@/lib/academia/catalogo";
-import type { ExercicioRow, TreinoRow } from "@/lib/academia/dados";
-import { DIAS_ABREV } from "@/lib/academia/semana";
+} from "@/lib/saude/acoes";
+import { ROTULO_GRUPO, sugerir, type ExercicioCatalogo } from "@/lib/saude/catalogo";
+import type { ExercicioRow, TreinoRow } from "@/lib/saude/dados";
+import { DIAS_ABREV } from "@/lib/saude/semana";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
 
