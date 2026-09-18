@@ -312,10 +312,16 @@ some da frente.
   o basal em até 40% e não há padrão razoável. A descrição de cada um é o
   que se vê no espelho, sem uma palavra de fisiologia.
 - `saude_geral` vira "manter" — é o único dos três que não empurra ninguém.
-- **O objetivo é escolhido dentro da aba e aparece junto dos números.**
-  Ele morava só no perfil, invisível de onde o resultado aparece — e é o
-  maior multiplicador da conta inteira: 50% entre perder e ganhar. Dava
-  para o número estar completamente errado sem nenhuma pista na tela.
+- **O objetivo mora dentro do painel "Quanto comer", acima dos números**,
+  e também na engrenagem da Saúde. É o controle que mais mexe no resultado
+  — 35% entre as pontas — e ele começou escondido no perfil, depois no fim
+  da tela de Nutrição. Nos dois lugares o Rafael não achou, e passou dias
+  com a conta em "ganhar massa". Controle que muda muito fica onde o que
+  muda aparece.
+- Os rótulos são **"Perder gordura", "Manter o peso", "Ganhar massa"** —
+  perder *peso* inclui perder músculo, que é o contrário do que quem
+  escolhe essa opção quer. O valor no banco continua `perder_peso`, porque
+  a coluna já existia e renomear não muda nada.
 - A duração do treino vem do **cronômetro real** quando houve sessão hoje;
   senão, do tempo declarado no perfil; senão, uma hora. A corrida o app não
   registra, então é um padrão que a pessoa declara. **As duas aparecem

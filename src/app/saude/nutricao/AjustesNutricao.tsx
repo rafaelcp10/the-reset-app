@@ -2,20 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import {
-  salvarAjusteNutricao,
-  salvarBiotipo,
-  salvarObjetivo,
-} from "@/lib/saude/acoes";
+import { salvarAjusteNutricao, salvarBiotipo } from "@/lib/saude/acoes";
 import {
   BIOTIPOS,
   DESCRICAO_BIOTIPO,
-  DESCRICAO_OBJETIVO,
-  OBJETIVOS,
   ROTULO_BIOTIPO,
-  ROTULO_OBJETIVO,
   type Biotipo,
-  type Objetivo,
 } from "@/lib/saude/nutricao";
 import Painel from "@/components/saude/Painel";
 
@@ -69,12 +61,11 @@ const CAMPOS: Campo[] = [
  * O que a conta precisa e o app não tinha como saber.
  *
  * Fica no fim da tela de propósito: mexe-se aqui uma vez e não se volta.
- * A ordem é por quanto cada coisa mexe no resultado — objetivo primeiro
- * (50% entre perder e ganhar), biotipo em seguida (até 40%), e depois os
- * quatro números que só afinam uma conta que já existe.
+ * A ordem é por quanto cada coisa mexe no resultado: biotipo primeiro
+ * (até 40%), e depois os números que afinam uma conta que já existe. O
+ * objetivo, que mexe mais que todos, mora junto dos números.
  */
 export default function AjustesNutricao({
-  objetivo,
   biotipo,
   garrafaMl,
   corridaKm,
@@ -82,7 +73,6 @@ export default function AjustesNutricao({
   proteinaGKg,
   gorduraGKg,
 }: {
-  objetivo: Objetivo;
   biotipo: Biotipo | null;
   garrafaMl: number | null;
   corridaKm: number;
@@ -100,29 +90,16 @@ export default function AjustesNutricao({
 
   return (
     <Painel icone={SlidersHorizontal} rotulo="A sua conta">
-      {/* O objetivo vem primeiro porque é o que mais mexe no número:
-          perder corta 20%, ganhar soma 20%. Ele morava só no perfil, longe
-          de onde o resultado aparece, e era impossível perceber que estava
-          no valor errado. */}
+      {/* O objetivo não está aqui: ele mora no painel dos números, que é
+          onde alguém repara nele. Ver "Quanto comer". */}
       <Escolha
-        rotulo="Objetivo"
-        opcoes={OBJETIVOS}
-        atual={objetivo}
-        nome={(o) => ROTULO_OBJETIVO[o]}
-        descricao={(o) => DESCRICAO_OBJETIVO[o]}
-        aoEscolher={salvarObjetivo}
+        rotulo="Biotipo"
+        opcoes={BIOTIPOS}
+        atual={biotipo}
+        nome={(b) => ROTULO_BIOTIPO[b]}
+        descricao={(b) => DESCRICAO_BIOTIPO[b]}
+        aoEscolher={salvarBiotipo}
       />
-
-      <div className="border-t border-filete pt-4">
-        <Escolha
-          rotulo="Biotipo"
-          opcoes={BIOTIPOS}
-          atual={biotipo}
-          nome={(b) => ROTULO_BIOTIPO[b]}
-          descricao={(b) => DESCRICAO_BIOTIPO[b]}
-          aoEscolher={salvarBiotipo}
-        />
-      </div>
 
       <div className="flex flex-col gap-4 border-t border-filete pt-4">
         {CAMPOS.map((campo) => (

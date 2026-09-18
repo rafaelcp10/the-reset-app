@@ -12,14 +12,22 @@ import {
   type Limitacao,
   type LocalTreino,
 } from "@/lib/saude/dados";
+import {
+  DESCRICAO_OBJETIVO,
+  OBJETIVOS,
+  ROTULO_OBJETIVO,
+  type Objetivo,
+} from "@/lib/saude/nutricao";
 
 const INICIAL: EstadoConfig = {};
 
 export default function ConfigForm({
+  objetivoInicial,
   localInicial,
   minutosInicial,
   limitacoesIniciais,
 }: {
+  objetivoInicial: Objetivo;
   localInicial: LocalTreino | null;
   minutosInicial: number | null;
   limitacoesIniciais: string[];
@@ -28,6 +36,7 @@ export default function ConfigForm({
   const [local, setLocal] = useState<LocalTreino | null>(localInicial);
   const [minutos, setMinutos] = useState<number | null>(minutosInicial);
   const [limitacoes, setLimitacoes] = useState<string[]>(limitacoesIniciais);
+  const [objetivo, setObjetivo] = useState<Objetivo>(objetivoInicial);
 
   function alternarLimitacao(valor: Limitacao) {
     setLimitacoes((atuais) =>
@@ -44,18 +53,52 @@ export default function ConfigForm({
           Como você treina?
         </h1>
         <p className="text-[15.5px] leading-[1.6] text-auxiliar">
-          Cinco perguntas, uma vez. O app não vai montar treino nenhum — quem
-          escreve os seus é você. Isto aqui só decide o que ele te mostra.
+          Poucas perguntas, uma vez. O app não vai montar treino nenhum —
+          quem escreve os seus é você. Isto aqui decide o que ele te mostra,
+          e o objetivo decide a conta de calorias da Nutrição.
         </p>
       </Revelar>
 
       <Revelar imediato atraso={120}>
         <form action={acao} className="flex flex-col gap-10">
+          <input type="hidden" name="objetivo" value={objetivo} />
           <input type="hidden" name="local" value={local ?? ""} />
           <input type="hidden" name="minutos" value={minutos ?? ""} />
           {limitacoes.map((l) => (
             <input key={l} type="hidden" name="limitacoes" value={l} />
           ))}
+
+          {/* Primeiro de todos: é a única pergunta daqui que muda um número
+              de verdade, e em até 35% entre as pontas. */}
+          <section className="flex flex-col gap-3">
+            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+              Objetivo
+            </h2>
+            <div className="flex flex-col gap-1.5">
+              {OBJETIVOS.map((opcao) => (
+                <button
+                  key={opcao}
+                  type="button"
+                  onClick={() => setObjetivo(opcao)}
+                  aria-pressed={objetivo === opcao}
+                  className={`flex min-h-11 flex-col gap-0.5 rounded-[10px] px-3.5 py-2.5 text-left transition-colors duration-200 ${
+                    objetivo === opcao ? "bg-superficie3" : "bg-superficie3/40"
+                  }`}
+                >
+                  <span
+                    className={`text-[16px] ${
+                      objetivo === opcao ? "text-texto" : "text-auxiliar"
+                    }`}
+                  >
+                    {ROTULO_OBJETIVO[opcao]}
+                  </span>
+                  <span className="text-[13.5px] leading-[1.4] text-auxiliar-fraco">
+                    {DESCRICAO_OBJETIVO[opcao]}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
 
           <section className="flex flex-col gap-3">
             <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">

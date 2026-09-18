@@ -38,6 +38,14 @@ export async function salvarConfigAcademia(
   const minutosBruto = Number(formData.get("minutos"));
   const minutos = Number.isFinite(minutosBruto) && minutosBruto > 0 ? minutosBruto : null;
 
+  // O objetivo é o que mais mexe na conta de calorias, e até agora só dava
+  // para mexer nele dentro da Nutrição. Quem procura uma configuração
+  // procura na engrenagem.
+  const objetivo = (formData.get("objetivo") as string) ?? "";
+  const objetivoValido = ["perder_peso", "manter", "ganhar_massa"].includes(
+    objetivo,
+  );
+
   const limitacoes = formData
     .getAll("limitacoes")
     .map(String)
@@ -50,6 +58,7 @@ export async function salvarConfigAcademia(
       treino_local: local,
       treino_minutos: minutos,
       treino_limitacoes: limitacoes,
+      ...(objetivoValido ? { meta_saude: objetivo } : {}),
       academia_configurada_em: new Date().toISOString(),
     })
     .eq("id", user.id);

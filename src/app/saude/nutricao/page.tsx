@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { buscarNutricao } from "@/lib/saude/nutricaoDados";
 import {
   ROTULO_DIA,
-  ROTULO_OBJETIVO,
   comMilhar,
   type Macros,
   type TipoDeDia,
@@ -14,6 +13,7 @@ import { formatarDuracao } from "@/lib/saude/sessao";
 import CabecalhoSaude from "../CabecalhoSaude";
 import ContadorAgua from "./ContadorAgua";
 import AjustesNutricao from "./AjustesNutricao";
+import EscolhaObjetivo from "./EscolhaObjetivo";
 import Painel, { LinhaDoPainel, ParValor } from "@/components/saude/Painel";
 import Revelar from "@/components/movimento/Revelar";
 
@@ -159,7 +159,12 @@ export default async function NutricaoPage() {
 
           <Revelar imediato atraso={200}>
             <Painel icone={UtensilsCrossed} rotulo="Quanto comer">
-              <div className="flex flex-col gap-2">
+              {/* O objetivo fica aqui, e não no painel de ajustes lá
+                  embaixo: é o controle que mais mexe nos números, e ficava
+                  longe demais deles para alguém perceber que estava errado. */}
+              <EscolhaObjetivo atual={n.objetivo} />
+
+              <div className="flex flex-col gap-2 border-t border-filete pt-4">
                 {ORDEM.map((tipo) => (
                   <LinhaDoPainel
                     key={tipo}
@@ -177,13 +182,11 @@ export default async function NutricaoPage() {
                   não só lá embaixo nos ajustes, porque é o que mais mexe
                   neles — e porque morava invisível no perfil. */}
               <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
-                Objetivo: {ROTULO_OBJETIVO[n.objetivo].toLowerCase()}
                 {n.objetivo === "perder_peso"
-                  ? ", 20% abaixo do gasto"
+                  ? "20% abaixo do gasto."
                   : n.objetivo === "ganhar_massa"
-                    ? ", 15% acima do gasto"
-                    : ", no mesmo nível do gasto"}
-                .{" "}
+                    ? "15% acima do gasto."
+                    : "No mesmo nível do gasto."}{" "}
                 {n.corridaKm > 0
                   ? `Corrida contada em ${String(n.corridaKm).replace(".", ",")} km.`
                   : "Sem corrida na conta — diga quantos quilômetros ali embaixo."}
@@ -208,7 +211,6 @@ export default async function NutricaoPage() {
 
       <Revelar atraso={80}>
         <AjustesNutricao
-          objetivo={n.objetivo}
           biotipo={n.biotipo}
           garrafaMl={n.agua.garrafaMl}
           corridaKm={n.corridaKm}

@@ -32,17 +32,23 @@ export const BIOTIPOS: Biotipo[] = ["ectomorfo", "mesomorfo", "endomorfo"];
 
 export const OBJETIVOS: Objetivo[] = ["perder_peso", "manter", "ganhar_massa"];
 
+/**
+ * "Perder gordura", e não "perder peso": peso inclui músculo e água, e
+ * perder músculo é o contrário do que quem escolhe essa opção quer. O
+ * valor guardado no banco continua sendo `perder_peso`, porque a coluna
+ * `meta_saude` já existia com esse nome e renomear não muda nada.
+ */
 export const ROTULO_OBJETIVO: Record<Objetivo, string> = {
-  perder_peso: "Perder peso",
-  manter: "Manter",
+  perder_peso: "Perder gordura",
+  manter: "Manter o peso",
   ganhar_massa: "Ganhar massa",
 };
 
 /** O que cada objetivo faz com o número, dito sem fisiologia. */
 export const DESCRICAO_OBJETIVO: Record<Objetivo, string> = {
-  perder_peso: "Come menos do que gasta.",
+  perder_peso: "Come 20% menos do que gasta.",
   manter: "Come o que gasta.",
-  ganhar_massa: "Come mais do que gasta.",
+  ganhar_massa: "Come 15% mais do que gasta.",
 };
 
 export const ROTULO_BIOTIPO: Record<Biotipo, string> = {
