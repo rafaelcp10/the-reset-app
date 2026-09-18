@@ -441,6 +441,15 @@ export async function salvarAltura(bruto: string) {
  */
 const TAMANHO_MAXIMO_FOTO = 2 * 1024 * 1024;
 
+/**
+ * As duas telas que mostram foto. Apagar acontece na galeria, e revalidar
+ * só a Evolução deixava a foto apagada na tela de onde ela saiu.
+ */
+function revalidarFotos() {
+  revalidatePath(`${CAMINHO}/evolucao`);
+  revalidatePath(`${CAMINHO}/evolucao/fotos`);
+}
+
 export async function salvarFoto(data: string, formData: FormData) {
   const foto = formData.get("foto");
   if (!(foto instanceof File) || foto.size === 0) return;
@@ -466,7 +475,7 @@ export async function salvarFoto(data: string, formData: FormData) {
       { onConflict: "usuario_id,data" },
     );
 
-  revalidatePath(`${CAMINHO}/evolucao`);
+  revalidarFotos();
 }
 
 /** Apaga o arquivo antes da linha: sem a linha, o caminho se perde. */
@@ -490,5 +499,5 @@ export async function apagarFoto(data: string) {
     .eq("usuario_id", user.id)
     .eq("data", data);
 
-  revalidatePath(`${CAMINHO}/evolucao`);
+  revalidarFotos();
 }
