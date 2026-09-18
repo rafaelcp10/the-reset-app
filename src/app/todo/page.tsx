@@ -1,12 +1,12 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, CalendarRange, Sun } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoTodo } from "@/lib/todo/dados";
 import BlocoInegociaveis from "@/components/todo/BlocoInegociaveis";
 import ListaPorPeriodo from "@/components/todo/ListaPorPeriodo";
 import CampoAdicionar from "@/components/todo/CampoAdicionar";
+import Painel, { Barra } from "@/components/saude/Painel";
 import Revelar from "@/components/movimento/Revelar";
 
 const CAMINHO = "/todo";
@@ -21,21 +21,15 @@ export default async function TodoPage() {
   await garantirUsuarioEFrasesPadrao(supabase, user);
   const estado = await buscarEstadoTodo(supabase, user.id);
 
+  const feitasHoje = estado.hoje.filter((i) => i.feito).length;
+  const faltamHoje = estado.hoje.length - feitasHoje;
+
   return (
-    <div className="flex grow flex-col gap-10 px-5 pb-10 pt-8">
-      <Revelar imediato y={14} desfoque={4}>
-        <div className="flex items-start justify-between gap-3 px-1">
-          <p className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
-            {estado.dataExtenso} · semana {estado.numeroSemana}
-          </p>
-          <Link
-            href="/todo/grade"
-            aria-label="Abrir a grade do mês"
-            className="-m-3 inline-flex shrink-0 p-3 text-auxiliar"
-          >
-            <CalendarDays className="h-[22px] w-[22px]" strokeWidth={1.5} />
-          </Link>
-        </div>
+    <div className="flex grow flex-col gap-5 px-5 pb-10 pt-8">
+      <Revelar imediato y={14} desfoque={4} className="mb-1 px-1">
+        <p className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+          {estado.dataExtenso} · semana {estado.numeroSemana}
+        </p>
       </Revelar>
 
       <Revelar imediato atraso={80}>
@@ -46,43 +40,69 @@ export default async function TodoPage() {
         />
       </Revelar>
 
-      <Revelar imediato atraso={160} className="flex flex-col gap-4">
-        {/* O âmbar desta tela pertence à marcação, não ao título. */}
-        <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
-          Hoje
-        </h2>
-        {estado.hoje.length === 0 ? (
-          <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
-            Nada marcado para hoje.
-          </p>
-        ) : (
-          <ListaPorPeriodo
-            itens={estado.hoje}
-            dataHoje={estado.dataHoje}
-            caminhoAtual={CAMINHO}
-          />
-        )}
+      <Revelar imediato atraso={160}>
+        <Painel icone={Sun} rotulo="Hoje">
+          {estado.hoje.length === 0 ? (
+            <p className="text-[16px] leading-[1.6] text-auxiliar">
+              Nada marcado para hoje.
+            </p>
+          ) : (
+            <>
+              {/* O que falta, e não o que foi feito: a lista existe para
+                  mostrar o que ainda está de pé. Zerada, ela diz zero, que
+                  é a única comemoração que cabe aqui. */}
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[34px] leading-none tabular-nums text-texto">
+                  {faltamHoje}
+                </span>
+                <span className="text-[15px] text-auxiliar">
+                  {faltamHoje === 1 ? "restante" : "restantes"}
+                  {feitasHoje > 0 && ` · ${feitasHoje} de ${estado.hoje.length}`}
+                </span>
+              </div>
+
+              {/* A barra é cinza: o âmbar desta tela pertence à marcação. */}
+              <Barra feito={feitasHoje} total={estado.hoje.length} />
+
+              <ListaPorPeriodo
+                itens={estado.hoje}
+                dataHoje={estado.dataHoje}
+                caminhoAtual={CAMINHO}
+              />
+            </>
+          )}
+        </Painel>
       </Revelar>
 
-      <Revelar atraso={40} className="flex flex-col gap-4">
-        <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
-          Esta semana
-        </h2>
-        {estado.semana.length === 0 ? (
-          <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
-            Nada esperando.
-          </p>
-        ) : (
-          <ListaPorPeriodo
-            itens={estado.semana}
-            dataHoje={estado.dataHoje}
-            caminhoAtual={CAMINHO}
-            podePuxar
-          />
-        )}
+      <Revelar atraso={40}>
+        <Painel icone={CalendarRange} rotulo="Esta semana">
+          {estado.semana.length === 0 ? (
+            <p className="text-[16px] leading-[1.6] text-auxiliar">
+              Nada esperando.
+            </p>
+          ) : (
+            <ListaPorPeriodo
+              itens={estado.semana}
+              dataHoje={estado.dataHoje}
+              caminhoAtual={CAMINHO}
+              podePuxar
+            />
+          )}
+        </Painel>
       </Revelar>
 
+      {/* A grade do mês era um ícone de 22px no canto do cabeçalho. Virou
+          painel porque é uma tela inteira, e porque ícone sozinho no topo
+          não diz para onde leva. */}
       <Revelar atraso={80}>
+        <Painel icone={CalendarDays} rotulo="O mês" href="/todo/grade">
+          <p className="text-[15.5px] leading-[1.5] text-auxiliar">
+            Os dias de trás, e o que ficou marcado em cada um.
+          </p>
+        </Painel>
+      </Revelar>
+
+      <Revelar atraso={120} className="px-1 pt-2">
         <CampoAdicionar caminhoAtual={CAMINHO} />
       </Revelar>
     </div>

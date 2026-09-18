@@ -2,7 +2,11 @@ import { agruparPorPeriodo, type TarefaItem } from "@/lib/todo/dados";
 import LinhaTarefa from "./LinhaTarefa";
 
 /**
- * A lista separada por período do dia.
+ * A lista separada por período do dia, dentro de um painel.
+ *
+ * Cada período é um sub-bloco, uma superfície acima do painel — a mesma
+ * gramática de elevação da Saúde, um nível abaixo. Antes cada grupo era um
+ * `.bloco` solto na coluna, e a tela virava uma pilha de blocos sem dono.
  *
  * O rótulo aparece só quando há mais de um grupo em jogo: com tudo sem
  * hora — o estado de quem nunca escolheu — um cabeçalho solitário seria a
@@ -23,15 +27,15 @@ export default function ListaPorPeriodo({
   const mostrarRotulos = grupos.length > 1;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       {grupos.map((grupo) => (
-        <div key={grupo.rotulo} className="flex flex-col gap-2">
+        <div key={grupo.rotulo} className="flex flex-col gap-1.5">
           {mostrarRotulos && (
             <h3 className="tipo-rotulo px-1 text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
               {grupo.rotulo}
             </h3>
           )}
-          <div className="bloco flex flex-col px-4">
+          <div className="flex flex-col rounded-[10px] bg-superficie3 px-3 py-1">
             {grupo.itens.map((item) => (
               <LinhaTarefa
                 key={item.tarefa.id}

@@ -133,6 +133,17 @@ passe a falar por elas:
 
 As abas viraram pílulas, como no Zepp.
 
+O To-do passou a falar por elas em 2026-09-18: Inegociáveis, Hoje, Esta
+semana e O mês são painéis, e os períodos do dia viram sub-blocos dentro
+deles. O painel de Hoje conta **o que falta**, não o que foi feito — a
+lista existe para mostrar o que ainda está de pé, e zerada ela diz zero,
+que é a única comemoração que cabe. A barra é cinza porque o âmbar dessa
+tela pertence à marcação.
+
+Texto de tarefa quebra em duas linhas em vez de cortar com reticências: o
+fim da frase costuma ser o que diz o que fazer, e "Responder o e-mail do
+con…" não serve para nada.
+
 A referência é o Zepp, e é só de layout: número primeiro, curva embaixo,
 painel como unidade. O conteúdo dele — prontidão, nota, elogio — continua
 fora, pelo motivo de sempre: descrever não é julgar.

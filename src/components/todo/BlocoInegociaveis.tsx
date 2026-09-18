@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Anchor, Check } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
 import { marcarCompromissoDia } from "@/lib/ritual/acoes";
+import Painel from "@/components/saude/Painel";
 
 /**
  * Os inegociáveis não são item de lista: são quem a pessoa está virando.
- * Por isso texto maior, alvo de toque maior e um vão generoso separando
- * do resto da tela — nunca um filete.
+ * Por isso texto maior e alvo de toque maior — a frase segue na fonte das
+ * frases, e não na da interface, mesmo dentro de um painel.
  *
  * Aqui só se marca. Definir e editar é no Ritual de domingo.
  */
@@ -22,13 +23,9 @@ export default function BlocoInegociaveis({
   const definidos = inegociaveis.filter((slot) => slot.compromisso);
 
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
-        Inegociáveis da semana
-      </h2>
-
+    <Painel icone={Anchor} rotulo="Inegociáveis da semana">
       {definidos.length === 0 ? (
-        <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Você ainda não definiu os três.{" "}
           <Link
             href="/ritual/domingo"
@@ -40,7 +37,7 @@ export default function BlocoInegociaveis({
         </p>
       ) : (
         <>
-          <div className="bloco flex flex-col px-4">
+          <div className="flex flex-col rounded-[10px] bg-superficie3 px-3 py-1">
             {definidos.map((slot) => (
               <LinhaInegociavel
                 key={slot.ordem}
@@ -53,13 +50,13 @@ export default function BlocoInegociaveis({
 
           <Link
             href="/ritual/domingo"
-            className="px-1 text-[14.5px] text-auxiliar underline underline-offset-4"
+            className="text-[14.5px] text-auxiliar underline underline-offset-4"
           >
             editar no ritual de domingo
           </Link>
         </>
       )}
-    </section>
+    </Painel>
   );
 }
 

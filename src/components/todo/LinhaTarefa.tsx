@@ -60,7 +60,10 @@ export default function LinhaTarefa({
 
       <Link
         href={`/todo/${tarefa.id}`}
-        className={`min-w-0 flex-1 truncate py-2 text-[16.5px] transition-colors duration-[250ms] ${
+        // Duas linhas em vez de reticências: numa lista de tarefas, o fim
+        // da frase costuma ser o que diz o que fazer — "Responder o e-mail
+        // do contador" cortado em "do con…" não serve para nada.
+        className={`line-clamp-2 min-w-0 flex-1 py-2 text-[16.5px] leading-[1.35] transition-colors duration-[250ms] ${
           feito ? "text-auxiliar line-through decoration-1" : "text-texto"
         }`}
       >
