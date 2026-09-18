@@ -30,6 +30,8 @@ export type Nutricao = {
   /** Horas de treino que entraram na conta, e de onde vieram. */
   horasDeTreino: number;
   treinoDeHojeReal: boolean;
+  /** A duração de reserva declarada, em minutos. */
+  treinoMinutos: number;
   corridaKm: number;
   proteinaGKg: number;
   gorduraGKg: number;
@@ -236,6 +238,9 @@ export async function buscarNutricao(
     massaMagraKg,
     horasDeTreino,
     treinoDeHojeReal,
+    treinoMinutos: Math.round(
+      (minutosDeclarados ?? HORAS_DE_TREINO_PADRAO * 60),
+    ),
     corridaKm,
     proteinaGKg,
     gorduraGKg,

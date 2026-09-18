@@ -318,7 +318,15 @@ some da frente.
   para o número estar completamente errado sem nenhuma pista na tela.
 - A duração do treino vem do **cronômetro real** quando houve sessão hoje;
   senão, do tempo declarado no perfil; senão, uma hora. A corrida o app não
-  registra, então é um padrão que a pessoa declara.
+  registra, então é um padrão que a pessoa declara. **As duas aparecem
+  escritas na tela e são editáveis ali**: 15 minutos a mais de treino mudam
+  a conta em mais de cem calorias, e isso ficava invisível.
+- **Conferido contra duas referências externas** (2026-09-18), com peso 89,
+  altura 176, 42 anos, mesomorfo: basal do app 1.931 contra 1.877 da
+  calculadora da Growth e 1.911 da planilha — 3% de diferença. O gasto de
+  1h de treino bate exatamente com a planilha (668). A média semanal do app
+  em déficit dá 2.295 contra 2.327 da Growth e 2.271 da planilha. A conta
+  não está inflada; o que estava errado era o objetivo salvo no perfil.
 - Sem fita ainda, a proteína sai do peso total, e a tela **diz isso** em vez
   de esconder.
 

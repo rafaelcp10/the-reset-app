@@ -109,7 +109,7 @@ export default async function NutricaoPage() {
               <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
                 {n.treinoDeHojeReal
                   ? `Com ${formatarDuracao(Math.round(n.horasDeTreino * 3600))} de treino, do cronômetro de hoje.`
-                  : "Nenhum treino registrado hoje."}
+                  : `Nenhum treino registrado hoje. A conta usa ${formatarDuracao(n.treinoMinutos * 60)} de treino, do seu perfil.`}
                 {n.massaMagraKg === null &&
                   " A proteína está saindo do peso total: passe a fita na Evolução e ela passa a sair da massa magra."}
               </p>
@@ -144,8 +144,14 @@ export default async function NutricaoPage() {
                   ))}
                 </div>
 
+                {/* A duração do treino muda estes números em mais de cem
+                    calorias, e não aparecia em lugar nenhum. */}
                 <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
-                  O que o corpo queima. Quanto comer é o painel abaixo.
+                  Treino contado em{" "}
+                  {n.treinoDeHojeReal
+                    ? `${formatarDuracao(Math.round(n.horasDeTreino * 3600))}, do cronômetro`
+                    : `${formatarDuracao(n.treinoMinutos * 60)}, do seu perfil`}
+                  . O que o corpo queima — quanto comer é o painel abaixo.
                 </p>
               </Painel>
             </Revelar>
@@ -206,6 +212,7 @@ export default async function NutricaoPage() {
           biotipo={n.biotipo}
           garrafaMl={n.agua.garrafaMl}
           corridaKm={n.corridaKm}
+          treinoMinutos={n.treinoMinutos}
           proteinaGKg={n.proteinaGKg}
           gorduraGKg={n.gorduraGKg}
         />

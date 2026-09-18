@@ -36,6 +36,13 @@ const CAMPOS: Campo[] = [
     nota: "É ela que vira o número de garrafas do dia.",
   },
   {
+    id: "treino_minutos",
+    rotulo: "Treino",
+    unidade: "min",
+    passo: "5",
+    nota: "Quanto dura um treino seu. Vale quando não houve cronômetro.",
+  },
+  {
     id: "corrida_km",
     rotulo: "Corrida",
     unidade: "km",
@@ -71,6 +78,7 @@ export default function AjustesNutricao({
   biotipo,
   garrafaMl,
   corridaKm,
+  treinoMinutos,
   proteinaGKg,
   gorduraGKg,
 }: {
@@ -78,12 +86,14 @@ export default function AjustesNutricao({
   biotipo: Biotipo | null;
   garrafaMl: number | null;
   corridaKm: number;
+  treinoMinutos: number;
   proteinaGKg: number;
   gorduraGKg: number;
 }) {
   const iniciais: Record<string, string> = {
     garrafa_ml: garrafaMl !== null ? String(garrafaMl) : "",
     corrida_km: corridaKm > 0 ? String(corridaKm) : "",
+    treino_minutos: String(treinoMinutos),
     proteina_g_kg: String(proteinaGKg),
     gordura_g_kg: String(gorduraGKg),
   };

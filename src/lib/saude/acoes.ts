@@ -546,6 +546,10 @@ const LIMITES_NUTRICAO: Record<string, [number, number]> = {
   gordura_g_kg: [0.2, 3],
   corrida_km: [0, 100],
   garrafa_ml: [100, 5000],
+  // Quanto dura um treino típico. Vale como reserva quando não houve
+  // cronômetro no dia — e 15 minutos a mais ou a menos mudam a conta em
+  // mais de cem calorias, então ele precisa ser visível e editável aqui.
+  treino_minutos: [10, 300],
 };
 
 export async function salvarAjusteNutricao(campo: string, bruto: string) {
@@ -568,7 +572,12 @@ export async function salvarAjusteNutricao(campo: string, bruto: string) {
 
   await supabase
     .from("usuarios")
-    .update({ [campo]: campo === "garrafa_ml" ? Math.round(valor) : valor })
+    .update({
+      [campo]:
+        campo === "garrafa_ml" || campo === "treino_minutos"
+          ? Math.round(valor)
+          : valor,
+    })
     .eq("id", user.id);
 
   revalidatePath(`${CAMINHO}/nutricao`);
