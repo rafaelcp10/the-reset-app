@@ -2,12 +2,25 @@ import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
+import { passouEAindaCabe } from "@/lib/push/janela";
 
 export const dynamic = "force-dynamic";
 
-/** Janela de tolerância: o cron roda a cada 30min, então cobre esse passo. */
-const TOLERANCIA_MINUTOS = 30;
+/**
+ * Até quanto tempo depois do horário ainda vale avisar.
+ *
+ * Era uma janela de 30 minutos, do tamanho do passo do cron. Só que o cron
+ * do GitHub Actions está rodando de 2 em 5 horas, não de 30 em 30 minutos:
+ * agendamento lá é "melhor esforço", e intervalo curto é engolido. A janela
+ * era perdida quase sempre, e a notificação noturna quase nunca saía.
+ *
+ * Agora a pergunta é "o horário já passou e eu ainda não avisei?", com teto
+ * de três horas. O teto existe para o check-in de 21h30 não virar
+ * notificação às 2h da manhã: atrasado demais, o app cala e tenta amanhã.
+ */
+const ATRASO_MAXIMO_MINUTOS = 180;
 const FUSO_PADRAO = "UTC";
+const TIPO = "checkin";
 
 type Assinante = {
   usuario_id: string;
@@ -15,9 +28,9 @@ type Assinante = {
   chaves: { p256dh: string; auth: string };
 };
 
-function minutosDe(horario: string): number {
+function horaEMinuto(horario: string): [number, number] {
   const [h, m] = horario.slice(0, 5).split(":").map(Number);
-  return h * 60 + (m || 0);
+  return [h, m || 0];
 }
 
 export async function GET(request: Request) {
@@ -56,10 +69,8 @@ export async function GET(request: Request) {
 
   const candidatos = (usuarios ?? []).filter((u) => {
     const partes = agoraNoFuso(u.fuso || FUSO_PADRAO);
-    const agora = partes.hora * 60 + partes.minuto;
-    const alvo = minutosDe(u.horario_checkin as string);
-    const diferenca = agora - alvo;
-    return diferenca >= 0 && diferenca < TOLERANCIA_MINUTOS;
+    const [hora, minuto] = horaEMinuto(u.horario_checkin as string);
+    return passouEAindaCabe(partes, hora, minuto, ATRASO_MAXIMO_MINUTOS);
   });
 
   if (candidatos.length === 0) {
@@ -77,10 +88,35 @@ export async function GET(request: Request) {
     ]),
   );
 
-  const { data: dias } = await supabase
-    .from("dias")
-    .select("usuario_id, data, linha_do_dia, feito")
-    .in("usuario_id", ids);
+  const [{ data: dias }, { data: jaAvisados, error: erroLembretes }] =
+    await Promise.all([
+    supabase
+      .from("dias")
+      .select("usuario_id, data, linha_do_dia, feito")
+      .in("usuario_id", ids),
+    // Sem esta memória, um cron que roda três vezes depois do horário
+    // manda três notificações iguais — que é o preço de não depender mais
+    // de uma janela estreita.
+    supabase
+      .from("lembretes_enviados")
+      .select("usuario_id, data")
+      .eq("tipo", TIPO)
+      .in("usuario_id", ids),
+  ]);
+
+  // Sem a memória de envios, a lógica nova reenviaria a mesma notificação
+  // em cada tick do cron até o fim do dia. Melhor não mandar nada e gritar
+  // do que virar spam — a migration que cria a tabela pode não ter rodado.
+  if (erroLembretes) {
+    return NextResponse.json(
+      { erro: "lembretes_enviados indisponível", detalhe: erroLembretes.message },
+      { status: 503 },
+    );
+  }
+
+  const avisado = new Set(
+    (jaAvisados ?? []).map((l) => `${l.usuario_id}|${l.data}`),
+  );
 
   const diaDe = new Map(
     (dias ?? [])
@@ -88,7 +124,11 @@ export async function GET(request: Request) {
       .map((d) => [d.usuario_id as string, d]),
   );
 
-  const pendentes = ids.filter((id) => diaDe.get(id)?.feito == null);
+  const pendentes = ids.filter(
+    (id) =>
+      diaDe.get(id)?.feito == null &&
+      !avisado.has(`${id}|${porUsuario.get(id)}`),
+  );
   if (pendentes.length === 0) {
     return NextResponse.json({ enviados: 0, candidatos: candidatos.length });
   }
@@ -141,6 +181,27 @@ export async function GET(request: Request) {
 
   if (mortas.length > 0) {
     await supabase.from("inscricoes_push").delete().in("endpoint", mortas);
+  }
+
+  // Um registro por pessoa avisada, não por aparelho: quem tem celular e
+  // tablet recebe nos dois, e isso continua sendo um aviso só.
+  const marcados = [
+    ...new Set(
+      ((inscricoes ?? []) as Assinante[])
+        .filter((i) => !mortas.includes(i.endpoint))
+        .map((i) => i.usuario_id),
+    ),
+  ];
+
+  if (marcados.length > 0) {
+    await supabase.from("lembretes_enviados").upsert(
+      marcados.map((id) => ({
+        usuario_id: id,
+        data: porUsuario.get(id)!,
+        tipo: TIPO,
+      })),
+      { onConflict: "usuario_id,data,tipo" },
+    );
   }
 
   return NextResponse.json({

@@ -9,11 +9,23 @@ import {
   somarMesesISO,
 } from "@/lib/ritual/tempo";
 import { montarAgua } from "@/lib/saude/agua";
+import { minutosDesde } from "@/lib/push/janela";
 
 export const dynamic = "force-dynamic";
 
-/** Mesma janela do check-in: o cron roda de meia em meia hora. */
-const TOLERANCIA_MINUTOS = 30;
+/**
+ * Até quanto tempo depois do horário ainda vale avisar.
+ *
+ * Eram 30 minutos, do tamanho do passo do cron. Só que o cron do GitHub
+ * Actions roda de 2 em 5 horas, não de 30 em 30 minutos, e a janela era
+ * perdida quase sempre. Agora a pergunta é "já passou e eu não avisei?".
+ *
+ * A água tem teto menor que a manhã: um lembrete das 8h chegando às 13h
+ * ainda serve, mas o das 20h chegando às 23h não — e a água só faz sentido
+ * enquanto o dia ainda dá tempo de beber.
+ */
+const ATRASO_MAXIMO_MANHA = 180;
+const ATRASO_MAXIMO_AGUA = 120;
 const FUSO_PADRAO = "UTC";
 
 /**
@@ -26,6 +38,11 @@ const FUSO_PADRAO = "UTC";
  * **Foto**, mensal, às 9h, contando um mês a partir da última foto e não
  * do calendário: quem atrasa duas semanas passa a ser lembrado na data
  * nova, e o ciclo segue a pessoa.
+ *
+ * Nenhum deles exige pontualidade do cron: cada um pergunta se o horário
+ * já passou e se ainda não avisou hoje, e a tabela `lembretes_enviados` é
+ * a memória disso. Sem ela, um cron atrasado mandaria a mesma notificação
+ * em cada tick até o fim do dia.
  *
  * **Água**, de três em três horas, das 8h às 20h. É o lembrete mais
  * barulhento que este app já teve — cinco por dia contra o único que
@@ -49,7 +66,14 @@ type Assinante = {
   chaves: { p256dh: string; auth: string };
 };
 
-type Aviso = { corpo: string; url: string; tag: string };
+type Aviso = {
+  corpo: string;
+  url: string;
+  tag: string;
+  /** O dia da pessoa, e os tipos a registrar quando o envio der certo. */
+  data: string;
+  tipos: string[];
+};
 
 export async function GET(request: Request) {
   const segredo = process.env.CRON_SECRET;
@@ -84,23 +108,33 @@ export async function GET(request: Request) {
     .select("id, fuso, garrafa_ml")
     .eq("lembrete_ativo", true);
 
-  // Quem está dentro dos trinta minutos seguintes a alguma das horas que
-  // interessam. Fora delas a rota não toca no banco de novo.
+  // Quem já passou de alguma das horas que interessam, e ainda cabe avisar.
+  // Da água, o que vale é o **último** horário vencido: perdidos os das 8h
+  // e das 11h, sai um aviso às 14h, e não três de uma vez.
   const candidatos = (usuarios ?? [])
     .map((u) => {
       const partes = agoraNoFuso((u.fuso as string) || FUSO_PADRAO);
-      const minutos = partes.hora * 60 + partes.minuto;
-      const dentro = (hora: number) => {
-        const d = minutos - hora * 60;
-        return d >= 0 && d < TOLERANCIA_MINUTOS;
-      };
+
+      const atrasoManha = minutosDesde(partes, HORA_DA_MANHA);
+      const vencidas = HORAS_DE_AGUA.filter(
+        (h) => minutosDesde(partes, h) >= 0,
+      );
+      const ultimaAgua = vencidas.length > 0 ? vencidas[vencidas.length - 1] : null;
+
       return {
         id: u.id as string,
         garrafaMl: (u.garrafa_ml as number | null) ?? null,
         hoje: dataRitual(partes),
-        manha: dentro(HORA_DA_MANHA),
+        manha: atrasoManha >= 0 && atrasoManha <= ATRASO_MAXIMO_MANHA,
         domingo: diaDaSemana(partes) === DOMINGO,
-        agua: HORAS_DE_AGUA.some(dentro),
+        // Os horários vencidos antes do último ficam registrados como
+        // avisados mesmo sem aviso: um lembrete de água das 8h entregue às
+        // 19h não ajuda ninguém, e reabri-lo depois só empilharia atraso.
+        vencidasDeAgua: vencidas,
+        ultimaAgua,
+        agua:
+          ultimaAgua !== null &&
+          minutosDesde(partes, ultimaAgua) <= ATRASO_MAXIMO_AGUA,
       };
     })
     .filter((c) => c.manha || (c.agua && c.garrafaMl !== null));
@@ -117,7 +151,7 @@ export async function GET(request: Request) {
   // a conta sairia errada para quem virou o dia primeiro.
   const diasEmJogo = [...new Set(candidatos.map((c) => c.hoje))];
 
-  const [{ data: medidas }, { data: fotos }, { data: aguas }] =
+  const [{ data: medidas }, { data: fotos }, { data: aguas }, { data: registros, error: erroRegistros }] =
     await Promise.all([
       // Serve a duas perguntas: quando foi a última fita, e qual o peso
       // mais recente — que é o que dá a meta de água.
@@ -142,7 +176,26 @@ export async function GET(request: Request) {
         : Promise.resolve({
             data: [] as { usuario_id: string; data: string; ml: number }[],
           }),
+      supabase
+        .from("lembretes_enviados")
+        .select("usuario_id, data, tipo")
+        .in("usuario_id", ids)
+        .in("data", diasEmJogo),
     ]);
+
+  // Sem a memória de envios, a lógica nova reenviaria a mesma notificação
+  // em cada tick do cron — e a água, cinco vezes por dia, viraria dezenas.
+  // Melhor não mandar nada e gritar do que virar spam.
+  if (erroRegistros) {
+    return NextResponse.json(
+      { erro: "lembretes_enviados indisponível", detalhe: erroRegistros.message },
+      { status: 503 },
+    );
+  }
+
+  const jaEnviado = new Set(
+    (registros ?? []).map((l) => `${l.usuario_id}|${l.data}|${l.tipo}`),
+  );
 
   // As listas já descem no tempo, então a primeira de cada pessoa vale.
   const primeiraDe = <T extends { usuario_id: string }>(
@@ -183,7 +236,7 @@ export async function GET(request: Request) {
   const avisos = new Map<string, Aviso>();
 
   for (const c of candidatos) {
-    if (c.manha) {
+    if (c.manha && !jaEnviado.has(`${c.id}|${c.hoje}|evolucao`)) {
       const fita = ultimaFita.get(c.id);
       const precisaMedir =
         c.domingo &&
@@ -205,12 +258,15 @@ export async function GET(request: Request) {
                 : "Domingo de fita métrica. Três minutos.",
           url: "/saude/evolucao",
           tag: "evolucao",
+          data: c.hoje,
+          tipos: ["evolucao"],
         });
         continue;
       }
     }
 
-    if (!c.agua || c.garrafaMl === null) continue;
+    if (!c.agua || c.garrafaMl === null || c.ultimaAgua === null) continue;
+    if (jaEnviado.has(`${c.id}|${c.hoje}|agua_${c.ultimaAgua}`)) continue;
 
     const peso = ultimoPeso.get(c.id)?.peso_kg;
     if (peso == null) continue;
@@ -233,6 +289,11 @@ export async function GET(request: Request) {
           : `Faltam ${estado.faltamGarrafas} garrafas de água hoje.`,
       url: "/saude/nutricao",
       tag: "agua",
+      data: c.hoje,
+      // Registra também os horários que passaram sem aviso. Um lembrete
+      // das 8h entregue às 19h não ajuda ninguém, e deixá-lo em aberto só
+      // faria o próximo tick mandar outro atrasado por cima.
+      tipos: c.vencidasDeAgua.map((h) => `agua_${h}`),
     });
   }
 
@@ -278,6 +339,30 @@ export async function GET(request: Request) {
 
   if (mortas.length > 0) {
     await supabase.from("inscricoes_push").delete().in("endpoint", mortas);
+  }
+
+  // Um registro por pessoa avisada, não por aparelho: quem tem celular e
+  // tablet recebe nos dois, e isso continua sendo um aviso só.
+  const entregues = new Set(
+    ((inscricoes ?? []) as Assinante[])
+      .filter((i) => !mortas.includes(i.endpoint))
+      .map((i) => i.usuario_id),
+  );
+
+  const registrar = [...entregues].flatMap((id) => {
+    const aviso = avisos.get(id);
+    if (!aviso) return [];
+    return aviso.tipos.map((tipo) => ({
+      usuario_id: id,
+      data: aviso.data,
+      tipo,
+    }));
+  });
+
+  if (registrar.length > 0) {
+    await supabase
+      .from("lembretes_enviados")
+      .upsert(registrar, { onConflict: "usuario_id,data,tipo" });
   }
 
   return NextResponse.json({

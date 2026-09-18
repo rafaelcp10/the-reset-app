@@ -308,6 +308,38 @@ existia**. Duas defesas, e as duas são obrigatórias:
 Os três lembretes da Saúde moram na mesma rota (`api/cron/lembretes`). A
 água nunca cai às 9h, então nunca se encontra com fita e foto.
 
+## O cron não é pontual (2026-09-18)
+
+O workflow está configurado para rodar de 30 em 30 minutos e o GitHub
+Actions o roda **de 2 em 5 horas** — agendamento lá é "melhor esforço", e
+intervalo curto é engolido quando a plataforma está carregada. Medido nos
+horários reais dos runs: 4h18, 5h17, 4h58, 2h00, 2h53.
+
+As rotas exigiam estar **dentro de 30 minutos** do horário alvo. A janela
+era perdida quase sempre, e a notificação noturna quase nunca saía. Isso
+nunca funcionou direito — o YAML quebrado só piorou um defeito que já
+existia.
+
+O que mudou:
+
+- A pergunta deixou de ser "estou na janela?" e passou a ser **"o horário
+  já passou e eu ainda não avisei?"**. `lib/push/janela.ts` faz a conta no
+  dia da pessoa, que vira às 3h — sem isso, um check-in de 21h30 com o cron
+  rodando à 1h daria "faltam 20 horas" em vez de "passaram 3h30".
+- **Teto de atraso**: 3h para o check-in e a manhã, 2h para a água. Sem
+  teto, um check-in de 21h30 viraria notificação às 2h da manhã.
+- **`lembretes_enviados`** é a memória. Sem ela, um cron que roda três
+  vezes depois do horário manda três notificações iguais.
+- **As rotas recusam mandar se a tabela não existir** (503), em vez de
+  reenviar a cada tick. A água, com cinco horários por dia, viraria dezenas.
+- Da água vale só o **último horário vencido**: perdidos os das 8h e das
+  11h, sai um aviso às 14h e não três. Os anteriores são registrados como
+  avisados sem aviso — um lembrete das 8h entregue às 19h não ajuda.
+
+**Isso melhora muito a entrega, mas não resolve sozinho.** Com o cron
+caindo de 2 em 5 horas, ainda dá para perder um dia. A correção completa é
+tirar o disparo do GitHub Actions e pôr num agendador que cumpra horário.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.
