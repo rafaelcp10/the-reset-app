@@ -134,6 +134,17 @@ export function diaSemanaAbreviado(dataISO: string): string {
   return texto.replace(".", "");
 }
 
+/**
+ * 0 = domingo. Vem das partes de parede, não de `dataRitual`: o corte das
+ * 3h existe para o ritual da noite, e quem pergunta o dia da semana às 9h
+ * da manhã quer o dia do calendário.
+ */
+export function diaDaSemana(partes: PartesData): number {
+  return new Date(
+    Date.UTC(partes.ano, partes.mes - 1, partes.dia),
+  ).getUTCDay();
+}
+
 /** Nº de dias, em milissegundos de UTC, entre duas datas YYYY-MM-DD. */
 export function diferencaDias(dataISO: string, outraISO: string): number {
   const [a1, m1, d1] = dataISO.split("-").map(Number);

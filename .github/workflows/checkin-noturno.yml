@@ -1,4 +1,4 @@
-name: Check-in noturno
+name: Notificações
 
 # O cron da Vercel exige plano Pro para rodar mais de uma vez por dia, e o
 # app precisa de meia em meia hora para cobrir os cinco horários de
@@ -23,4 +23,18 @@ jobs:
           echo "status: $status"
           echo "resposta: $corpo"
           # Falha o job em erro para o GitHub avisar em vez de silenciar.
+          if [ "$status" != "200" ]; then exit 1; fi
+
+      # O lembrete de medidas roda no mesmo job: é a mesma chave, o mesmo
+      # cron de meia em meia hora, e a própria rota decide se é domingo de
+      # manhã no fuso de cada pessoa. Um workflow separado só duplicaria o
+      # segredo e a chance de um dos dois ficar para trás.
+      - name: Chamar a rota do lembrete de medidas
+        run: |
+          resposta=$(curl -s -w "
+%{http_code}"             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"             "${{ secrets.APP_URL }}/api/cron/medidas")
+          corpo=$(echo "$resposta" | head -n -1)
+          status=$(echo "$resposta" | tail -n 1)
+          echo "status: $status"
+          echo "resposta: $corpo"
           if [ "$status" != "200" ]; then exit 1; fi

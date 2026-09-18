@@ -1,11 +1,24 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { agoraNoFuso, dataRitual, domingoDaSemana } from "@/lib/ritual/tempo";
+import {
+  agoraNoFuso,
+  dataRitual,
+  diferencaDias,
+  domingoDaSemana,
+} from "@/lib/ritual/tempo";
+import { calcularComposicao, type Composicao, type Sexo } from "./composicao";
 
 export type Medida = {
   id: string;
   data: string;
   peso_kg: number | null;
+  altura_cm: number | null;
+  pescoco_cm: number | null;
+  cintura_cm: number | null;
+  quadril_cm: number | null;
 };
+
+/** Uma medida com a conta já feita, quando ela fecha. */
+export type MedidaComposta = Medida & { composicao: Composicao | null };
 
 export type CargaEvoluida = {
   exercicioId: string;
@@ -17,9 +30,18 @@ export type CargaEvoluida = {
 
 export type Evolucao = {
   hoje: string;
-  medidas: Medida[];
+  /** Da mais recente para a mais antiga. */
+  medidas: MedidaComposta[];
+  /** O perfil, para saber de qual ramo da fórmula estamos falando. */
+  sexo: Sexo | null;
+  alturaPerfil: number | null;
   pesoInicial: number | null;
   pesoAtual: number | null;
+  /** Primeira e última medida em que a conta fechou. */
+  composicaoInicial: MedidaComposta | null;
+  composicaoAtual: MedidaComposta | null;
+  /** Dias desde a última vez que passou a fita. `null` se nunca passou. */
+  diasDesdeAMedida: number | null;
   cargas: CargaEvoluida[];
   /** Semanas distintas em que houve pelo menos um treino registrado. */
   semanasComTreino: number;
@@ -44,7 +66,7 @@ export async function buscarEvolucao(
 ): Promise<Evolucao> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("fuso")
+    .select("fuso, sexo, altura_cm")
     .eq("id", usuarioId)
     .maybeSingle();
 
@@ -54,7 +76,9 @@ export async function buscarEvolucao(
     await Promise.all([
       supabase
         .from("medidas")
-        .select("id, data, peso_kg")
+        .select(
+          "id, data, peso_kg, altura_cm, pescoco_cm, cintura_cm, quadril_cm",
+        )
         .eq("usuario_id", usuarioId)
         .order("data", { ascending: false })
         .limit(60),
@@ -70,12 +94,43 @@ export async function buscarEvolucao(
         .order("data", { ascending: true }),
     ]);
 
-  const listaMedidas = (medidas ?? []) as Medida[];
+  const sexo = (usuario?.sexo as Sexo | null) ?? null;
+  const alturaPerfil = (usuario?.altura_cm as number | null) ?? null;
+
+  const listaMedidas: MedidaComposta[] = ((medidas ?? []) as Medida[]).map(
+    (m) => ({
+      ...m,
+      composicao: sexo
+        ? calcularComposicao(
+            {
+              sexo,
+              alturaCm: Number(m.altura_cm ?? alturaPerfil ?? 0),
+              pescocoCm: Number(m.pescoco_cm ?? 0),
+              cinturaCm: Number(m.cintura_cm ?? 0),
+              quadrilCm: m.quadril_cm !== null ? Number(m.quadril_cm) : null,
+            },
+            m.peso_kg !== null ? Number(m.peso_kg) : null,
+          )
+        : null,
+    }),
+  );
+
   const comPeso = listaMedidas.filter((m) => m.peso_kg !== null);
 
   // A lista vem da mais recente para a mais antiga, então o começo é o fim.
   const pesoAtual = comPeso[0]?.peso_kg ?? null;
   const pesoInicial = comPeso[comPeso.length - 1]?.peso_kg ?? null;
+
+  const compostas = listaMedidas.filter((m) => m.composicao !== null);
+  const composicaoAtual = compostas[0] ?? null;
+  const composicaoInicial = compostas[compostas.length - 1] ?? null;
+
+  // Serve ao aviso de "faz tempo" e ao lembrete semanal: é a distância até
+  // a última vez que a fita saiu da gaveta, não até o último peso.
+  const ultimaComFita = listaMedidas.find((m) => m.cintura_cm !== null);
+  const diasDesdeAMedida = ultimaComFita
+    ? diferencaDias(hoje, ultimaComFita.data)
+    : null;
 
   const cargas = await montarCargas(supabase, usuarioId, exercicios ?? []);
 
@@ -88,8 +143,13 @@ export async function buscarEvolucao(
   return {
     hoje,
     medidas: listaMedidas,
+    sexo,
+    alturaPerfil,
     pesoInicial,
     pesoAtual,
+    composicaoInicial,
+    composicaoAtual,
+    diasDesdeAMedida,
     cargas,
     semanasComTreino: semanas.size,
     semanasDesdeOComeco,

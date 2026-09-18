@@ -301,27 +301,132 @@ export async function descartarSessao(sessaoId: string, treinoId: string) {
  * registro do dia — errar o número na balança acontece, e não deve exigir
  * ir a outro lugar para desfazer.
  */
-export async function salvarPeso(data: string, bruto: string) {
+/**
+ * Um campo de medida por vez, salvo ao sair do campo.
+ *
+ * Tudo é opcional e nada bloqueia nada: quem só quer pesar, pesa. A conta
+ * de gordura aparece sozinha quando pescoço e cintura existem, e some
+ * quando não existem — nunca há um campo obrigatório cobrando conclusão.
+ */
+const LIMITES: Record<string, [number, number]> = {
+  peso_kg: [25, 400],
+  pescoco_cm: [20, 80],
+  cintura_cm: [40, 200],
+  quadril_cm: [50, 200],
+};
+
+export type CampoMedida = keyof typeof LIMITES;
+
+export async function salvarMedida(
+  data: string,
+  campo: string,
+  bruto: string,
+) {
+  if (!(campo in LIMITES)) return;
   const { supabase, user } = await usuarioAtual();
   const limpo = bruto.replace(",", ".").trim();
 
   if (limpo === "") {
-    await supabase
-      .from("medidas")
-      .delete()
-      .eq("usuario_id", user.id)
-      .eq("data", data);
+    await apagarCampo(supabase, user.id, data, campo);
     revalidatePath(`${CAMINHO}/evolucao`);
     return;
   }
 
   const valor = Number(limpo);
-  if (!Number.isFinite(valor) || valor < 25 || valor > 400) return;
+  const [minimo, maximo] = LIMITES[campo];
+  if (!Number.isFinite(valor) || valor < minimo || valor > maximo) return;
+
+  // A altura entra junto na criação da linha: ela vem do perfil, muda uma
+  // vez na vida e ninguém deveria redigitá-la toda semana. Guardada aqui,
+  // editar o perfil depois não reescreve o passado.
+  const { data: perfil } = await supabase
+    .from("usuarios")
+    .select("altura_cm")
+    .eq("id", user.id)
+    .maybeSingle();
 
   await supabase.from("medidas").upsert(
-    { usuario_id: user.id, data, peso_kg: valor },
+    {
+      usuario_id: user.id,
+      data,
+      altura_cm: perfil?.altura_cm ?? null,
+      [campo]: valor,
+    },
     { onConflict: "usuario_id,data" },
   );
+
+  revalidatePath(`${CAMINHO}/evolucao`);
+}
+
+/**
+ * Apagar o último campo apaga a linha. Uma linha de medida sem nenhuma
+ * medida não é registro de nada — é resto.
+ */
+async function apagarCampo(
+  supabase: Awaited<ReturnType<typeof usuarioAtual>>["supabase"],
+  usuarioId: string,
+  data: string,
+  campo: string,
+) {
+  const { data: linha } = await supabase
+    .from("medidas")
+    .select("peso_kg, pescoco_cm, cintura_cm, quadril_cm")
+    .eq("usuario_id", usuarioId)
+    .eq("data", data)
+    .maybeSingle();
+
+  if (!linha) return;
+
+  const sobra = Object.entries(linha).some(
+    ([chave, valor]) => chave !== campo && valor !== null,
+  );
+
+  if (sobra) {
+    await supabase
+      .from("medidas")
+      .update({ [campo]: null })
+      .eq("usuario_id", usuarioId)
+      .eq("data", data);
+    return;
+  }
+
+  await supabase
+    .from("medidas")
+    .delete()
+    .eq("usuario_id", usuarioId)
+    .eq("data", data);
+}
+
+/**
+ * A fórmula tem dois ramos e eles dão números diferentes, então não há como
+ * escolher um padrão. É a única razão pela qual o app pergunta isso — e a
+ * resposta não aparece em nenhuma outra tela.
+ */
+export async function salvarSexo(valor: string) {
+  if (valor !== "masculino" && valor !== "feminino") return;
+  const { supabase, user } = await usuarioAtual();
+  await supabase.from("usuarios").update({ sexo: valor }).eq("id", user.id);
+  revalidatePath(`${CAMINHO}/evolucao`);
+}
+
+/** A altura, quando o perfil não tem — sem ela a conta não sai. */
+export async function salvarAltura(bruto: string) {
+  const { supabase, user } = await usuarioAtual();
+  const valor = Number(bruto.replace(",", ".").trim());
+  if (!Number.isFinite(valor) || valor < 100 || valor > 250) return;
+
+  await supabase
+    .from("usuarios")
+    .update({ altura_cm: Math.round(valor) })
+    .eq("id", user.id);
+
+  // Alturas nulas em medidas já registradas eram o passado esperando por
+  // este número; preenchê-las faz a série inteira passar a calcular.
+  await supabase
+    .from("medidas")
+    .update({ altura_cm: Math.round(valor) })
+    .eq("usuario_id", user.id)
+    .is("altura_cm", null);
 
   revalidatePath(`${CAMINHO}/evolucao`);
 }

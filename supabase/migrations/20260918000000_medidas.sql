@@ -1,20 +1,28 @@
--- Peso corporal ao longo do tempo.
+-- Medidas corporais, para a aba Evolução.
 --
--- O perfil já guarda um `peso_kg`, mas ele é um retrato: vale o dia em que
--- foi digitado e some quando você digita outro. Evolução precisa de série,
--- não de retrato — a pergunta é "como eu comecei e como eu estou", e ela
--- não tem resposta com um número só.
+-- A conta de percentual de gordura é a da planilha do Rafael: o método da
+-- Marinha americana por circunferências, com o ajuste de +2 pontos no
+-- masculino que a planilha aplica. Ela precisa de fita métrica e mais
+-- nada — é o que permite fazer em casa, semana a semana.
 --
--- Uma linha por dia: pesar de novo no mesmo dia corrige, não empilha. É a
--- mesma decisão dos registros de carga, pelo mesmo motivo.
+-- As medidas guardam a altura junto em vez de buscá-la no perfil: editar a
+-- altura no perfil recalcularia todo o passado, e passado não se recalcula.
 --
--- Sem meta, sem percentual, sem faixa de "ideal". O app registra o que
--- aconteceu; quem julga o número é quem subiu na balança.
+-- Uma linha por dia: medir de novo corrige, não empilha. Mesma decisão dos
+-- registros de carga, pelo mesmo motivo.
+--
+-- Sem meta, sem faixa de "ideal", sem classificação. O app guarda o que a
+-- fita disse e devolve a série; quem julga o número é quem se mediu.
 create table medidas (
   id uuid primary key default gen_random_uuid(),
   usuario_id uuid not null references usuarios (id) on delete cascade,
   data date not null,
   peso_kg numeric(5, 2),
+  altura_cm smallint,
+  pescoco_cm numeric(4, 1),
+  cintura_cm numeric(4, 1),
+  -- Só entra na conta feminina. Fica nulo no resto.
+  quadril_cm numeric(4, 1),
   criado_em timestamptz not null default now(),
   unique (usuario_id, data)
 );
@@ -25,3 +33,14 @@ alter table medidas enable row level security;
 
 create policy "medidas_self" on medidas for all
   using (auth.uid() = usuario_id) with check (auth.uid() = usuario_id);
+
+-- A fórmula tem dois ramos, e o ramo feminino usa o quadril. Sem isso não
+-- dá para calcular — e o onboarding nunca perguntou, porque até agora nada
+-- no app dependia disso.
+alter table usuarios add column if not exists sexo text;
+
+alter table usuarios drop constraint if exists usuarios_sexo_check;
+alter table usuarios
+  add constraint usuarios_sexo_check check (
+    sexo is null or sexo in ('masculino', 'feminino')
+  );

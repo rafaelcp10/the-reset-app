@@ -79,6 +79,29 @@ Duas regras novas que nasceram daí:
 - O âmbar continua tendo **uma aplicação por tela**. Brilho e sombra são luz
   sobre a paleta existente, não cor nova.
 
+## Evolução (aba de Saúde, 2026-09-18)
+
+Registro do que aconteceu, não placar. É o que a faz caber na regra de
+"nenhum placar, pontuação, ranking ou comparação": não há meta, faixa de
+"ideal", percentual de objetivo, nota nem seta de veredito, e a comparação
+é sempre da pessoa com ela mesma. Carga que desceu aparece com o mesmo peso
+visual de carga que subiu.
+
+- O percentual de gordura é o método de circunferências da Marinha
+  americana, na forma exata da planilha que o usuário já usava — inclusive
+  o `+2` do ramo masculino, que a fórmula original não tem. Ele fica: trocar
+  a conta faria os números novos deixarem de conversar com os antigos.
+  Conferido contra os quatro registros reais da planilha, bate ao centésimo.
+- As medidas guardam a própria altura em vez de lerem o perfil: editar a
+  altura depois recalcularia o passado.
+- O sexo só é perguntado na Evolução, porque a fórmula tem dois ramos e não
+  há padrão razoável. Não aparece em nenhuma outra tela.
+- Lembrete de medir: domingo às 9h locais, e só para quem já mediu alguma
+  vez. Não tem interruptor próprio — o interruptor é ter medido.
+- O tutorial de medição é todo em texto. A proibição de imagem aperta aqui
+  (um desenho de onde fica a cintura ajudaria) e mesmo assim continua
+  valendo.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

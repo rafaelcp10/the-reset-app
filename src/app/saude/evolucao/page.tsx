@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
 import CabecalhoSaude from "../CabecalhoSaude";
-import CampoPeso from "./CampoPeso";
+import CampoMedidas from "./CampoMedidas";
 import Revelar from "@/components/movimento/Revelar";
+import { umaCasa } from "@/lib/saude/composicao";
 
 /** 60, não 60,00. */
 function kg(valor: number | null): string {
@@ -26,8 +27,10 @@ export default async function EvolucaoPage() {
   if (!user) redirect("/login");
 
   const evo = await buscarEvolucao(supabase, user.id);
-  const pesoDeHoje =
-    evo.medidas.find((m) => m.data === evo.hoje)?.peso_kg ?? null;
+  const deHoje = evo.medidas.find((m) => m.data === evo.hoje);
+
+  const pesagens = evo.medidas.filter((m) => m.peso_kg !== null);
+  const registrosDePeso = pesagens.length;
 
   const variouPeso =
     evo.pesoInicial !== null &&
@@ -46,7 +49,17 @@ export default async function EvolucaoPage() {
       </Revelar>
 
       <Revelar imediato atraso={80}>
-        <CampoPeso data={evo.hoje} valorInicial={pesoDeHoje} />
+        <CampoMedidas
+          data={evo.hoje}
+          sexo={evo.sexo}
+          altura={evo.alturaPerfil}
+          valores={{
+            peso_kg: deHoje?.peso_kg ?? null,
+            pescoco_cm: deHoje?.pescoco_cm ?? null,
+            cintura_cm: deHoje?.cintura_cm ?? null,
+            quadril_cm: deHoje?.quadril_cm ?? null,
+          }}
+        />
       </Revelar>
 
       {nada ? (
@@ -92,14 +105,14 @@ export default async function EvolucaoPage() {
                     {kg(
                       Math.abs(Number(evo.pesoAtual) - Number(evo.pesoInicial)),
                     )}{" "}
-                    de diferença, em {evo.medidas.length}{" "}
-                    {evo.medidas.length === 1 ? "registro" : "registros"}.
+                    de diferença, em {registrosDePeso}{" "}
+                    {registrosDePeso === 1 ? "registro" : "registros"}.
                   </p>
                 )}
 
-                {evo.medidas.length > 1 && (
+                {registrosDePeso > 1 && (
                   <div className="flex flex-col">
-                    {evo.medidas.slice(0, 10).map((m) => (
+                    {pesagens.slice(0, 10).map((m) => (
                       <div
                         key={m.id}
                         className="flex min-h-11 items-baseline justify-between gap-4"
@@ -118,8 +131,71 @@ export default async function EvolucaoPage() {
             </Revelar>
           )}
 
+          {evo.composicaoAtual?.composicao && (
+            <Revelar imediato atraso={200} className="flex flex-col gap-3">
+              <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
+                Composição
+              </h2>
+              <div className="bloco flex flex-col gap-4 px-4 py-4">
+                {/* Duas colunas, primeira e última, como a planilha que deu
+                    origem a esta tela. Sem faixa de "ideal" ao lado e sem
+                    classificação: o número é o que a fita disse. */}
+                <table className="w-full border-separate border-spacing-y-1 text-left">
+                  <thead>
+                    <tr>
+                      <th className="w-1/3" />
+                      <th className="tipo-rotulo pb-1 text-[12.5px] font-normal tracking-[.2em] text-auxiliar-fraco">
+                        Comecei
+                      </th>
+                      <th className="tipo-rotulo pb-1 text-[12.5px] font-normal tracking-[.2em] text-auxiliar-fraco">
+                        Hoje
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <LinhaComposicao
+                      rotulo="Gordura"
+                      antes={evo.composicaoInicial?.composicao?.gordura ?? null}
+                      depois={evo.composicaoAtual.composicao.gordura}
+                      sufixo="%"
+                    />
+                    <LinhaComposicao
+                      rotulo="Massa magra"
+                      antes={
+                        evo.composicaoInicial?.composicao?.massaMagra ?? null
+                      }
+                      depois={evo.composicaoAtual.composicao.massaMagra}
+                      sufixo=" kg"
+                    />
+                    <LinhaComposicao
+                      rotulo="Massa gorda"
+                      antes={
+                        evo.composicaoInicial?.composicao?.massaGorda ?? null
+                      }
+                      depois={evo.composicaoAtual.composicao.massaGorda}
+                      sufixo=" kg"
+                    />
+                  </tbody>
+                </table>
+
+                {evo.composicaoInicial &&
+                evo.composicaoInicial.id !== evo.composicaoAtual.id ? (
+                  <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+                    De {dataCurta(evo.composicaoInicial.data)} a{" "}
+                    {dataCurta(evo.composicaoAtual.data)}.
+                  </p>
+                ) : (
+                  <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+                    Esta é a primeira. A partir da segunda esta tabela tem duas
+                    colunas de verdade.
+                  </p>
+                )}
+              </div>
+            </Revelar>
+          )}
+
           {evo.cargas.length > 0 && (
-            <Revelar atraso={40} className="flex flex-col gap-3">
+            <Revelar atraso={60} className="flex flex-col gap-3">
               <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
                 Cargas
               </h2>
@@ -150,7 +226,7 @@ export default async function EvolucaoPage() {
           )}
 
           {evo.semanasComTreino > 0 && (
-            <Revelar atraso={80} className="flex flex-col gap-3">
+            <Revelar atraso={120} className="flex flex-col gap-3">
               <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
                 Presença
               </h2>
@@ -168,5 +244,45 @@ export default async function EvolucaoPage() {
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Uma linha da tabela de composição.
+ *
+ * Sem seta e sem cor de veredito: no app inteiro, vermelho é erro de
+ * sistema, e subir ou descer aqui depende do que a pessoa está buscando.
+ * Também sem âmbar — o acento desta tela já é o peso de hoje, e a distância
+ * entre começo e hoje aqui se lê no brilho do texto.
+ */
+function LinhaComposicao({
+  rotulo,
+  antes,
+  depois,
+  sufixo,
+}: {
+  rotulo: string;
+  antes: number | null;
+  depois: number | null;
+  sufixo: string;
+}) {
+  if (depois === null) return null;
+
+  return (
+    <tr>
+      <th
+        scope="row"
+        className="pr-3 text-[15.5px] font-normal text-auxiliar"
+      >
+        {rotulo}
+      </th>
+      <td className="text-[18px] text-auxiliar">
+        {antes === null ? "—" : `${umaCasa(antes)}${sufixo}`}
+      </td>
+      <td className="text-[18px] text-texto">
+        {umaCasa(depois)}
+        {sufixo}
+      </td>
+    </tr>
   );
 }
