@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Play } from "lucide-react";
+import { Dumbbell, Play } from "lucide-react";
 import { iniciarSessao } from "@/lib/saude/acoes";
 import { DIAS_ABREV } from "@/lib/saude/semana";
+import Painel, { LinhaDoPainel, ParValor } from "@/components/saude/Painel";
 
 type Opcao = {
   id: string;
@@ -14,11 +15,18 @@ type Opcao = {
 };
 
 /**
- * Começar o treino.
+ * O painel de hoje: qual treino é, e o botão de começar.
  *
  * O treino do dia já vem escolhido — na esmagadora maioria das vezes é ele
  * mesmo. Mas o corpo de segunda às vezes não é o corpo que a agenda previu,
  * então trocar está a um toque, e não escondido em outra tela.
+ *
+ * O painel inteiro é cliente porque o cabeçalho e o nome precisam seguir a
+ * troca: mostrar "Peito e tríceps" no topo enquanto o botão abre outro
+ * treino seria pior do que não mostrar nada.
+ *
+ * O âmbar da aba é este botão — é a única coisa aqui que a pessoa veio
+ * fazer. Tudo o mais é informação.
  */
 export default function IniciarTreino({
   opcoes,
@@ -43,63 +51,80 @@ export default function IniciarTreino({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <Painel
+      icone={Dumbbell}
+      rotulo={
+        atual?.deHoje
+          ? "Hoje tem treino"
+          : sugerido?.deHoje
+            ? "Trocado para hoje"
+            : "Hoje é descanso"
+      }
+      acao={
+        opcoes.length > 1 ? (
+          <button
+            type="button"
+            onClick={() => setAbrindo((a) => !a)}
+            className="tipo-rotulo -mr-1 min-h-11 px-2 text-[12.5px] tracking-[.14em] text-auxiliar"
+          >
+            {abrindo ? "fechar" : "trocar"}
+          </button>
+        ) : null
+      }
+    >
+      <div className="flex flex-col gap-1">
+        <span className="text-[22px] leading-[1.2] text-texto">
+          {atual?.nome}
+        </span>
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <ParValor
+            valor={String(atual?.totalExercicios ?? 0)}
+            rotulo={atual?.totalExercicios === 1 ? "exercício" : "exercícios"}
+          />
+          {atual && atual.dias.length > 0 && (
+            <ParValor
+              valor={atual.dias.map((d) => DIAS_ABREV[d]).join(" · ")}
+              rotulo="na semana"
+            />
+          )}
+        </div>
+      </div>
+
+      {abrindo && (
+        <div className="flex flex-col gap-2">
+          {opcoes.map((opcao) => (
+            <button
+              key={opcao.id}
+              type="button"
+              onClick={() => {
+                setEscolhido(opcao.id);
+                setAbrindo(false);
+              }}
+              className="text-left"
+            >
+              <LinhaDoPainel
+                titulo={opcao.nome}
+                detalhe={
+                  opcao.dias.length
+                    ? opcao.dias.map((d) => DIAS_ABREV[d]).join(" · ")
+                    : "sem dia marcado"
+                }
+                valor={String(opcao.totalExercicios)}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
       <button
         type="button"
         onClick={comecar}
         disabled={indo}
-        className="botao-acento tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[14px] py-5 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-60"
+        className="botao-acento tipo-rotulo mt-1 flex w-full items-center justify-center gap-2.5 rounded-[12px] py-4 text-center text-[16px] tracking-[.09em] text-fundo disabled:opacity-60"
       >
-        <Play className="h-[22px] w-[22px]" strokeWidth={2} />
+        <Play className="h-[20px] w-[20px]" strokeWidth={2} />
         {indo ? "Abrindo" : "Iniciar treino"}
       </button>
-
-      <div className="bloco flex flex-col">
-        <button
-          type="button"
-          onClick={() => setAbrindo((a) => !a)}
-          className="flex min-h-14 items-center justify-between gap-3 px-4 text-left"
-        >
-          <span className="flex flex-col gap-0.5">
-            <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
-              {atual?.deHoje ? "O treino de hoje" : "Trocado para hoje"}
-            </span>
-            <span className="text-[16px] text-texto">{atual?.nome}</span>
-          </span>
-          <span className="tipo-rotulo shrink-0 text-[13px] tracking-[.16em] text-auxiliar">
-            {abrindo ? "fechar" : "trocar"}
-          </span>
-        </button>
-
-        {abrindo && (
-          <div className="flex flex-col px-4 pb-2">
-            {opcoes.map((opcao) => (
-              <button
-                key={opcao.id}
-                type="button"
-                onClick={() => {
-                  setEscolhido(opcao.id);
-                  setAbrindo(false);
-                }}
-                className="flex min-h-12 items-center justify-between gap-3 text-left"
-              >
-                <span
-                  className={`text-[16.5px] ${
-                    opcao.id === escolhido ? "text-acento" : "text-texto"
-                  }`}
-                >
-                  {opcao.nome}
-                </span>
-                <span className="tipo-rotulo shrink-0 text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
-                  {opcao.dias.length
-                    ? opcao.dias.map((d) => DIAS_ABREV[d]).join(" ")
-                    : "sem dia"}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    </Painel>
   );
 }

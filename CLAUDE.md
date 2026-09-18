@@ -113,9 +113,35 @@ O que substituiu:
 - Painéis pequenos em grade de dois, sem curva e sem data na nota — data
   não cabe numa linha ali, e quebrar em duas desalinha as alturas.
 
+### O vocabulário da Saúde (2026-09-18)
+
+Cinco peças, em `components/saude/`, e a intenção é que o app inteiro
+passe a falar por elas:
+
+- `Painel` — bloco com cabeçalho de **ícone + rótulo em caixa alta**. O
+  ícone chega antes da palavra quando se varre a tela com o polegar. Com
+  `href`, o painel inteiro vira alvo e a seta fica no cabeçalho: meia tela
+  de alvo é mais honesto que uma seta de 20px.
+- `LinhaDoPainel` — linha dentro do painel, uma superfície acima dele.
+  Mesma gramática de elevação, um nível abaixo.
+- `Barra` — "3 de 4". O denominador **nunca é meta do app**: é sempre algo
+  que a pessoa declarou. Sem cor que muda conforme o quanto falta e sem
+  barra cheia comemorando.
+- `ParValor` — "6 EXERCÍCIOS": número forte, rótulo apagado, lado a lado.
+  Cabe mais numa linha do que em frase, e a vista pega o número primeiro.
+- `Metrica` e `PainelSerie`, descritos acima.
+
+As abas viraram pílulas, como no Zepp.
+
 A referência é o Zepp, e é só de layout: número primeiro, curva embaixo,
 painel como unidade. O conteúdo dele — prontidão, nota, elogio — continua
 fora, pelo motivo de sempre: descrever não é julgar.
+
+**O quadro da semana é o lugar mais fácil de virar streak sem perceber.**
+Ele mostra os sete dias desta semana e nada mais: não encadeia semanas, não
+zera, não guarda recorde. Dia marcado que passou em branco fica
+**contornado — nunca riscado, nunca vermelho**, porque "não fiz" é registro
+válido e não falta.
 
 ## Evolução (aba de Saúde, 2026-09-18)
 

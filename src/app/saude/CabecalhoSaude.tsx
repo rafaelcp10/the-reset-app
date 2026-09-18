@@ -28,15 +28,16 @@ export default function CabecalhoSaude({ aba }: { aba: "treino" | "evolucao" }) 
         </Link>
       </div>
 
-      {/* A aba da vez se distingue por superfície e brilho do texto, não por
-          uma segunda cor: o âmbar desta tela pertence ao botão de iniciar. */}
-      <div className="bloco flex gap-1 p-1">
+      {/* Pílulas, como no Zepp. A aba da vez se distingue por superfície e
+          brilho do texto, não por uma segunda cor: o âmbar desta tela
+          pertence ao botão de iniciar. */}
+      <div className="bloco flex gap-1 rounded-full p-1">
         {abas.map((item) => (
           <Link
             key={item.id}
             href={item.href}
             aria-current={aba === item.id ? "page" : undefined}
-            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-[10px] text-center text-[13px] tracking-[.09em] transition-colors duration-200 ${
+            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-full text-center text-[13px] tracking-[.09em] transition-colors duration-200 ${
               aba === item.id
                 ? "bg-superficie3 text-texto"
                 : "text-auxiliar-fraco"
