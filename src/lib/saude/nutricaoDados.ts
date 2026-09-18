@@ -3,6 +3,7 @@ import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import { calcularComposicao, type Sexo } from "./composicao";
 import { montarAgua, type Agua } from "./agua";
 import {
+  basalPuro,
   caloriasPorTipoDeDia,
   calcularMacros,
   idadeEm,
@@ -32,7 +33,14 @@ export type Nutricao = {
   corridaKm: number;
   proteinaGKg: number;
   gorduraGKg: number;
+  /** O que comer, já com o objetivo aplicado. */
   calorias: CaloriasDoDia | null;
+  /** O que o corpo gasta, sem objetivo nenhum. */
+  gastos: CaloriasDoDia | null;
+  /** O metabolismo basal puro, sem fator de rotina. */
+  basalKcal: number | null;
+  /** O corte bateu no piso de segurança e parou ali. */
+  pisoAplicado: boolean;
   macrosPorDia: Record<TipoDeDia, Macros> | null;
   /** Qual dos três dias hoje é, pelo que de fato aconteceu. */
   tipoDeHoje: TipoDeDia;
@@ -162,21 +170,27 @@ export async function buscarNutricao(
     alturaPerfil !== null &&
     pesoKg !== null;
 
-  const calorias = podeCalcular
+  const corpo = podeCalcular
+    ? {
+        sexo,
+        biotipo,
+        pesoKg,
+        alturaCm: alturaPerfil,
+        idade: idadeEm(nascimento, hoje),
+      }
+    : null;
+
+  const conta = corpo
     ? caloriasPorTipoDeDia(
-        {
-          sexo,
-          biotipo,
-          pesoKg,
-          alturaCm: alturaPerfil,
-          idade: idadeEm(nascimento, hoje),
-        },
+        corpo,
         objetivo,
         horasDeTreino,
         corridaKm,
         massaMagraKg,
       )
     : null;
+
+  const calorias = conta?.alvos ?? null;
 
   // Sem fita ainda, a massa magra não existe — a proteína então sai do
   // peso total. É pior, e é melhor que não mostrar nada: a tela diz que
@@ -213,6 +227,9 @@ export async function buscarNutricao(
   return {
     hoje,
     faltando,
+    gastos: conta?.gastos ?? null,
+    basalKcal: corpo ? basalPuro(corpo, massaMagraKg) : null,
+    pisoAplicado: conta?.pisoAplicado ?? false,
     biotipo,
     objetivo,
     pesoKg,

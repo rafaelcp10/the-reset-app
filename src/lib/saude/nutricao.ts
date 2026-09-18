@@ -98,12 +98,40 @@ const POR_HORA_DE_TREINO = 0.16244314489928524;
  */
 const POR_KG_POR_KM = 1.0;
 
-/** O ajuste do objetivo sobre o basal. */
+/**
+ * O ajuste do objetivo sobre o **gasto do dia** — nunca sobre o basal.
+ *
+ * Perder: 20% abaixo. A faixa recomendada é de 15% a 25%, com o lado
+ * conservador para quem já está magro; 20% é o meio dela.
+ *
+ * Ganhar: 15% acima, e não 20% como estava. A faixa é de 5% a 15%, com o
+ * lado alto para quem está começando — acima disso o que entra a mais vira
+ * gordura, não músculo.
+ */
 const FATOR_OBJETIVO: Record<Objetivo, number> = {
   manter: 1,
-  ganhar_massa: 1.2,
+  ganhar_massa: 1.15,
   perder_peso: 0.8,
 };
+
+/**
+ * Abaixo disto o app não recomenda, por mais que a conta peça.
+ *
+ * Dois pisos, e vale o maior: o próprio metabolismo basal, e um mínimo
+ * absoluto de 1.500 para homens e 1.200 para mulheres. Um corte de 20%
+ * sobre um dia de descanso magro pode cair abaixo do basal — e aí o
+ * número deixa de ser um alvo e vira um problema.
+ *
+ * O piso só existe para baixo. Ganhar massa nunca esbarra nele.
+ */
+const MINIMO_ABSOLUTO = { masculino: 1500, feminino: 1200 } as const;
+
+export function pisoDeSeguranca(
+  basalPuroKcal: number,
+  sexo: "masculino" | "feminino",
+): number {
+  return Math.max(basalPuroKcal, MINIMO_ABSOLUTO[sexo]);
+}
 
 export type DadosDoCorpo = {
   sexo: "masculino" | "feminino";
@@ -169,6 +197,24 @@ export const ROTULO_DIA: Record<TipoDeDia, string> = {
 
 export type CaloriasDoDia = Record<TipoDeDia, number>;
 
+/** O gasto de cada tipo de dia, sem objetivo nenhum aplicado. */
+export function gastoPorTipoDeDia(
+  dados: DadosDoCorpo,
+  horasDeTreino: number,
+  kmDeCorrida: number,
+  massaMagraKg?: number | null,
+): CaloriasDoDia {
+  const base = calcularBasal(dados, massaMagraKg);
+  const treino = gastoDeTreino(dados, horasDeTreino);
+  const corrida = gastoDeCorrida(dados, kmDeCorrida);
+
+  return {
+    descanso: base,
+    treino: base + treino,
+    treino_e_corrida: base + treino + corrida,
+  };
+}
+
 /**
  * Os três dias. A pessoa não escolhe entre eles como quem escolhe uma
  * dieta: o dia dela já aconteceu, e a tela só diz qual dos três ele foi.
@@ -179,20 +225,38 @@ export function caloriasPorTipoDeDia(
   horasDeTreino: number,
   kmDeCorrida: number,
   massaMagraKg?: number | null,
-): CaloriasDoDia {
-  const base = calcularBasal(dados, massaMagraKg);
-  const treino = gastoDeTreino(dados, horasDeTreino);
-  const corrida = gastoDeCorrida(dados, kmDeCorrida);
+): { alvos: CaloriasDoDia; gastos: CaloriasDoDia; pisoAplicado: boolean } {
+  const gastos = gastoPorTipoDeDia(
+    dados,
+    horasDeTreino,
+    kmDeCorrida,
+    massaMagraKg,
+  );
 
-  // O corte incide sobre o total do dia, e não só sobre o basal. Na
+  // O corte incide sobre o gasto do dia, e não só sobre o basal. Na
   // planilha o exercício entrava inteiro depois do corte, e o déficit
   // percentual encolhia justamente nos dias em que se treina mais.
   const corte = FATOR_OBJETIVO[objetivo];
+  const piso = pisoDeSeguranca(basalPuro(dados, massaMagraKg), dados.sexo);
+
+  let pisoAplicado = false;
+  const comPiso = (valor: number) => {
+    const alvo = valor * corte;
+    if (corte < 1 && alvo < piso) {
+      pisoAplicado = true;
+      return piso;
+    }
+    return alvo;
+  };
 
   return {
-    descanso: base * corte,
-    treino: (base + treino) * corte,
-    treino_e_corrida: (base + treino + corrida) * corte,
+    alvos: {
+      descanso: comPiso(gastos.descanso),
+      treino: comPiso(gastos.treino),
+      treino_e_corrida: comPiso(gastos.treino_e_corrida),
+    },
+    gastos,
+    pisoAplicado,
   };
 }
 

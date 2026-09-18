@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Flame, UtensilsCrossed } from "lucide-react";
+import { Activity, Flame, UtensilsCrossed } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarNutricao } from "@/lib/saude/nutricaoDados";
 import {
@@ -116,8 +116,43 @@ export default async function NutricaoPage() {
             </Painel>
           </Revelar>
 
-          <Revelar imediato atraso={140}>
-            <Painel icone={UtensilsCrossed} rotulo="Os três dias">
+          {/* O gasto vem antes do alvo, porque é dele que o alvo sai. E o
+              basal aparece separado do gasto do dia de propósito: era
+              exatamente isso que estava confundido — cortar do basal em vez
+              de cortar do gasto põe a pessoa a comer abaixo do que o corpo
+              queima parado. */}
+          {n.gastos && n.basalKcal !== null && (
+            <Revelar imediato atraso={140}>
+              <Painel icone={Activity} rotulo="O seu gasto">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[30px] leading-none tabular-nums text-texto">
+                    {comMilhar(n.basalKcal)}
+                  </span>
+                  <span className="text-[15px] text-auxiliar">
+                    kcal parado
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {ORDEM.map((tipo) => (
+                    <LinhaDoPainel
+                      key={tipo}
+                      titulo={ROTULO_DIA[tipo]}
+                      valor={comMilhar(n.gastos![tipo])}
+                      unidade="kcal"
+                    />
+                  ))}
+                </div>
+
+                <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+                  O que o corpo queima. Quanto comer é o painel abaixo.
+                </p>
+              </Painel>
+            </Revelar>
+          )}
+
+          <Revelar imediato atraso={200}>
+            <Painel icone={UtensilsCrossed} rotulo="Quanto comer">
               <div className="flex flex-col gap-2">
                 {ORDEM.map((tipo) => (
                   <LinhaDoPainel
@@ -136,11 +171,26 @@ export default async function NutricaoPage() {
                   não só lá embaixo nos ajustes, porque é o que mais mexe
                   neles — e porque morava invisível no perfil. */}
               <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
-                Objetivo: {ROTULO_OBJETIVO[n.objetivo].toLowerCase()}.{" "}
+                Objetivo: {ROTULO_OBJETIVO[n.objetivo].toLowerCase()}
+                {n.objetivo === "perder_peso"
+                  ? ", 20% abaixo do gasto"
+                  : n.objetivo === "ganhar_massa"
+                    ? ", 15% acima do gasto"
+                    : ", no mesmo nível do gasto"}
+                .{" "}
                 {n.corridaKm > 0
                   ? `Corrida contada em ${String(n.corridaKm).replace(".", ",")} km.`
                   : "Sem corrida na conta — diga quantos quilômetros ali embaixo."}
               </p>
+
+              {/* O piso não é detalhe: é a diferença entre um alvo e um
+                  problema. Quando ele entra, a tela diz. */}
+              {n.pisoAplicado && (
+                <p className="text-[14px] leading-[1.5] text-auxiliar">
+                  O corte parou no seu mínimo. Abaixo disso o app não
+                  recomenda, por mais que a conta peça.
+                </p>
+              )}
             </Painel>
           </Revelar>
         </>

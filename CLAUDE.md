@@ -283,6 +283,22 @@ some da frente.
   - O gasto de **treino continua na constante da planilha**: dá 13% a mais
     que 6 MET, dentro da margem desse tipo de estimativa, e musculação não
     tem número consagrado como o da corrida.
+- **Basal e gasto aparecem separados na tela** (painel "O seu gasto"), e o
+  corte incide sobre o gasto, nunca sobre o basal. Era exatamente essa
+  confusão que estava por trás de "os números estão altos": cortar 20% do
+  basal poria a pessoa a comer abaixo do que o corpo queima parado.
+- **Corte de 20% para perder** (faixa recomendada 15–25%) e **acréscimo de
+  15% para ganhar** (faixa 5–15%; era 20%, acima do recomendado — o que
+  passa disso vira gordura, não músculo).
+- **Piso de segurança**: o alvo nunca desce abaixo do basal, nem abaixo de
+  1.500 kcal para homens e 1.200 para mulheres, vale o maior. Quando o piso
+  entra, a tela diz. Só existe para baixo — ganhar massa nunca esbarra.
+- **Limite conhecido**: o fator de biotipo endomorfo é 1,0, o que como
+  fator de rotina significa "o dia inteiro gasta o mesmo que o corpo
+  parado" — fisiologicamente impossível. Na prática o piso de segurança
+  absorve isso, mas um endomorfo em déficit fica sem corte nos dias de
+  descanso. Mexer nisso muda a escala inteira da planilha, então fica
+  registrado em vez de corrigido em silêncio.
 - O fator de biotipo **funciona como fator de rotina**, não de fisiologia:
   1,4/1,2/1,0 caem na faixa dos fatores de atividade de qualquer
   calculadora de TDEE, e o exercício entra depois, por fora.
