@@ -265,9 +265,27 @@ do Rafael entre três opções. Sem contador de calorias, sem barra de
 progresso de comida, sem nota no fim do dia: a tela diz quanto comer e
 some da frente.
 
-- A conta é a da planilha dele, replicada como está (`lib/saude/nutricao.ts`),
-  conferida contra os doze valores da planilha. Inclui os arredondamentos
-  do Harris-Benedict e duas constantes soltas sem origem declarada.
+- A conta **nasceu** como cópia fiel da planilha dele, conferida contra os
+  doze valores dela. Em 2026-09-18 ele achou os números altos e pediu
+  pesquisa; três coisas mudaram, e a pesquisa mostrou que o problema não
+  era onde parecia:
+  - **O basal não estava inflado.** 1.878 contra 1.762 do Mifflin-St Jeor
+    e 1.915 do Katch-McArdle — entre os dois padrões. Mesmo assim passou a
+    usar **Katch-McArdle quando a massa magra é conhecida**, porque é o
+    método construído para quem sabe o próprio percentual de gordura, e a
+    Evolução já coleta isso.
+  - **A corrida estava 48% alta.** Virou 1 kcal por quilo por quilômetro,
+    a estimativa consagrada. Sem idade e sem fator de biotipo.
+  - **O corte do objetivo passou a incidir sobre o total**, não só sobre o
+    basal. Antes o exercício entrava inteiro depois do corte, e o déficit
+    percentual encolhia justamente nos dias de mais treino: 20% no
+    descanso contra 14% no dia de treino e corrida.
+  - O gasto de **treino continua na constante da planilha**: dá 13% a mais
+    que 6 MET, dentro da margem desse tipo de estimativa, e musculação não
+    tem número consagrado como o da corrida.
+- O fator de biotipo **funciona como fator de rotina**, não de fisiologia:
+  1,4/1,2/1,0 caem na faixa dos fatores de atividade de qualquer
+  calculadora de TDEE, e o exercício entra depois, por fora.
 - **Os fatores de biotipo são dois, e diferentes**: 1,4/1,2/1,0 no basal,
   1,2/1,1/1,0 no gasto de treino e corrida. Parece engano e não é — está
   assim nas duas fórmulas dela.

@@ -174,6 +174,7 @@ export async function buscarNutricao(
         objetivo,
         horasDeTreino,
         corridaKm,
+        massaMagraKg,
       )
     : null;
 

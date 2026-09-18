@@ -1,11 +1,24 @@
 /**
  * Calorias e macronutrientes, na conta da planilha do Rafael.
  *
- * Mesma decisão do percentual de gordura: a fórmula é a que ele já usava
- * há meses, replicada como está, inclusive os arredondamentos do
- * Harris-Benedict (14 e 5 e 6,7 no lugar de 13,75 e 5,003 e 6,755) e as
- * duas constantes soltas de gasto. Trocar a régua faria os números novos
- * deixarem de conversar com os antigos.
+ * Nasceu como cópia fiel da planilha dele. Três coisas mudaram em
+ * 2026-09-18, depois de conferir a planilha contra os métodos padrão:
+ *
+ * 1. **O basal usa Katch-McArdle quando a massa magra é conhecida.** É o
+ *    método indicado para quem tem pouca gordura e sabe o próprio
+ *    percentual — e a Evolução já coleta isso. Sem fita passada, cai no
+ *    Harris-Benedict da planilha.
+ * 2. **A corrida passou a ser 1 kcal por quilo por quilômetro**, que é a
+ *    estimativa consagrada. A constante da planilha dava 48% a mais.
+ * 3. **O corte do objetivo é aplicado ao total**, e não só ao basal. Antes
+ *    o exercício entrava inteiro depois do corte, então quem treinava mais
+ *    tinha déficit percentual menor: 20% no descanso e 14% no dia de
+ *    treino e corrida.
+ *
+ * O que **não** mudou: o gasto de treino continua na constante da planilha.
+ * Ela dá 13% a mais que 6 MET (musculação vigorosa), dentro da margem
+ * desse tipo de estimativa — e musculação não tem um número consagrado
+ * como o da corrida.
  *
  * Nada aqui vira meta que o app cobra. A aba mostra os três números do dia
  * e o dia que está valendo; não há barra de progresso de caloria, não há
@@ -33,7 +46,15 @@ export const DESCRICAO_BIOTIPO: Record<Biotipo, string> = {
   endomorfo: "Ganha peso com facilidade, custa a perder.",
 };
 
-/** O multiplicador do metabolismo basal. */
+/**
+ * O multiplicador do basal, da planilha.
+ *
+ * Ele se chama biotipo e funciona como **fator de rotina**: é o que separa
+ * o gasto de um dia sem exercício deliberado do metabolismo parado. Os
+ * valores caem exatamente na faixa dos fatores de atividade usados por
+ * toda calculadora de TDEE (1,2 sedentário a 1,375 leve), e é assim que
+ * ele é aplicado aqui — o exercício entra depois, por fora.
+ */
 const FATOR_TMB: Record<Biotipo, number> = {
   ectomorfo: 1.4,
   mesomorfo: 1.2,
@@ -52,9 +73,15 @@ const FATOR_GASTO: Record<Biotipo, number> = {
   endomorfo: 1.0,
 };
 
-/** Constantes soltas da planilha, sem origem declarada nela. */
+/** Constante solta da planilha, sem origem declarada nela. */
 const POR_HORA_DE_TREINO = 0.16244314489928524;
-const POR_KM_DE_CORRIDA = 0.035505430242272346;
+
+/**
+ * Correr custa mais ou menos um quilocaloria por quilo por quilômetro,
+ * quase independente do ritmo. É a estimativa consagrada, e substituiu a
+ * constante da planilha, que dava 48% a mais.
+ */
+const POR_KG_POR_KM = 1.0;
 
 /** O ajuste do objetivo sobre o basal. */
 const FATOR_OBJETIVO: Record<Objetivo, number> = {
@@ -71,16 +98,33 @@ export type DadosDoCorpo = {
   idade: number;
 };
 
-/** Metabolismo basal, já com o multiplicador do biotipo. */
-export function calcularBasal(dados: DadosDoCorpo): number {
-  const { sexo, biotipo, pesoKg, alturaCm, idade } = dados;
+/**
+ * Metabolismo basal puro, sem fator de rotina.
+ *
+ * Com massa magra conhecida usa Katch-McArdle, que é construído em cima
+ * dela e é o mais preciso para quem tem pouca gordura. Sem ela, cai no
+ * Harris-Benedict de 1919 nos arredondamentos da planilha — que ficam 7%
+ * acima do Mifflin-St Jeor e 2% abaixo do Katch, ou seja, entre os dois
+ * padrões, e não inflado como parecia.
+ */
+export function basalPuro(
+  dados: DadosDoCorpo,
+  massaMagraKg?: number | null,
+): number {
+  if (massaMagraKg && massaMagraKg > 0) return 370 + 21.6 * massaMagraKg;
 
-  const bruto =
-    sexo === "feminino"
-      ? 665 + pesoKg * 9.6 + alturaCm * 1.8 - idade * 4.7
-      : 66.5 + pesoKg * 14 + alturaCm * 5 - idade * 6.7;
+  const { sexo, pesoKg, alturaCm, idade } = dados;
+  return sexo === "feminino"
+    ? 665 + pesoKg * 9.6 + alturaCm * 1.8 - idade * 4.7
+    : 66.5 + pesoKg * 14 + alturaCm * 5 - idade * 6.7;
+}
 
-  return bruto * FATOR_TMB[biotipo];
+/** O gasto de um dia sem exercício deliberado. */
+export function calcularBasal(
+  dados: DadosDoCorpo,
+  massaMagraKg?: number | null,
+): number {
+  return basalPuro(dados, massaMagraKg) * FATOR_TMB[dados.biotipo];
 }
 
 export function gastoDeTreino(dados: DadosDoCorpo, horas: number): number {
@@ -90,11 +134,14 @@ export function gastoDeTreino(dados: DadosDoCorpo, horas: number): number {
   );
 }
 
+/**
+ * Sem idade e sem fator de biotipo: a conta consagrada da corrida é só
+ * peso vezes distância. Meter os dois de volta seria voltar ao número que
+ * estava 48% alto.
+ */
 export function gastoDeCorrida(dados: DadosDoCorpo, km: number): number {
   if (km <= 0) return 0;
-  return (
-    dados.idade * dados.pesoKg * km * POR_KM_DE_CORRIDA * FATOR_GASTO[dados.biotipo]
-  );
+  return dados.pesoKg * km * POR_KG_POR_KM;
 }
 
 export type TipoDeDia = "descanso" | "treino" | "treino_e_corrida";
@@ -116,15 +163,21 @@ export function caloriasPorTipoDeDia(
   objetivo: Objetivo,
   horasDeTreino: number,
   kmDeCorrida: number,
+  massaMagraKg?: number | null,
 ): CaloriasDoDia {
-  const base = calcularBasal(dados) * FATOR_OBJETIVO[objetivo];
+  const base = calcularBasal(dados, massaMagraKg);
   const treino = gastoDeTreino(dados, horasDeTreino);
   const corrida = gastoDeCorrida(dados, kmDeCorrida);
 
+  // O corte incide sobre o total do dia, e não só sobre o basal. Na
+  // planilha o exercício entrava inteiro depois do corte, e o déficit
+  // percentual encolhia justamente nos dias em que se treina mais.
+  const corte = FATOR_OBJETIVO[objetivo];
+
   return {
-    descanso: base,
-    treino: base + treino,
-    treino_e_corrida: base + treino + corrida,
+    descanso: base * corte,
+    treino: (base + treino) * corte,
+    treino_e_corrida: (base + treino + corrida) * corte,
   };
 }
 
