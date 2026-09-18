@@ -105,6 +105,13 @@ export default async function RitualPage({
         <BotaoEspelho />
       </Revelar>
       <Revelar imediato atraso={240}>{frases}</Revelar>
+
+      {/* A quebra entre as cinco frases e o resto da tela. Sem ela, quem
+          chega lendo em voz alta não percebe onde as frases terminam e o
+          dia começa — vira um texto só. O respiro extra é parte da quebra:
+          um fio sozinho, no mesmo intervalo de tudo, quase não aparece. */}
+      <div className="fio my-1" role="presentation" />
+
       <Revelar>{inegociaveis}</Revelar>
       <Revelar>{linhaDoDia}</Revelar>
     </div>

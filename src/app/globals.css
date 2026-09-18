@@ -374,6 +374,19 @@ body {
   );
 }
 
+/* Fio sem cor: o mesmo traço, mas só luz da paleta cinza. Serve onde a
+   tela já gastou o âmbar dela — o Ritual gasta na palavra escolhida. */
+.fio {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-filete-forte) 30%,
+    var(--color-filete-forte) 70%,
+    transparent
+  );
+}
+
 /* Fio de luz: substitui o filete reto por um traço que acende no centro. */
 .fio-luz {
   height: 1px;
