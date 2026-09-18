@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buscarNutricao } from "@/lib/saude/nutricaoDados";
 import {
   ROTULO_DIA,
+  ROTULO_OBJETIVO,
   comMilhar,
   type Macros,
   type TipoDeDia,
@@ -129,10 +130,13 @@ export default async function NutricaoPage() {
                 ))}
               </div>
 
-              {/* Sem uma linha de fisiologia: a regra de "nenhuma
-                  justificativa científica na interface" vale aqui inteira.
-                  O que a tela diz é de onde os números vieram. */}
+              {/* De onde os números vieram, e nenhuma linha de fisiologia:
+                  a regra de "nenhuma justificativa científica na interface"
+                  vale aqui inteira. O objetivo aparece junto dos números, e
+                  não só lá embaixo nos ajustes, porque é o que mais mexe
+                  neles — e porque morava invisível no perfil. */}
               <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+                Objetivo: {ROTULO_OBJETIVO[n.objetivo].toLowerCase()}.{" "}
                 {n.corridaKm > 0
                   ? `Corrida contada em ${String(n.corridaKm).replace(".", ",")} km.`
                   : "Sem corrida na conta — diga quantos quilômetros ali embaixo."}
@@ -148,6 +152,7 @@ export default async function NutricaoPage() {
 
       <Revelar atraso={80}>
         <AjustesNutricao
+          objetivo={n.objetivo}
           biotipo={n.biotipo}
           garrafaMl={n.agua.garrafaMl}
           corridaKm={n.corridaKm}

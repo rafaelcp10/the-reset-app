@@ -518,6 +518,22 @@ export async function apagarFoto(data: string, angulo: string) {
  * Cada uma salva sozinha, no campo em que foi mexida: um formulário
  * inteiro com botão de salvar seria cerimônia para trocar 2,8 por 3,0.
  */
+/**
+ * O objetivo é o maior multiplicador da conta: perder corta 20%, ganhar
+ * soma 20% — 50% de diferença entre as duas pontas. Ele morava só no
+ * perfil, longe de onde os números aparecem, e ninguém tinha como
+ * perceber que estava no valor errado.
+ */
+export async function salvarObjetivo(valor: string) {
+  if (!["perder_peso", "manter", "ganhar_massa"].includes(valor)) return;
+  const { supabase, user } = await usuarioAtual();
+  await supabase
+    .from("usuarios")
+    .update({ meta_saude: valor })
+    .eq("id", user.id);
+  revalidatePath(`${CAMINHO}/nutricao`);
+}
+
 export async function salvarBiotipo(valor: string) {
   if (!BIOTIPOS.includes(valor as Biotipo)) return;
   const { supabase, user } = await usuarioAtual();

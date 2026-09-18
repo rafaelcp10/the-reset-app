@@ -296,6 +296,10 @@ some da frente.
   o basal em até 40% e não há padrão razoável. A descrição de cada um é o
   que se vê no espelho, sem uma palavra de fisiologia.
 - `saude_geral` vira "manter" — é o único dos três que não empurra ninguém.
+- **O objetivo é escolhido dentro da aba e aparece junto dos números.**
+  Ele morava só no perfil, invisível de onde o resultado aparece — e é o
+  maior multiplicador da conta inteira: 50% entre perder e ganhar. Dava
+  para o número estar completamente errado sem nenhuma pista na tela.
 - A duração do treino vem do **cronômetro real** quando houve sessão hoje;
   senão, do tempo declarado no perfil; senão, uma hora. A corrida o app não
   registra, então é um padrão que a pessoa declara.

@@ -2,12 +2,20 @@
 
 import { useState, useTransition } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { salvarAjusteNutricao, salvarBiotipo } from "@/lib/saude/acoes";
+import {
+  salvarAjusteNutricao,
+  salvarBiotipo,
+  salvarObjetivo,
+} from "@/lib/saude/acoes";
 import {
   BIOTIPOS,
   DESCRICAO_BIOTIPO,
+  DESCRICAO_OBJETIVO,
+  OBJETIVOS,
   ROTULO_BIOTIPO,
+  ROTULO_OBJETIVO,
   type Biotipo,
+  type Objetivo,
 } from "@/lib/saude/nutricao";
 import Painel from "@/components/saude/Painel";
 
@@ -54,16 +62,19 @@ const CAMPOS: Campo[] = [
  * O que a conta precisa e o app não tinha como saber.
  *
  * Fica no fim da tela de propósito: mexe-se aqui uma vez e não se volta.
- * O biotipo vem primeiro porque sem ele não há conta nenhuma — os outros
- * quatro só afinam uma conta que já existe.
+ * A ordem é por quanto cada coisa mexe no resultado — objetivo primeiro
+ * (50% entre perder e ganhar), biotipo em seguida (até 40%), e depois os
+ * quatro números que só afinam uma conta que já existe.
  */
 export default function AjustesNutricao({
+  objetivo,
   biotipo,
   garrafaMl,
   corridaKm,
   proteinaGKg,
   gorduraGKg,
 }: {
+  objetivo: Objetivo;
   biotipo: Biotipo | null;
   garrafaMl: number | null;
   corridaKm: number;
@@ -79,7 +90,29 @@ export default function AjustesNutricao({
 
   return (
     <Painel icone={SlidersHorizontal} rotulo="A sua conta">
-      <EscolhaBiotipo atual={biotipo} />
+      {/* O objetivo vem primeiro porque é o que mais mexe no número:
+          perder corta 20%, ganhar soma 20%. Ele morava só no perfil, longe
+          de onde o resultado aparece, e era impossível perceber que estava
+          no valor errado. */}
+      <Escolha
+        rotulo="Objetivo"
+        opcoes={OBJETIVOS}
+        atual={objetivo}
+        nome={(o) => ROTULO_OBJETIVO[o]}
+        descricao={(o) => DESCRICAO_OBJETIVO[o]}
+        aoEscolher={salvarObjetivo}
+      />
+
+      <div className="border-t border-filete pt-4">
+        <Escolha
+          rotulo="Biotipo"
+          opcoes={BIOTIPOS}
+          atual={biotipo}
+          nome={(b) => ROTULO_BIOTIPO[b]}
+          descricao={(b) => DESCRICAO_BIOTIPO[b]}
+          aoEscolher={salvarBiotipo}
+        />
+      </div>
 
       <div className="flex flex-col gap-4 border-t border-filete pt-4">
         {CAMPOS.map((campo) => (
@@ -91,27 +124,42 @@ export default function AjustesNutricao({
 }
 
 /**
- * O biotipo multiplica o metabolismo por 1,0, 1,2 ou 1,4 — é a variável
- * mais pesada da conta inteira, e nenhuma delas serve como padrão. Por
- * isso a pergunta aparece aqui, e a descrição de cada um é o que se
- * enxerga no espelho, sem uma palavra de fisiologia.
+ * Uma escolha entre poucas opções, cada uma com a própria explicação.
+ *
+ * Serve ao objetivo e ao biotipo, que são as duas perguntas que mais
+ * mexem no número e as duas que o app não tem como adivinhar. A descrição
+ * de cada opção é o que se enxerga na vida, sem uma palavra de fisiologia.
  */
-function EscolhaBiotipo({ atual }: { atual: Biotipo | null }) {
+function Escolha<T extends string>({
+  rotulo,
+  opcoes,
+  atual,
+  nome,
+  descricao,
+  aoEscolher,
+}: {
+  rotulo: string;
+  opcoes: readonly T[];
+  atual: T | null;
+  nome: (valor: T) => string;
+  descricao: (valor: T) => string;
+  aoEscolher: (valor: string) => Promise<void>;
+}) {
   const [enviando, iniciar] = useTransition();
 
   return (
     <div className="flex flex-col gap-2">
       <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
-        Biotipo
+        {rotulo}
       </span>
       <div className="flex flex-col gap-1.5">
-        {BIOTIPOS.map((valor) => (
+        {opcoes.map((valor) => (
           <button
             key={valor}
             type="button"
             disabled={enviando}
             aria-pressed={atual === valor}
-            onClick={() => iniciar(() => void salvarBiotipo(valor))}
+            onClick={() => iniciar(() => void aoEscolher(valor))}
             className={`flex min-h-11 flex-col gap-0.5 rounded-[10px] px-3.5 py-2.5 text-left transition-colors duration-200 disabled:opacity-60 ${
               atual === valor ? "bg-superficie3" : "bg-superficie3/40"
             }`}
@@ -121,10 +169,10 @@ function EscolhaBiotipo({ atual }: { atual: Biotipo | null }) {
                 atual === valor ? "text-texto" : "text-auxiliar"
               }`}
             >
-              {ROTULO_BIOTIPO[valor]}
+              {nome(valor)}
             </span>
             <span className="text-[13.5px] leading-[1.4] text-auxiliar-fraco">
-              {DESCRICAO_BIOTIPO[valor]}
+              {descricao(valor)}
             </span>
           </button>
         ))}

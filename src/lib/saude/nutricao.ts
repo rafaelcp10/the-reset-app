@@ -30,6 +30,21 @@ export type Objetivo = "perder_peso" | "ganhar_massa" | "manter";
 
 export const BIOTIPOS: Biotipo[] = ["ectomorfo", "mesomorfo", "endomorfo"];
 
+export const OBJETIVOS: Objetivo[] = ["perder_peso", "manter", "ganhar_massa"];
+
+export const ROTULO_OBJETIVO: Record<Objetivo, string> = {
+  perder_peso: "Perder peso",
+  manter: "Manter",
+  ganhar_massa: "Ganhar massa",
+};
+
+/** O que cada objetivo faz com o número, dito sem fisiologia. */
+export const DESCRICAO_OBJETIVO: Record<Objetivo, string> = {
+  perder_peso: "Come menos do que gasta.",
+  manter: "Come o que gasta.",
+  ganhar_massa: "Come mais do que gasta.",
+};
+
 export const ROTULO_BIOTIPO: Record<Biotipo, string> = {
   ectomorfo: "Ectomorfo",
   mesomorfo: "Mesomorfo",
