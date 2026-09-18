@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Grafico, { type Ponto } from "./Grafico";
 
 /**
@@ -50,6 +50,8 @@ export default function PainelSerie({
   formato,
   acento = true,
   descricao,
+  acao,
+  rodape,
 }: {
   rotulo: string;
   unidade: string;
@@ -58,6 +60,10 @@ export default function PainelSerie({
   formato: FormatoNumero;
   acento?: boolean;
   descricao: string;
+  /** Um controle à direita do rótulo, no cabeçalho. */
+  acao?: ReactNode;
+  /** O que vem depois da curva — números irmãos do principal. */
+  rodape?: ReactNode;
 }) {
   const diasDaSerie = useMemo(() => {
     if (pontos.length < 2) return 0;
@@ -104,29 +110,7 @@ export default function PainelSerie({
         <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
           {rotulo}
         </span>
-
-        {mostrarJanelas && (
-          <div className="flex gap-1">
-            {janelas.map((j) => (
-              <button
-                key={j.rotulo}
-                type="button"
-                aria-pressed={janela === j.dias}
-                onClick={() => {
-                  setJanela(j.dias);
-                  setEscolhido(null);
-                }}
-                className={`tipo-rotulo min-h-11 rounded-[8px] px-2.5 text-[12.5px] tracking-[.06em] transition-colors duration-200 ${
-                  janela === j.dias
-                    ? "bg-superficie3 text-texto"
-                    : "text-auxiliar-fraco"
-                }`}
-              >
-                {j.rotulo}
-              </button>
-            ))}
-          </div>
-        )}
+        {acao}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -141,9 +125,32 @@ export default function PainelSerie({
         </span>
       </div>
 
+      {mostrarJanelas && (
+        <div className="-ml-2.5 flex gap-1">
+          {janelas.map((j) => (
+            <button
+              key={j.rotulo}
+              type="button"
+              aria-pressed={janela === j.dias}
+              onClick={() => {
+                setJanela(j.dias);
+                setEscolhido(null);
+              }}
+              className={`tipo-rotulo min-h-11 rounded-[8px] px-2.5 text-[12.5px] tracking-[.06em] transition-colors duration-200 ${
+                janela === j.dias
+                  ? "bg-superficie3 text-texto"
+                  : "text-auxiliar-fraco"
+              }`}
+            >
+              {j.rotulo}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* A curva sangra até a borda do bloco: ela é o chão do número, não um
           elemento ao lado dele. */}
-      <div className="-mx-4 -mb-4 mt-1">
+      <div className={`-mx-4 mt-1 ${rodape ? "" : "-mb-4"}`}>
         <Grafico
           pontos={visiveis}
           selecionado={indice}
@@ -152,6 +159,8 @@ export default function PainelSerie({
           descricao={descricao}
         />
       </div>
+
+      {rodape}
     </div>
   );
 }

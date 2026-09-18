@@ -177,6 +177,20 @@ visual de carga que subiu.
   atrasa passa a ser lembrado na data nova. Caindo os dois na mesma manhã,
   sai uma notificação só. Nenhum dos dois tem interruptor próprio: o
   interruptor é ter medido, ou ter fotografado, alguma vez.
+- **A aba abre mostrando, não pedindo** (2026-09-18). O formulário estava
+  no topo e sobrevivia ali depois de preenchido, então a tela pedia antes
+  de mostrar. Ele foi para `/saude/evolucao/nova-medida`, aberto por um "+"
+  no cabeçalho do painel — e não por engrenagem, porque o cabeçalho da
+  Saúde já tem uma, que abre os ajustes de treino. Duas engrenagens na
+  mesma tela levando a lugares diferentes é convite para tocar na errada.
+  Tela própria, e não bloco que abre no lugar: com o teclado do celular
+  aberto sobra meia tela.
+- A ordem é **Composição, Peso, Fotos, Cargas, Presença**. A composição
+  lidera porque é o que a fita produziu; o peso tem painel próprio logo
+  abaixo. Sem nenhuma medida, o "+" sozinho não explicaria nada, então o
+  convite é escrito.
+- O seletor de período desceu para baixo da nota: no cabeçalho ele
+  disputava espaço com a ação, e em 375px os dois não cabem.
 - O tutorial de medição é todo em texto. Um desenho de onde fica a cintura
   ajudaria, e mesmo assim não entra: a exceção de imagem vale para foto do
   usuário, não para ilustração.

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { CalendarCheck, Plus, Ruler } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
 import { buscarConjuntoDeFotos } from "@/lib/saude/fotos";
 import { umaCasa } from "@/lib/saude/composicao";
 import CabecalhoSaude from "../CabecalhoSaude";
-import CampoMedidas from "./CampoMedidas";
 import FotosEvolucao from "./FotosEvolucao";
-import Metrica from "@/components/saude/Metrica";
+import Painel, { ParValor } from "@/components/saude/Painel";
 import PainelSerie from "@/components/saude/PainelSerie";
 import type { Ponto } from "@/components/saude/Grafico";
 import Revelar from "@/components/movimento/Revelar";
@@ -19,12 +19,23 @@ function kg(valor: number | null): string {
   return n % 1 === 0 ? String(n) : n.toFixed(1).replace(".", ",");
 }
 
-/** Só a diferença, sem a data: nos painéis de duas colunas ela não cabe
- *  numa linha, e os dois painéis acima já disseram desde quando. */
-function variacao(inicial: number, atual: number, unidade: string): string {
-  const delta = atual - inicial;
-  if (Math.abs(delta) < 0.05) return "Igual ao começo";
-  return `${delta > 0 ? "+" : "−"}${umaCasa(Math.abs(delta))}${unidade}`;
+/**
+ * O "+" que abre a tela de medir.
+ *
+ * Um mais, e não uma engrenagem: o cabeçalho da Saúde já tem uma, que
+ * abre os ajustes de treino, e duas engrenagens na mesma tela levando a
+ * lugares diferentes é convite para tocar na errada.
+ */
+function BotaoMedir() {
+  return (
+    <Link
+      href="/saude/evolucao/nova-medida"
+      aria-label="Registrar uma nova medida"
+      className="-mr-2 -mt-2 inline-flex min-h-11 min-w-11 items-center justify-center rounded-[10px] text-auxiliar"
+    >
+      <Plus className="h-[22px] w-[22px]" strokeWidth={1.5} />
+    </Link>
+  );
 }
 
 export default async function EvolucaoPage() {
@@ -36,8 +47,6 @@ export default async function EvolucaoPage() {
 
   const evo = await buscarEvolucao(supabase, user.id);
   const fotos = await buscarConjuntoDeFotos(supabase, user.id, evo.hoje);
-
-  const deHoje = evo.medidas.find((m) => m.data === evo.hoje);
 
   // As buscas devolvem da mais recente para a mais antiga; a curva anda
   // para a frente no tempo, então aqui inverte.
@@ -54,15 +63,8 @@ export default async function EvolucaoPage() {
   }));
 
   const composicao = evo.composicaoAtual?.composicao ?? null;
-  const inicial = evo.composicaoInicial?.composicao ?? null;
-  const dataInicial = evo.composicaoInicial?.data ?? null;
-  const temSerieDeGordura = curvaGordura.length > 1 && inicial && dataInicial;
-
-  const nada =
-    evo.medidas.length === 0 &&
-    evo.cargas.length === 0 &&
-    evo.semanasComTreino === 0 &&
-    fotos.total === 0;
+  const temComposicao = curvaGordura.length > 0 && composicao !== null;
+  const temPeso = curvaPeso.length > 0;
 
   return (
     <div className="flex grow flex-col gap-5 px-5 pb-10 pt-8">
@@ -70,90 +72,73 @@ export default async function EvolucaoPage() {
         <CabecalhoSaude aba="evolucao" />
       </Revelar>
 
-      <Revelar imediato atraso={80}>
-        <CampoMedidas
-          data={evo.hoje}
-          sexo={evo.sexo}
-          altura={evo.alturaPerfil}
-          valores={{
-            peso_kg: deHoje?.peso_kg ?? null,
-            pescoco_cm: deHoje?.pescoco_cm ?? null,
-            cintura_cm: deHoje?.cintura_cm ?? null,
-            quadril_cm: deHoje?.quadril_cm ?? null,
-          }}
-        />
-      </Revelar>
-
-      <Revelar imediato atraso={140}>
-        <FotosEvolucao data={evo.hoje} fotos={fotos} />
-      </Revelar>
-
-      {nada && (
-        <Revelar imediato atraso={200} className="px-1 pt-3">
-          <p className="text-[16.5px] leading-[1.6] text-auxiliar">
-            Ainda não há de onde para onde. Registre seu peso e termine um
-            treino — a partir do segundo, esta tela passa a ter história.
-          </p>
+      {/* Nada medido ainda: o "+" sozinho não explicaria nada, então aqui
+          o convite é escrito. */}
+      {!temPeso && !temComposicao && (
+        <Revelar imediato atraso={80}>
+          <Painel icone={Ruler} rotulo="Comece por aqui">
+            <p className="text-[16px] leading-[1.6] text-auxiliar">
+              Peso, pescoço e cintura. Três minutos com uma fita métrica, e
+              esta tela passa a ter o que dizer.
+            </p>
+            <Link
+              href="/saude/evolucao/nova-medida"
+              className="botao-acento tipo-rotulo mt-1 block w-full rounded-[12px] py-4 text-center text-[16px] tracking-[.09em] text-fundo"
+            >
+              Primeira medida
+            </Link>
+          </Painel>
         </Revelar>
       )}
 
-      {/* Os dois painéis que mandam na tela: número grande e curva que se
-          arrasta. O âmbar é deles — ver "Número e curva" no CLAUDE.md. */}
-      {evo.pesoAtual !== null && curvaPeso.length > 0 && (
-        <Revelar atraso={40} className="pt-3">
+      {/* O resultado da fita lidera: é o que a medida da semana produziu,
+          e é o que se abre a aba para conferir. */}
+      {temComposicao && (
+        <Revelar imediato atraso={80}>
+          <PainelSerie
+            rotulo="Composição"
+            unidade="%"
+            pontos={curvaGordura}
+            formato="uma-casa"
+            descricao={`Percentual de gordura, ${curvaGordura.length} ${curvaGordura.length === 1 ? "medida" : "medidas"}. Arraste para ver cada uma.`}
+            acao={<BotaoMedir />}
+            rodape={
+              composicao.massaMagra !== null && composicao.massaGorda !== null ? (
+                <div className="flex flex-wrap gap-x-6 gap-y-1 pt-1">
+                  <ParValor
+                    valor={`${umaCasa(composicao.massaMagra)} kg`}
+                    rotulo="massa magra"
+                  />
+                  <ParValor
+                    valor={`${umaCasa(composicao.massaGorda)} kg`}
+                    rotulo="massa gorda"
+                  />
+                </div>
+              ) : null
+            }
+          />
+        </Revelar>
+      )}
+
+      {temPeso && (
+        <Revelar imediato atraso={140}>
           <PainelSerie
             rotulo="Peso"
             unidade="kg"
             pontos={curvaPeso}
             formato="enxuto"
             descricao={`Peso, ${curvaPeso.length} ${curvaPeso.length === 1 ? "registro" : "registros"}. Arraste para ver cada um.`}
+            acao={temComposicao ? undefined : <BotaoMedir />}
           />
         </Revelar>
       )}
 
-      {composicao && (
-        <>
-          {curvaGordura.length > 0 && (
-            <Revelar atraso={60}>
-              <PainelSerie
-                rotulo="Gordura"
-                unidade="%"
-                pontos={curvaGordura}
-                formato="uma-casa"
-                descricao={`Percentual de gordura, ${curvaGordura.length} ${curvaGordura.length === 1 ? "medida" : "medidas"}. Arraste para ver cada uma.`}
-              />
-            </Revelar>
-          )}
-
-          {composicao.massaMagra !== null && composicao.massaGorda !== null && (
-            <Revelar atraso={80} className="grid grid-cols-2 gap-3">
-              <Metrica
-                rotulo="Massa magra"
-                valor={umaCasa(composicao.massaMagra)}
-                unidade="kg"
-                nota={
-                  temSerieDeGordura && inicial.massaMagra !== null
-                    ? variacao(inicial.massaMagra, composicao.massaMagra, " kg")
-                    : null
-                }
-              />
-              <Metrica
-                rotulo="Massa gorda"
-                valor={umaCasa(composicao.massaGorda)}
-                unidade="kg"
-                nota={
-                  temSerieDeGordura && inicial.massaGorda !== null
-                    ? variacao(inicial.massaGorda, composicao.massaGorda, " kg")
-                    : null
-                }
-              />
-            </Revelar>
-          )}
-        </>
-      )}
+      <Revelar imediato atraso={200}>
+        <FotosEvolucao data={evo.hoje} fotos={fotos} />
+      </Revelar>
 
       {evo.cargas.length > 0 && (
-        <Revelar atraso={100} className="flex flex-col gap-3 pt-3">
+        <Revelar atraso={60} className="flex flex-col gap-3 pt-3">
           <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
             Cargas
           </h2>
@@ -184,14 +169,19 @@ export default async function EvolucaoPage() {
       )}
 
       {evo.semanasComTreino > 0 && (
-        <Revelar atraso={120}>
+        <Revelar atraso={100}>
           {/* Semanas, nunca dias corridos: a contagem do app inteiro é essa,
               e uma semana perdida no meio não apaga as outras. */}
-          <Metrica
-            rotulo="Presença"
-            valor={`${evo.semanasComTreino}/${evo.semanasDesdeOComeco}`}
-            nota={`${evo.semanasDesdeOComeco === 1 ? "semana" : "semanas"} com treino`}
-          />
+          <Painel icone={CalendarCheck} rotulo="Presença">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[26px] leading-none tabular-nums text-texto">
+                {evo.semanasComTreino}/{evo.semanasDesdeOComeco}
+              </span>
+              <span className="text-[15px] text-auxiliar">
+                {evo.semanasDesdeOComeco === 1 ? "semana" : "semanas"} com treino
+              </span>
+            </div>
+          </Painel>
         </Revelar>
       )}
     </div>
