@@ -151,11 +151,21 @@ o resto do app. O que passou a caber, e só isso:
 
 - **Foto tirada pelo próprio usuário, mostrada só para ele, na Evolução.**
 
-A tela da Evolução mostra sempre duas: a primeira e a mais recente. As do
-meio ficam na galeria (`/saude/evolucao/fotos`), da mais nova para a mais
-antiga, uma por linha e grande — em miniatura não se vê o que a foto tem
-para dizer. Apagar mora só lá, e pede dois toques: a foto de hoje se tira
-de novo, a de um ano atrás não existe em lugar nenhum além dali.
+São **quatro ângulos por sessão** (frente, lado direito, costas, lado
+esquerdo), porque uma foto de frente esconde justamente o que mais muda e
+o que a pessoa menos vê no espelho. A tela mostra a primeira e a mais
+recente **do mesmo ângulo**, e um botão gira o par inteiro — comparar a
+frente de hoje com as costas de três meses atrás não diria nada. A ordem
+do giro é a de quem gira o corpo, não a alfabética.
+
+Cada ângulo tem a própria linha do tempo: quem começou a fotografar as
+costas três meses depois tem um "antes" de costas que é o começo dele, não
+um buraco.
+
+As do meio ficam na galeria (`/saude/evolucao/fotos`), agrupadas por dia,
+do mais novo para o mais antigo — o dia é a unidade porque é assim que a
+sessão acontece. Apagar mora só lá, e pede dois toques: a foto de hoje se
+tira de novo, a de um ano atrás não existe em lugar nenhum além dali.
 
 O motivo: ver o próprio corpo em duas fotos diz o que 4 pontos percentuais
 não dizem. Não é ilustração nem decoração — é dado do usuário, da mesma

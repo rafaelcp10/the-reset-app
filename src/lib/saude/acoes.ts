@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
-import { BUCKET_FOTOS } from "./fotos";
+import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
 
 const CAMINHO = "/saude";
 
@@ -450,7 +450,13 @@ function revalidarFotos() {
   revalidatePath(`${CAMINHO}/evolucao/fotos`);
 }
 
-export async function salvarFoto(data: string, formData: FormData) {
+export async function salvarFoto(
+  data: string,
+  angulo: string,
+  formData: FormData,
+) {
+  if (!ehAngulo(angulo)) return;
+
   const foto = formData.get("foto");
   if (!(foto instanceof File) || foto.size === 0) return;
   if (foto.size > TAMANHO_MAXIMO_FOTO) return;
@@ -460,8 +466,8 @@ export async function salvarFoto(data: string, formData: FormData) {
 
   // Sempre .jpg: quem envia é o canvas da tela, que só produz JPEG. Fixar a
   // extensão evita o arquivo órfão que a gravação de voz precisa caçar,
-  // porque o caminho de uma data nunca muda.
-  const caminho = `${user.id}/${data}.jpg`;
+  // porque o caminho de um dia e um ângulo nunca muda.
+  const caminho = `${user.id}/${data}-${angulo}.jpg`;
 
   const { error } = await supabase.storage
     .from(BUCKET_FOTOS)
@@ -471,15 +477,16 @@ export async function salvarFoto(data: string, formData: FormData) {
   await supabase
     .from("fotos_evolucao")
     .upsert(
-      { usuario_id: user.id, data, caminho },
-      { onConflict: "usuario_id,data" },
+      { usuario_id: user.id, data, angulo, caminho },
+      { onConflict: "usuario_id,data,angulo" },
     );
 
   revalidarFotos();
 }
 
 /** Apaga o arquivo antes da linha: sem a linha, o caminho se perde. */
-export async function apagarFoto(data: string) {
+export async function apagarFoto(data: string, angulo: string) {
+  if (!ehAngulo(angulo)) return;
   const { supabase, user } = await usuarioAtual();
 
   const { data: atual } = await supabase
@@ -487,6 +494,7 @@ export async function apagarFoto(data: string) {
     .select("caminho")
     .eq("usuario_id", user.id)
     .eq("data", data)
+    .eq("angulo", angulo as Angulo)
     .maybeSingle();
 
   if (!atual?.caminho) return;
@@ -497,7 +505,8 @@ export async function apagarFoto(data: string) {
     .from("fotos_evolucao")
     .delete()
     .eq("usuario_id", user.id)
-    .eq("data", data);
+    .eq("data", data)
+    .eq("angulo", angulo as Angulo);
 
   revalidarFotos();
 }

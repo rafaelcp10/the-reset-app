@@ -2,16 +2,20 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { buscarTodasAsFotos } from "@/lib/saude/fotos";
+import { buscarFotosPorDia } from "@/lib/saude/fotos";
 import Revelar from "@/components/movimento/Revelar";
-import ItemFoto from "./ItemFoto";
+import DiaDeFotos from "./DiaDeFotos";
 
 /**
- * As fotos antigas, da mais nova para a mais antiga.
+ * As fotos antigas, do dia mais novo para o mais antigo.
  *
- * Uma por linha, grande. A tela da Evolução mostra o par — primeira e mais
- * recente — porque é a pergunta que ela responde; aqui a pergunta é outra,
- * é o caminho inteiro, e miniatura em grade não deixa ver caminho nenhum.
+ * O dia é a unidade porque é assim que a sessão acontece: quatro ângulos de
+ * uma vez. Uma lista corrida misturaria as costas de hoje com a frente de
+ * ontem, e nenhuma das duas diria nada sozinha.
+ *
+ * A tela da Evolução mostra o par — primeira e mais recente de um ângulo —
+ * porque é a pergunta que ela responde. Aqui a pergunta é outra, é o
+ * caminho inteiro.
  */
 export default async function FotosPage() {
   const supabase = await createClient();
@@ -20,7 +24,8 @@ export default async function FotosPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const fotos = await buscarTodasAsFotos(supabase, user.id);
+  const dias = await buscarFotosPorDia(supabase, user.id);
+  const total = dias.reduce((soma, d) => soma + d.fotos.length, 0);
 
   return (
     <div className="flex grow flex-col gap-8 px-5 pb-10 pt-6">
@@ -35,16 +40,22 @@ export default async function FotosPage() {
       <Revelar imediato y={14} desfoque={4} className="flex flex-col gap-2 px-1">
         <h1 className="text-[26px] leading-tight text-texto">Suas fotos</h1>
         <p className="text-[16.5px] leading-[1.6] text-auxiliar">
-          {fotos.length === 0
+          {total === 0
             ? "Nenhuma ainda."
-            : `${fotos.length} ${fotos.length === 1 ? "foto" : "fotos"}, da mais nova para a mais antiga.`}
+            : `${total} ${total === 1 ? "foto" : "fotos"}, em ${dias.length} ${
+                dias.length === 1 ? "dia" : "dias"
+              }.`}
         </p>
       </Revelar>
 
-      <div className="flex flex-col gap-6">
-        {fotos.map((foto, indice) => (
-          <Revelar key={foto.id} imediato={indice < 2} atraso={60 + indice * 40}>
-            <ItemFoto foto={foto} />
+      <div className="flex flex-col gap-8">
+        {dias.map((dia, indice) => (
+          <Revelar
+            key={dia.data}
+            imediato={indice < 2}
+            atraso={60 + indice * 50}
+          >
+            <DiaDeFotos dia={dia} />
           </Revelar>
         ))}
       </div>

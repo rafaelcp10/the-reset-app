@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
-import { buscarParDeFotos } from "@/lib/saude/fotos";
+import { buscarConjuntoDeFotos } from "@/lib/saude/fotos";
 import { umaCasa } from "@/lib/saude/composicao";
 import CabecalhoSaude from "../CabecalhoSaude";
 import CampoMedidas from "./CampoMedidas";
@@ -35,7 +35,7 @@ export default async function EvolucaoPage() {
   if (!user) redirect("/login");
 
   const evo = await buscarEvolucao(supabase, user.id);
-  const fotos = await buscarParDeFotos(supabase, user.id, evo.hoje);
+  const fotos = await buscarConjuntoDeFotos(supabase, user.id, evo.hoje);
 
   const deHoje = evo.medidas.find((m) => m.data === evo.hoje);
 
