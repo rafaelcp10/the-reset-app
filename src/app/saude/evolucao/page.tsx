@@ -2,23 +2,53 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
+import { buscarParDeFotos } from "@/lib/saude/fotos";
+import { umaCasa } from "@/lib/saude/composicao";
 import CabecalhoSaude from "../CabecalhoSaude";
 import CampoMedidas from "./CampoMedidas";
-import Revelar from "@/components/movimento/Revelar";
-import { umaCasa } from "@/lib/saude/composicao";
-import { buscarParDeFotos } from "@/lib/saude/fotos";
 import FotosEvolucao from "./FotosEvolucao";
+import Metrica from "@/components/saude/Metrica";
+import Grafico, { type Ponto } from "@/components/saude/Grafico";
+import Revelar from "@/components/movimento/Revelar";
 
 /** 60, não 60,00. */
 function kg(valor: number | null): string {
   if (valor === null) return "—";
   const n = Number(valor);
-  return `${n % 1 === 0 ? n : n.toFixed(1).replace(".", ",")} kg`;
+  return n % 1 === 0 ? String(n) : n.toFixed(1).replace(".", ",");
 }
 
 function dataCurta(iso: string): string {
   const [, mes, dia] = iso.split("-");
   return `${dia}/${mes}`;
+}
+
+/**
+ * "−1,1 kg desde 25/11."
+ *
+ * Sem seta, sem percentual e sem cor: subir não é vitória nem derrota —
+ * depende do que a pessoa quer, e isso o app não sabe. O sinal é o de
+ * menos de verdade (−), não o hífen, porque ao lado de um número grande o
+ * hífen parece sujeira.
+ */
+function desde(
+  inicial: number,
+  atual: number,
+  data: string,
+  unidade: string,
+): string {
+  const delta = atual - inicial;
+  if (Math.abs(delta) < 0.05) return `Igual a ${dataCurta(data)}`;
+  const sinal = delta > 0 ? "+" : "−";
+  return `${sinal}${umaCasa(Math.abs(delta))}${unidade} desde ${dataCurta(data)}`;
+}
+
+/** Só a diferença, sem a data: nos painéis de duas colunas ela não cabe
+ *  numa linha, e os dois painéis acima já disseram desde quando. */
+function variacao(inicial: number, atual: number, unidade: string): string {
+  const delta = atual - inicial;
+  if (Math.abs(delta) < 0.05) return "Igual ao começo";
+  return `${delta > 0 ? "+" : "−"}${umaCasa(Math.abs(delta))}${unidade}`;
 }
 
 export default async function EvolucaoPage() {
@@ -33,13 +63,24 @@ export default async function EvolucaoPage() {
 
   const deHoje = evo.medidas.find((m) => m.data === evo.hoje);
 
-  const pesagens = evo.medidas.filter((m) => m.peso_kg !== null);
-  const registrosDePeso = pesagens.length;
+  // As buscas devolvem da mais recente para a mais antiga; a curva anda
+  // para a frente no tempo, então aqui inverte.
+  const pesagens = evo.medidas.filter((m) => m.peso_kg !== null).reverse();
+  const curvaPeso: Ponto[] = pesagens.map((m) => ({
+    data: m.data,
+    valor: Number(m.peso_kg),
+  }));
 
-  const variouPeso =
-    evo.pesoInicial !== null &&
-    evo.pesoAtual !== null &&
-    Number(evo.pesoAtual) !== Number(evo.pesoInicial);
+  const compostas = evo.medidas.filter((m) => m.composicao !== null).reverse();
+  const curvaGordura: Ponto[] = compostas.map((m) => ({
+    data: m.data,
+    valor: m.composicao!.gordura,
+  }));
+
+  const composicao = evo.composicaoAtual?.composicao ?? null;
+  const inicial = evo.composicaoInicial?.composicao ?? null;
+  const dataInicial = evo.composicaoInicial?.data ?? null;
+  const temSerieDeGordura = curvaGordura.length > 1 && inicial && dataInicial;
 
   const nada =
     evo.medidas.length === 0 &&
@@ -48,8 +89,8 @@ export default async function EvolucaoPage() {
     fotos.total === 0;
 
   return (
-    <div className="flex grow flex-col gap-8 px-5 pb-10 pt-8">
-      <Revelar imediato y={14} desfoque={4}>
+    <div className="flex grow flex-col gap-5 px-5 pb-10 pt-8">
+      <Revelar imediato y={14} desfoque={4} className="mb-2">
         <CabecalhoSaude aba="evolucao" />
       </Revelar>
 
@@ -72,7 +113,7 @@ export default async function EvolucaoPage() {
       </Revelar>
 
       {nada && (
-        <Revelar imediato atraso={200} className="px-1">
+        <Revelar imediato atraso={200} className="px-1 pt-3">
           <p className="text-[16.5px] leading-[1.6] text-auxiliar">
             Ainda não há de onde para onde. Registre seu peso e termine um
             treino — a partir do segundo, esta tela passa a ter história.
@@ -80,131 +121,84 @@ export default async function EvolucaoPage() {
         </Revelar>
       )}
 
-  {evo.pesoInicial !== null && (
-        <Revelar imediato atraso={140} className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
-            Peso
-          </h2>
-          <div className="bloco flex flex-col gap-4 px-4 py-4">
-            <div className="flex gap-10">
-              <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
-                  Comecei
-                </span>
-                <span className="text-[21px] text-texto">
-                  {kg(evo.pesoInicial)}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
-                  Hoje
-                </span>
-                <span className="text-[21px] text-acento">
-                  {kg(evo.pesoAtual)}
-                </span>
-              </div>
-            </div>
-
-            {/* Diferença crua, sem percentual e sem seta para cima ou
-                para baixo: subir não é vitória nem derrota — depende do
-                que a pessoa quer, e isso o app não julga. */}
-            {variouPeso && (
-              <p className="text-[15.5px] leading-[1.6] text-auxiliar">
-                São{" "}
-                {kg(
-                  Math.abs(Number(evo.pesoAtual) - Number(evo.pesoInicial)),
-                )}{" "}
-                de diferença, em {registrosDePeso}{" "}
-                {registrosDePeso === 1 ? "registro" : "registros"}.
-              </p>
-            )}
-
-            {registrosDePeso > 1 && (
-              <div className="flex flex-col">
-                {pesagens.slice(0, 10).map((m) => (
-                  <div
-                    key={m.id}
-                    className="flex min-h-11 items-baseline justify-between gap-4"
-                  >
-                    <span className="tipo-rotulo text-[13px] tracking-[.14em] text-auxiliar-fraco">
-                      {dataCurta(m.data)}
-                    </span>
-                    <span className="text-[16.5px] text-texto">
-                      {kg(m.peso_kg)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* O painel principal da tela, e a única aplicação de âmbar: é o número
+          que se abre a aba para conferir. */}
+      {evo.pesoAtual !== null && (
+        <Revelar atraso={40} className="pt-3">
+          <Metrica
+            destaque
+            rotulo="Peso"
+            valor={kg(evo.pesoAtual)}
+            unidade="kg"
+            nota={
+              evo.pesoInicial !== null && pesagens.length > 1
+                ? desde(
+                    Number(evo.pesoInicial),
+                    Number(evo.pesoAtual),
+                    pesagens[0].data,
+                    " kg",
+                  )
+                : "Primeira pesagem"
+            }
+          >
+            <Grafico
+              acento
+              pontos={curvaPeso}
+              descricao={`Peso de ${kg(evo.pesoInicial)} a ${kg(evo.pesoAtual)} quilos, em ${curvaPeso.length} registros.`}
+            />
+          </Metrica>
         </Revelar>
       )}
 
-      {evo.composicaoAtual?.composicao && (
-        <Revelar imediato atraso={200} className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
-            Composição
-          </h2>
-          <div className="bloco flex flex-col gap-4 px-4 py-4">
-            {/* Duas colunas, primeira e última, como a planilha que deu
-                origem a esta tela. Sem faixa de "ideal" ao lado e sem
-                classificação: o número é o que a fita disse. */}
-            <table className="w-full border-separate border-spacing-y-1 text-left">
-              <thead>
-                <tr>
-                  <th className="w-1/3" />
-                  <th className="tipo-rotulo pb-1 text-[12.5px] font-normal tracking-[.2em] text-auxiliar-fraco">
-                    Comecei
-                  </th>
-                  <th className="tipo-rotulo pb-1 text-[12.5px] font-normal tracking-[.2em] text-auxiliar-fraco">
-                    Hoje
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <LinhaComposicao
-                  rotulo="Gordura"
-                  antes={evo.composicaoInicial?.composicao?.gordura ?? null}
-                  depois={evo.composicaoAtual.composicao.gordura}
-                  sufixo="%"
-                />
-                <LinhaComposicao
-                  rotulo="Massa magra"
-                  antes={
-                    evo.composicaoInicial?.composicao?.massaMagra ?? null
-                  }
-                  depois={evo.composicaoAtual.composicao.massaMagra}
-                  sufixo=" kg"
-                />
-                <LinhaComposicao
-                  rotulo="Massa gorda"
-                  antes={
-                    evo.composicaoInicial?.composicao?.massaGorda ?? null
-                  }
-                  depois={evo.composicaoAtual.composicao.massaGorda}
-                  sufixo=" kg"
-                />
-              </tbody>
-            </table>
+      {composicao && (
+        <>
+          <Revelar atraso={60}>
+            <Metrica
+              rotulo="Gordura"
+              valor={umaCasa(composicao.gordura)}
+              unidade="%"
+              nota={
+                temSerieDeGordura
+                  ? desde(inicial.gordura, composicao.gordura, dataInicial, " p.p.")
+                  : "Primeira medida"
+              }
+            >
+              <Grafico
+                pontos={curvaGordura}
+                descricao={`Percentual de gordura de ${umaCasa(inicial?.gordura ?? composicao.gordura)} a ${umaCasa(composicao.gordura)} por cento.`}
+              />
+            </Metrica>
+          </Revelar>
 
-            {evo.composicaoInicial &&
-            evo.composicaoInicial.id !== evo.composicaoAtual.id ? (
-              <p className="text-[15.5px] leading-[1.6] text-auxiliar">
-                De {dataCurta(evo.composicaoInicial.data)} a{" "}
-                {dataCurta(evo.composicaoAtual.data)}.
-              </p>
-            ) : (
-              <p className="text-[15.5px] leading-[1.6] text-auxiliar">
-                Esta é a primeira. A partir da segunda esta tabela tem duas
-                colunas de verdade.
-              </p>
-            )}
-          </div>
-        </Revelar>
+          {composicao.massaMagra !== null && composicao.massaGorda !== null && (
+            <Revelar atraso={80} className="grid grid-cols-2 gap-3">
+              <Metrica
+                rotulo="Massa magra"
+                valor={umaCasa(composicao.massaMagra)}
+                unidade="kg"
+                nota={
+                  temSerieDeGordura && inicial.massaMagra !== null
+                    ? variacao(inicial.massaMagra, composicao.massaMagra, " kg")
+                    : null
+                }
+              />
+              <Metrica
+                rotulo="Massa gorda"
+                valor={umaCasa(composicao.massaGorda)}
+                unidade="kg"
+                nota={
+                  temSerieDeGordura && inicial.massaGorda !== null
+                    ? variacao(inicial.massaGorda, composicao.massaGorda, " kg")
+                    : null
+                }
+              />
+            </Revelar>
+          )}
+        </>
       )}
 
       {evo.cargas.length > 0 && (
-        <Revelar atraso={60} className="flex flex-col gap-3">
+        <Revelar atraso={100} className="flex flex-col gap-3 pt-3">
           <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
             Cargas
           </h2>
@@ -223,10 +217,10 @@ export default async function EvolucaoPage() {
                     {c.treinos} {c.treinos === 1 ? "treino" : "treinos"}
                   </span>
                 </span>
-                <span className="shrink-0 text-[16.5px] text-auxiliar">
+                <span className="shrink-0 text-[16.5px] tabular-nums text-auxiliar">
                   {kg(c.primeira)}{" "}
                   <span className="text-auxiliar-minimo">→</span>{" "}
-                  <span className="text-texto">{kg(c.ultima)}</span>
+                  <span className="text-texto">{kg(c.ultima)} kg</span>
                 </span>
               </Link>
             ))}
@@ -235,61 +229,16 @@ export default async function EvolucaoPage() {
       )}
 
       {evo.semanasComTreino > 0 && (
-        <Revelar atraso={120} className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
-            Presença
-          </h2>
-          <div className="bloco px-4 py-4">
-            {/* Semanas, nunca dias corridos: a contagem do app inteiro é
-                essa, e uma semana perdida no meio não apaga as outras. */}
-            <p className="text-[16.5px] leading-[1.6] text-texto">
-              {evo.semanasComTreino} de {evo.semanasDesdeOComeco}{" "}
-              {evo.semanasDesdeOComeco === 1 ? "semana" : "semanas"} com
-              treino.
-            </p>
-          </div>
+        <Revelar atraso={120}>
+          {/* Semanas, nunca dias corridos: a contagem do app inteiro é essa,
+              e uma semana perdida no meio não apaga as outras. */}
+          <Metrica
+            rotulo="Presença"
+            valor={`${evo.semanasComTreino}/${evo.semanasDesdeOComeco}`}
+            nota={`${evo.semanasDesdeOComeco === 1 ? "semana" : "semanas"} com treino`}
+          />
         </Revelar>
       )}
     </div>
-  );
-}
-
-/**
- * Uma linha da tabela de composição.
- *
- * Sem seta e sem cor de veredito: no app inteiro, vermelho é erro de
- * sistema, e subir ou descer aqui depende do que a pessoa está buscando.
- * Também sem âmbar — o acento desta tela já é o peso de hoje, e a distância
- * entre começo e hoje aqui se lê no brilho do texto.
- */
-function LinhaComposicao({
-  rotulo,
-  antes,
-  depois,
-  sufixo,
-}: {
-  rotulo: string;
-  antes: number | null;
-  depois: number | null;
-  sufixo: string;
-}) {
-  if (depois === null) return null;
-
-  return (
-    <tr>
-      <th
-        scope="row"
-        className="pr-3 text-[15.5px] font-normal text-auxiliar"
-      >
-        {rotulo}
-      </th>
-      <td className="text-[18px] text-auxiliar">
-        {antes === null ? "—" : `${umaCasa(antes)}${sufixo}`}
-      </td>
-      <td className="text-[18px] text-texto">
-        {umaCasa(depois)}
-        {sufixo}
-      </td>
-    </tr>
   );
 }

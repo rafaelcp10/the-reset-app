@@ -82,6 +82,30 @@ Duas regras novas que nasceram daí:
 - O âmbar continua tendo **uma aplicação por tela**. Brilho e sombra são luz
   sobre a paleta existente, não cor nova.
 
+### Número e curva (2026-09-18)
+
+A Evolução era parede de texto: "São 1,1 kg de diferença, em 4 registros"
+é uma frase para um dado que cabe em dois números. Esta aba se abre para
+conferir, não para ler, e ler frase cansa mais que ler número.
+
+O que substituiu:
+
+- **`components/saude/Metrica.tsx`**: rótulo pequeno, número grande,
+  uma linha de nota, e a curva sangrando até a borda do bloco. A curva é
+  fundo do número, não elemento ao lado dele.
+- **`components/saude/Grafico.tsx`**: SVG escrito à mão, sem biblioteca —
+  o PWA precisa abrir offline, e uma lib de gráfico pesa mais que trinta
+  linhas. Sem eixo, sem grade, sem zero forçado na base, sem cor que muda
+  conforme a direção: a curva descreve o caminho, não julga.
+- Painéis pequenos em grade de dois. Nota de painel pequeno não leva data
+   — não cabe numa linha, e quebrar em duas desalinha as alturas.
+- **Um `destaque` por tela**, como o âmbar: se tudo é grande, nada é. Na
+  Evolução o destaque e o âmbar são a mesma coisa, a curva do peso.
+
+A referência é o Zepp, e é só de layout: número primeiro, curva embaixo,
+painel como unidade. O conteúdo dele — prontidão, nota, elogio — continua
+fora, pelo motivo de sempre: descrever não é julgar.
+
 ## Evolução (aba de Saúde, 2026-09-18)
 
 Registro do que aconteceu, não placar. É o que a faz caber na regra de

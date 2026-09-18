@@ -114,8 +114,7 @@ export default function CampoMedidas({
       </div>
 
       <p className="text-[14.5px] leading-[1.6] text-auxiliar">
-        Só quando quiser. Uma semana sem medir não é um buraco — é uma semana
-        em que você não mediu.
+        Uma semana sem medir não é um buraco.
       </p>
     </div>
   );

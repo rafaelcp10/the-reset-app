@@ -122,8 +122,7 @@ export default function FotosEvolucao({
       {erro && <p className="text-[14.5px] text-erro">{erro}</p>}
 
       <p className="text-[14px] leading-[1.6] text-auxiliar-fraco">
-        Fica guardada só para você, em pasta privada, e some junto com a
-        conta se você apagar a conta.
+        Guardada só para você, em pasta privada.
       </p>
     </div>
   );
