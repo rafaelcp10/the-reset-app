@@ -222,6 +222,28 @@ Condições que vieram junto e não são negociáveis:
 - É reduzida no navegador antes de sair do aparelho (JPEG, 1200px no lado
   maior). Menos foto trafegando é menos foto exposta.
 
+### A Home virou painel de controle (2026-09-18)
+
+Decisão do Rafael, com a ressalva registrada: eu recomendei manter a Home
+como **soleira** — frase grande e a porta do ritual, com poucos painéis
+abaixo. Ele escolheu o resumo do dia inteiro. O que ficou:
+
+- A frase de identidade **encolheu** (`tamanho="cabecalho"`, 19px) mas
+  continua sendo a primeira coisa e continua na fonte das frases. Ela é o
+  motivo de o app existir; os painéis são o que ele faz.
+- O Ritual é o primeiro painel, o único com botão e a única aplicação de
+  âmbar da tela.
+- Semana, Hoje, Treino e Peso são painéis com seta, cada um com uma linha
+  da sua área. A curva do Peso é **parada e sem âmbar** — aqui ela é sinal
+  de direção; arrastar e ler cada ponto é na Evolução.
+- "Objetivos" saiu. Era um cartão trancado permanente, e cartão que nunca
+  responde ensina a ignorar cartão. Volta quando existir.
+- A contagem de tarefas vem de `buscarEstadoTodo`, a mesma função que monta
+  a aba — **nunca de uma versão enxuta**. A regra de "o que cai hoje" tem
+  casos demais, e um número errado na primeira tela é pior que uma consulta
+  a mais.
+- `Grafico` aceita ser só desenho: sem `aoSelecionar`, não vira slider.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

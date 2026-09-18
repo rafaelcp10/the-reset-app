@@ -33,14 +33,17 @@ export default function Grafico({
   descricao,
 }: {
   pontos: Ponto[];
-  selecionado: number;
-  aoSelecionar: (indice: number) => void;
+  /** Sem `aoSelecionar` a curva é só desenho: a Home mostra sem arrastar. */
+  selecionado?: number;
+  aoSelecionar?: (indice: number) => void;
   acento?: boolean;
   descricao: string;
 }) {
+  const interativo = Boolean(aoSelecionar);
+  const alvoIndice = selecionado ?? pontos.length - 1;
   const aoApontar = useCallback(
     (evento: React.PointerEvent<SVGSVGElement>) => {
-      if (pontos.length < 2) return;
+      if (!aoSelecionar || pontos.length < 2) return;
       const caixa = evento.currentTarget.getBoundingClientRect();
       if (caixa.width === 0) return;
 
@@ -57,15 +60,16 @@ export default function Grafico({
 
   const aoTeclar = useCallback(
     (evento: React.KeyboardEvent<SVGSVGElement>) => {
+      if (!aoSelecionar) return;
       const passo =
         evento.key === "ArrowLeft" ? -1 : evento.key === "ArrowRight" ? 1 : 0;
       if (passo === 0) return;
       evento.preventDefault();
       aoSelecionar(
-        Math.min(pontos.length - 1, Math.max(0, selecionado + passo)),
+        Math.min(pontos.length - 1, Math.max(0, alvoIndice + passo)),
       );
     },
-    [pontos.length, selecionado, aoSelecionar],
+    [pontos.length, alvoIndice, aoSelecionar],
   );
 
   // Com um ponto só não há caminho, e uma linha reta de um ponto mentiria.
@@ -97,8 +101,8 @@ export default function Grafico({
   const area = `${traco} L${fim.x.toFixed(1)} ${ALTURA} L${coordenadas[0].x.toFixed(1)} ${ALTURA} Z`;
 
   const cor = acento ? "var(--color-acento)" : "var(--color-auxiliar)";
-  const id = `grafico-${acento ? "a" : "n"}-${pontos.length}-${selecionado}`;
-  const alvo = coordenadas[selecionado] ?? fim;
+  const id = `grafico-${acento ? "a" : "n"}-${pontos.length}-${alvoIndice}`;
+  const alvo = coordenadas[alvoIndice] ?? fim;
 
   // Pontos intermediários só aparecem quando cabem: com trinta medidas eles
   // viram uma linha pontilhada e somem de utilidade.
@@ -110,23 +114,39 @@ export default function Grafico({
       // `focus-visible`, e não `focus`: o retângulo de foco serve a quem
       // navega pelo teclado; aparecer a cada toque no gráfico era só uma
       // moldura âmbar piscando em volta da curva.
-      className="h-auto w-full touch-none outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acento"
-      role="slider"
-      tabIndex={0}
+      className={`h-auto w-full ${
+        interativo
+          ? "touch-none outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acento"
+          : ""
+      }`}
+      role={interativo ? "slider" : "img"}
+      tabIndex={interativo ? 0 : undefined}
       aria-label={descricao}
-      aria-valuemin={0}
-      aria-valuemax={pontos.length - 1}
-      aria-valuenow={selecionado}
-      aria-valuetext={`${pontos[selecionado].valor}, em ${pontos[selecionado].data}`}
-      onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        aoApontar(e);
-      }}
-      onPointerMove={(e) => {
-        if (e.buttons === 0 && e.pointerType === "mouse") return;
-        aoApontar(e);
-      }}
-      onKeyDown={aoTeclar}
+      aria-valuemin={interativo ? 0 : undefined}
+      aria-valuemax={interativo ? pontos.length - 1 : undefined}
+      aria-valuenow={interativo ? alvoIndice : undefined}
+      aria-valuetext={
+        interativo
+          ? `${pontos[alvoIndice].valor}, em ${pontos[alvoIndice].data}`
+          : undefined
+      }
+      onPointerDown={
+        interativo
+          ? (e) => {
+              e.currentTarget.setPointerCapture(e.pointerId);
+              aoApontar(e);
+            }
+          : undefined
+      }
+      onPointerMove={
+        interativo
+          ? (e) => {
+              if (e.buttons === 0 && e.pointerType === "mouse") return;
+              aoApontar(e);
+            }
+          : undefined
+      }
+      onKeyDown={interativo ? aoTeclar : undefined}
     >
       <defs>
         {/* O preenchimento é luz sobre a paleta, não uma segunda cor:
@@ -148,8 +168,9 @@ export default function Grafico({
       />
 
       {mostrarPontos &&
+        interativo &&
         coordenadas.map((c, i) =>
-          i === selecionado ? null : (
+          i === alvoIndice ? null : (
             <circle
               key={i}
               cx={c.x}
@@ -162,17 +183,22 @@ export default function Grafico({
           ),
         )}
 
-      {/* A prumada do ponto escolhido: liga a curva ao número lá em cima. */}
-      <line
-        x1={alvo.x}
-        y1={alvo.y}
-        x2={alvo.x}
-        y2={ALTURA}
-        stroke={cor}
-        strokeWidth="1"
-        strokeOpacity="0.35"
-      />
-      <circle cx={alvo.x} cy={alvo.y} r="6" fill={cor} fillOpacity="0.2" />
+      {/* A prumada do ponto escolhido: liga a curva ao número lá em cima.
+          Parada, a curva não tem número em cima para ligar. */}
+      {interativo && (
+        <>
+          <line
+            x1={alvo.x}
+            y1={alvo.y}
+            x2={alvo.x}
+            y2={ALTURA}
+            stroke={cor}
+            strokeWidth="1"
+            strokeOpacity="0.35"
+          />
+          <circle cx={alvo.x} cy={alvo.y} r="6" fill={cor} fillOpacity="0.2" />
+        </>
+      )}
       <circle cx={alvo.x} cy={alvo.y} r="3.5" fill={cor} />
     </svg>
   );

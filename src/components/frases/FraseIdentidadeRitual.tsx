@@ -10,6 +10,10 @@ import FraseRevelada from "@/components/movimento/FraseRevelada";
 import GravacaoFrase from "./GravacaoFrase";
 
 const TAMANHOS = {
+  // A Home virou painel de controle e a frase encolheu para caber acima
+  // deles. Continua sendo a primeira coisa da tela e continua na fonte das
+  // frases — o que ela perdeu foi o tamanho, não o lugar.
+  cabecalho: "text-[19px] leading-[1.5]",
   home: "text-[27px] leading-[1.55]",
   ritual: "text-[16.5px] leading-[1.7]",
 } as const;
