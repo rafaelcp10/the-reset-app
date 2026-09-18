@@ -41,7 +41,10 @@ PWA instalável. Sem app nativo, sem loja.
   função ao mesmo tempo.
 - Texto em botão âmbar é #101114, nunca branco.
 - Tipografia: Archivo (frases) e Inter (interface), via Google Fonts.
-- Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela.
+- Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela — **com uma
+  exceção, aberta em 2026-09-18 e descrita abaixo**: a foto de antes e
+  depois na Evolução. Ilustração, mascote, ícone desenhado, foto de banco
+  de imagens e qualquer arte de produto continuam fora, sem exceção.
 
 ## Linguagem visual (revisada em 2026-09-08)
 O handoff original proibia gradiente, sombra e movimento. Isso foi
@@ -98,13 +101,43 @@ visual de carga que subiu.
   há padrão razoável. Não aparece em nenhuma outra tela.
 - Lembrete de medir: domingo às 9h locais, e só para quem já mediu alguma
   vez. Não tem interruptor próprio — o interruptor é ter medido.
-- O tutorial de medição é todo em texto. A proibição de imagem aperta aqui
-  (um desenho de onde fica a cintura ajudaria) e mesmo assim continua
-  valendo.
+- O tutorial de medição é todo em texto. Um desenho de onde fica a cintura
+  ajudaria, e mesmo assim não entra: a exceção de imagem vale para foto do
+  usuário, não para ilustração.
+
+### A exceção de imagem (2026-09-18)
+
+A regra era "nenhuma imagem em nenhuma tela". Ela continua valendo em todo
+o resto do app. O que passou a caber, e só isso:
+
+- **Foto tirada pelo próprio usuário, mostrada só para ele, na Evolução.**
+
+O motivo: ver o próprio corpo em duas fotos diz o que 4 pontos percentuais
+não dizem. Não é ilustração nem decoração — é dado do usuário, da mesma
+natureza da voz gravada nas frases, que o app já guarda.
+
+O que **não** foi aberto, e não deve ser aberto por analogia a isto:
+ilustração, mascote, desenho explicativo, foto de banco de imagens, ícone
+que não seja Lucide, imagem de marketing, imagem em qualquer outra aba.
+
+Condições que vieram junto e não são negociáveis:
+- Bucket privado, pasta por usuário, leitura só por URL assinada de 15
+  minutos. Nunca bucket público, nunca URL permanente.
+- Some junto com a conta (`lib/conta/exclusao.ts` apaga o arquivo antes de
+  derrubar a linha — sem a linha, o caminho se perde).
+- Nunca passa pelo otimizador de imagem do Next: isso jogaria foto de corpo
+  num cache que não é do usuário.
+- É reduzida no navegador antes de sair do aparelho (JPEG, 1200px no lado
+  maior). Menos foto trafegando é menos foto exposta.
 
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.
+
+O mesmo vale, com mais rigor ainda, para os dois arquivos que o app
+guarda: a voz gravada nas frases e a foto de antes e depois. Bucket
+privado, pasta por usuário, URL assinada de vida curta, e exclusão junto
+com a conta. Foto de corpo é o dado mais sensível que este app guarda.
 
 ## Comandos
 npm run dev / npm run build / npm run lint

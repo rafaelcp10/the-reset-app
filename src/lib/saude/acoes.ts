@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
+import { BUCKET_FOTOS } from "./fotos";
 
 const CAMINHO = "/saude";
 
@@ -427,6 +428,67 @@ export async function salvarAltura(bruto: string) {
     .update({ altura_cm: Math.round(valor) })
     .eq("usuario_id", user.id)
     .is("altura_cm", null);
+
+  revalidatePath(`${CAMINHO}/evolucao`);
+}
+
+/**
+ * A foto de antes e depois.
+ *
+ * Chega já reduzida pelo navegador — a tela envia JPEG com o lado maior em
+ * 1200px, porque foto de celular crua passa de 4MB e o limite do Server
+ * Action é bem menor que isso. O teto abaixo é a rede de segurança.
+ */
+const TAMANHO_MAXIMO_FOTO = 2 * 1024 * 1024;
+
+export async function salvarFoto(data: string, formData: FormData) {
+  const foto = formData.get("foto");
+  if (!(foto instanceof File) || foto.size === 0) return;
+  if (foto.size > TAMANHO_MAXIMO_FOTO) return;
+  if (!foto.type.startsWith("image/")) return;
+
+  const { supabase, user } = await usuarioAtual();
+
+  // Sempre .jpg: quem envia é o canvas da tela, que só produz JPEG. Fixar a
+  // extensão evita o arquivo órfão que a gravação de voz precisa caçar,
+  // porque o caminho de uma data nunca muda.
+  const caminho = `${user.id}/${data}.jpg`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET_FOTOS)
+    .upload(caminho, foto, { contentType: "image/jpeg", upsert: true });
+  if (error) throw new Error("upload falhou");
+
+  await supabase
+    .from("fotos_evolucao")
+    .upsert(
+      { usuario_id: user.id, data, caminho },
+      { onConflict: "usuario_id,data" },
+    );
+
+  revalidatePath(`${CAMINHO}/evolucao`);
+}
+
+/** Apaga o arquivo antes da linha: sem a linha, o caminho se perde. */
+export async function apagarFoto(data: string) {
+  const { supabase, user } = await usuarioAtual();
+
+  const { data: atual } = await supabase
+    .from("fotos_evolucao")
+    .select("caminho")
+    .eq("usuario_id", user.id)
+    .eq("data", data)
+    .maybeSingle();
+
+  if (!atual?.caminho) return;
+
+  await supabase.storage.from(BUCKET_FOTOS).remove([atual.caminho as string]);
+
+  await supabase
+    .from("fotos_evolucao")
+    .delete()
+    .eq("usuario_id", user.id)
+    .eq("data", data);
 
   revalidatePath(`${CAMINHO}/evolucao`);
 }
