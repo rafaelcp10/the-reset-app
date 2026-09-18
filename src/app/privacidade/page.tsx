@@ -50,6 +50,20 @@ export default function PrivacidadePage() {
         </p>
       </Secao>
 
+      <Secao titulo="As fotos de antes e depois">
+        <p>
+          Se você guardar uma foto na aba Evolução, ela fica num repositório
+          privado, separado por usuário, do mesmo jeito que as gravações — e
+          com prazo ainda mais curto: o endereço temporário que o servidor
+          gera expira em quinze minutos e só funciona para você.
+        </p>
+        <p>
+          A foto é reduzida no seu próprio aparelho antes de ser enviada.
+          Ninguém olha essas fotos. Elas não são analisadas, não passam por
+          serviço de imagem nenhum e não treinam modelo nenhum.
+        </p>
+      </Secao>
+
       <Secao titulo="Sua conta">
         <p>
           Por padrão a conta é anônima: ela existe só no navegador deste
@@ -94,8 +108,8 @@ export default function PrivacidadePage() {
         <p>
           Você pode pedir a exclusão da sua conta e de tudo que está nela.
           Escreva para <span className="text-texto">{CONTATO}</span> a partir
-          do e-mail vinculado à conta, e apagamos os registros e as
-          gravações. Se a sua conta for anônima, limpar os dados do site no
+          do e-mail vinculado à conta, e apagamos os registros, as gravações
+          e as fotos. Se a sua conta for anônima, limpar os dados do site no
           navegador já remove o seu acesso a ela.
         </p>
         <p>
