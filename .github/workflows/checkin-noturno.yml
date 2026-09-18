@@ -13,28 +13,26 @@ jobs:
   disparar:
     runs-on: ubuntu-latest
     steps:
+      # As duas rotas usam o mesmo script. Nada de continuação de linha com
+      # barra invertida aqui: uma barra perdida na hora de editar o arquivo
+      # transforma o comando em duas linhas, o YAML inteiro fica inválido e
+      # o GitHub para de rodar o workflow — inclusive o check-in noturno,
+      # que não tem nada a ver com a alteração.
       - name: Chamar a rota do check-in
-        run: |
-          resposta=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.APP_URL }}/api/cron/checkin")
-          corpo=$(echo "$resposta" | head -n -1)
-          status=$(echo "$resposta" | tail -n 1)
-          echo "status: $status"
-          echo "resposta: $corpo"
-          # Falha o job em erro para o GitHub avisar em vez de silenciar.
-          if [ "$status" != "200" ]; then exit 1; fi
+        env:
+          ROTA: checkin
+        run: bash .github/scripts/chamar-cron.sh "$ROTA"
+        shell: bash
 
       # Os lembretes da Evolução rodam no mesmo job: é a mesma chave, o
       # mesmo cron de meia em meia hora, e a própria rota decide de quem é
       # a vez no fuso de cada pessoa. Um workflow separado só duplicaria o
       # segredo e a chance de um dos dois ficar para trás.
       - name: Chamar a rota dos lembretes da Evolução
-        run: |
-          resposta=$(curl -s -w "
-%{http_code}"             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"             "${{ secrets.APP_URL }}/api/cron/evolucao")
-          corpo=$(echo "$resposta" | head -n -1)
-          status=$(echo "$resposta" | tail -n 1)
-          echo "status: $status"
-          echo "resposta: $corpo"
-          if [ "$status" != "200" ]; then exit 1; fi
+        env:
+          ROTA: evolucao
+        run: bash .github/scripts/chamar-cron.sh "$ROTA"
+        shell: bash
+    env:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
