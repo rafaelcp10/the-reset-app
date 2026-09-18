@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
+import { BIOTIPOS, type Biotipo } from "./nutricao";
 
 const CAMINHO = "/saude";
 
@@ -509,4 +510,81 @@ export async function apagarFoto(data: string, angulo: string) {
     .eq("angulo", angulo as Angulo);
 
   revalidarFotos();
+}
+
+/**
+ * As escolhas da Nutrição.
+ *
+ * Cada uma salva sozinha, no campo em que foi mexida: um formulário
+ * inteiro com botão de salvar seria cerimônia para trocar 2,8 por 3,0.
+ */
+export async function salvarBiotipo(valor: string) {
+  if (!BIOTIPOS.includes(valor as Biotipo)) return;
+  const { supabase, user } = await usuarioAtual();
+  await supabase.from("usuarios").update({ biotipo: valor }).eq("id", user.id);
+  revalidatePath(`${CAMINHO}/nutricao`);
+}
+
+const LIMITES_NUTRICAO: Record<string, [number, number]> = {
+  proteina_g_kg: [0.5, 5],
+  gordura_g_kg: [0.2, 3],
+  corrida_km: [0, 100],
+  garrafa_ml: [100, 5000],
+};
+
+export async function salvarAjusteNutricao(campo: string, bruto: string) {
+  if (!(campo in LIMITES_NUTRICAO)) return;
+  const { supabase, user } = await usuarioAtual();
+  const limpo = bruto.replace(",", ".").trim();
+
+  if (limpo === "") {
+    await supabase
+      .from("usuarios")
+      .update({ [campo]: null })
+      .eq("id", user.id);
+    revalidatePath(`${CAMINHO}/nutricao`);
+    return;
+  }
+
+  const valor = Number(limpo);
+  const [minimo, maximo] = LIMITES_NUTRICAO[campo];
+  if (!Number.isFinite(valor) || valor < minimo || valor > maximo) return;
+
+  await supabase
+    .from("usuarios")
+    .update({ [campo]: campo === "garrafa_ml" ? Math.round(valor) : valor })
+    .eq("id", user.id);
+
+  revalidatePath(`${CAMINHO}/nutricao`);
+}
+
+/**
+ * Uma garrafa a mais, ou a menos.
+ *
+ * Soma em mililitros sobre o que já está lá, e não sobrescreve: dois
+ * toques rápidos no botão são duas garrafas, não uma. Nunca desce de zero
+ * — desfazer uma garrafa que não existe não é dívida.
+ */
+export async function registrarAgua(data: string, deltaMl: number) {
+  if (!Number.isFinite(deltaMl) || deltaMl === 0) return;
+  const { supabase, user } = await usuarioAtual();
+
+  const { data: atual } = await supabase
+    .from("agua")
+    .select("ml")
+    .eq("usuario_id", user.id)
+    .eq("data", data)
+    .maybeSingle();
+
+  const novo = Math.max(0, Number(atual?.ml ?? 0) + Math.round(deltaMl));
+
+  await supabase
+    .from("agua")
+    .upsert(
+      { usuario_id: user.id, data, ml: novo, atualizado_em: new Date().toISOString() },
+      { onConflict: "usuario_id,data" },
+    );
+
+  revalidatePath(`${CAMINHO}/nutricao`);
+  revalidatePath("/");
 }

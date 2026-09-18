@@ -24,13 +24,13 @@ jobs:
         run: bash .github/scripts/chamar-cron.sh "$ROTA"
         shell: bash
 
-      # Os lembretes da Evolução rodam no mesmo job: é a mesma chave, o
+      # Os lembretes da Saúde rodam no mesmo job: é a mesma chave, o
       # mesmo cron de meia em meia hora, e a própria rota decide de quem é
       # a vez no fuso de cada pessoa. Um workflow separado só duplicaria o
       # segredo e a chance de um dos dois ficar para trás.
-      - name: Chamar a rota dos lembretes da Evolução
+      - name: Chamar a rota dos lembretes da Saúde
         env:
-          ROTA: evolucao
+          ROTA: lembretes
         run: bash .github/scripts/chamar-cron.sh "$ROTA"
         shell: bash
     env:

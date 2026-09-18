@@ -244,6 +244,56 @@ abaixo. Ele escolheu o resumo do dia inteiro. O que ficou:
   a mais.
 - `Grafico` aceita ser só desenho: sem `aoSelecionar`, não vira slider.
 
+## Nutrição (aba de Saúde, 2026-09-18)
+
+Os números do dia, e a água. **Não registra o que foi comido** — decisão
+do Rafael entre três opções. Sem contador de calorias, sem barra de
+progresso de comida, sem nota no fim do dia: a tela diz quanto comer e
+some da frente.
+
+- A conta é a da planilha dele, replicada como está (`lib/saude/nutricao.ts`),
+  conferida contra os doze valores da planilha. Inclui os arredondamentos
+  do Harris-Benedict e duas constantes soltas sem origem declarada.
+- **Os fatores de biotipo são dois, e diferentes**: 1,4/1,2/1,0 no basal,
+  1,2/1,1/1,0 no gasto de treino e corrida. Parece engano e não é — está
+  assim nas duas fórmulas dela.
+- **Proteína por quilo de massa magra; gordura por quilo de peso total.**
+  Os denominadores são diferentes de propósito. Trocar um pelo outro muda
+  a conta em dezenas de gramas.
+- O biotipo é perguntado dentro da aba, como o sexo na Evolução: multiplica
+  o basal em até 40% e não há padrão razoável. A descrição de cada um é o
+  que se vê no espelho, sem uma palavra de fisiologia.
+- `saude_geral` vira "manter" — é o único dos três que não empurra ninguém.
+- A duração do treino vem do **cronômetro real** quando houve sessão hoje;
+  senão, do tempo declarado no perfil; senão, uma hora. A corrida o app não
+  registra, então é um padrão que a pessoa declara.
+- Sem fita ainda, a proteína sai do peso total, e a tela **diz isso** em vez
+  de esconder.
+
+### Água
+
+Contada em **garrafas**, não em litros: litro é unidade de rótulo, garrafa
+é unidade de gesto. Quem está em pé na cozinha não sabe o que são 3,1
+litros. Por isso o tamanho da garrafa é a primeira coisa perguntada.
+
+Guardada em ml, para trocar de garrafa não reescrever o passado. Meta de
+35 ml/kg, arredondada aos 50 ml — "3.115 ml" tem precisão que a conta não
+tem. O número grande é **quantas faltam**, como no painel de tarefas.
+Passar da meta não vira nada: nem parabéns, nem barra transbordando.
+
+### O lembrete de água é o mais barulhento do app
+
+De três em três horas, das 8h às 20h — **cinco por dia contra o único que
+existia**. Duas defesas, e as duas são obrigatórias:
+
+- **Para assim que a meta é batida.** Cinco cobranças para quem já bebeu
+  tudo é o caminho mais curto para a pessoa desligar a notificação inteira.
+- **Não tem interruptor próprio**, como os outros: o interruptor é ter dito
+  o tamanho da garrafa. Quem nunca abriu a aba nunca recebe nada.
+
+Os três lembretes da Saúde moram na mesma rota (`api/cron/lembretes`). A
+água nunca cai às 9h, então nunca se encontra com fita e foto.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

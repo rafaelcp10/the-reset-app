@@ -9,10 +9,15 @@ import { Settings } from "lucide-react";
  * aba no meio seria convite para largar o que está em curso. Só as duas
  * telas de nível superior mostram a barra.
  */
-export default function CabecalhoSaude({ aba }: { aba: "treino" | "evolucao" }) {
+export default function CabecalhoSaude({
+  aba,
+}: {
+  aba: "treino" | "evolucao" | "nutricao";
+}) {
   const abas = [
     { id: "treino" as const, rotulo: "Treino", href: "/saude" },
     { id: "evolucao" as const, rotulo: "Evolução", href: "/saude/evolucao" },
+    { id: "nutricao" as const, rotulo: "Nutrição", href: "/saude/nutricao" },
   ];
 
   return (
@@ -37,7 +42,7 @@ export default function CabecalhoSaude({ aba }: { aba: "treino" | "evolucao" }) 
             key={item.id}
             href={item.href}
             aria-current={aba === item.id ? "page" : undefined}
-            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-full text-center text-[13px] tracking-[.09em] transition-colors duration-200 ${
+            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-full text-center text-[12.5px] tracking-[.04em] transition-colors duration-200 ${
               aba === item.id
                 ? "bg-superficie3 text-texto"
                 : "text-auxiliar-fraco"
