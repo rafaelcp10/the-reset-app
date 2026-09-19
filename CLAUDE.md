@@ -283,10 +283,15 @@ some da frente.
   - O gasto de **treino continua na constante da planilha**: dá 13% a mais
     que 6 MET, dentro da margem desse tipo de estimativa, e musculação não
     tem número consagrado como o da corrida.
-- **Basal e gasto aparecem separados na tela** (painel "O seu gasto"), e o
-  corte incide sobre o gasto, nunca sobre o basal. Era exatamente essa
-  confusão que estava por trás de "os números estão altos": cortar 20% do
-  basal poria a pessoa a comer abaixo do que o corpo queima parado.
+- **O corte incide sobre o gasto, nunca sobre o basal.** Era essa confusão
+  que estava por trás de "os números estão altos": cortar 20% do basal
+  poria a pessoa a comer abaixo do que o corpo queima parado.
+- **O número do objetivo é o principal da tela, e o basal não aparece.**
+  Cheguei a pôr um painel "O seu gasto" com o basal em número grande; o
+  Rafael pediu para tirar, e tem razão — quem abre a aba quer saber quanto
+  comer, não estudar o próprio metabolismo. O gasto do dia sobrou como uma
+  linha ("Você gasta 2.317 kcal hoje"), porque "20% abaixo do gasto"
+  precisa de um gasto à vista para querer dizer alguma coisa.
 - **Corte de 20% para perder** (faixa recomendada 15–25%) e **acréscimo de
   15% para ganhar** (faixa 5–15%; era 20%, acima do recomendado — o que
   passa disso vira gordura, não músculo).

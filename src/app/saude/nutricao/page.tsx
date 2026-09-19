@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, Flame, UtensilsCrossed } from "lucide-react";
+import { Flame, UtensilsCrossed } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarNutricao } from "@/lib/saude/nutricaoDados";
 import {
@@ -107,57 +107,18 @@ export default async function NutricaoPage() {
               </div>
 
               <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+                {n.gastos &&
+                  `Você gasta ${comMilhar(n.gastos[n.tipoDeHoje])} kcal hoje. `}
                 {n.treinoDeHojeReal
-                  ? `Com ${formatarDuracao(Math.round(n.horasDeTreino * 3600))} de treino, do cronômetro de hoje.`
-                  : `Nenhum treino registrado hoje. A conta usa ${formatarDuracao(n.treinoMinutos * 60)} de treino, do seu perfil.`}
+                  ? `Treino de ${formatarDuracao(Math.round(n.horasDeTreino * 3600))}, do cronômetro.`
+                  : `Nenhum treino registrado hoje — a conta usa ${formatarDuracao(n.treinoMinutos * 60)}, do seu perfil.`}
                 {n.massaMagraKg === null &&
                   " A proteína está saindo do peso total: passe a fita na Evolução e ela passa a sair da massa magra."}
               </p>
             </Painel>
           </Revelar>
 
-          {/* O gasto vem antes do alvo, porque é dele que o alvo sai. E o
-              basal aparece separado do gasto do dia de propósito: era
-              exatamente isso que estava confundido — cortar do basal em vez
-              de cortar do gasto põe a pessoa a comer abaixo do que o corpo
-              queima parado. */}
-          {n.gastos && n.basalKcal !== null && (
-            <Revelar imediato atraso={140}>
-              <Painel icone={Activity} rotulo="O seu gasto">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-[30px] leading-none tabular-nums text-texto">
-                    {comMilhar(n.basalKcal)}
-                  </span>
-                  <span className="text-[15px] text-auxiliar">
-                    kcal parado
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  {ORDEM.map((tipo) => (
-                    <LinhaDoPainel
-                      key={tipo}
-                      titulo={ROTULO_DIA[tipo]}
-                      valor={comMilhar(n.gastos![tipo])}
-                      unidade="kcal"
-                    />
-                  ))}
-                </div>
-
-                {/* A duração do treino muda estes números em mais de cem
-                    calorias, e não aparecia em lugar nenhum. */}
-                <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
-                  Treino contado em{" "}
-                  {n.treinoDeHojeReal
-                    ? `${formatarDuracao(Math.round(n.horasDeTreino * 3600))}, do cronômetro`
-                    : `${formatarDuracao(n.treinoMinutos * 60)}, do seu perfil`}
-                  . O que o corpo queima — quanto comer é o painel abaixo.
-                </p>
-              </Painel>
-            </Revelar>
-          )}
-
-          <Revelar imediato atraso={200}>
+          <Revelar imediato atraso={140}>
             <Painel icone={UtensilsCrossed} rotulo="Quanto comer">
               {/* O objetivo fica aqui, e não no painel de ajustes lá
                   embaixo: é o controle que mais mexe nos números, e ficava
