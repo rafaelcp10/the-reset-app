@@ -467,6 +467,24 @@ de outro app, e quem liga isso está dizendo "eu ponho música antes" — quem
 põe música não está no silencioso. A opção só aparece para quem tem música
 salva, e a tela avisa do preço quando ela é ligada.
 
+## Ler a linha de `usuarios` com `*`, nunca com lista de colunas
+
+O PostgREST **derruba o select inteiro** quando uma das colunas pedidas não
+existe. Numa lista de quinze colunas, uma migration ainda não rodada faz a
+consulta voltar 400, `usuario` virar nulo, e a tela inteira parecer vazia —
+como se nada tivesse sido preenchido, com todos os dados salvos no banco.
+
+Aconteceu em 2026-09-20 na Nutrição: `calorias_descanso` não existia ainda,
+e a tela pedia biotipo, sexo, nascimento e altura, todos já preenchidos. O
+Ritual estava quebrado junto, pelo mesmo motivo, e ninguém tinha notado.
+
+`select("*")` na linha de `usuarios` resolve a classe inteira: coluna que
+ainda não existe simplesmente não vem, e o campo fica vazio em vez de
+derrubar o resto. É uma linha só, o custo é nenhum.
+
+**A ordem certa continua sendo migration antes do deploy.** Isto é a rede
+por baixo, para quando a ordem escorregar — e ela escorregou três vezes.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

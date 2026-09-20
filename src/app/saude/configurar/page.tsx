@@ -20,9 +20,9 @@ export default async function ConfigurarAcademiaPage() {
     buscarConfig(supabase, user.id),
     supabase
       .from("usuarios")
-      .select(
-        "meta_saude, biotipo, garrafa_ml, corrida_km, proteina_g_kg, gordura_g_kg",
-      )
+      // `*` pelo mesmo motivo de `lib/saude/nutricaoDados.ts`: coluna que
+      // ainda não existe não pode derrubar o select inteiro.
+      .select("*")
       .eq("id", user.id)
       .maybeSingle(),
   ]);

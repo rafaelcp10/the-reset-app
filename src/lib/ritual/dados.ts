@@ -77,9 +77,18 @@ export async function buscarEstadoRitual(
   const [{ data: usuario }, frases] = await Promise.all([
     supabase
       .from("usuarios")
-      .select(
-        "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres, misturar_com_musica",
-      )
+      // `*` de propósito, e não a lista de colunas.
+      //
+      // O PostgREST derruba o select inteiro quando uma coluna não existe:
+      // basta uma migration ainda não rodada para `usuario` voltar nulo e a
+      // tela inteira parecer vazia, como se nada tivesse sido preenchido.
+      // Aconteceu em 2026-09-20 e custou uma tela de Nutrição em branco com
+      // todos os dados salvos no banco.
+      //
+      // Com `*`, coluna que ainda não existe simplesmente não vem, e o campo
+      // fica vazio em vez de derrubar o resto. É uma linha só de usuário: o
+      // custo de trazer tudo é nenhum.
+      .select("*")
       .eq("id", usuarioId)
       .maybeSingle(),
     buscarFrasesAtuais(supabase, usuarioId),

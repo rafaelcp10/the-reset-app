@@ -69,9 +69,18 @@ export async function buscarNutricao(
 ): Promise<Nutricao> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select(
-      "fuso, sexo, nascimento, altura_cm, biotipo, meta_saude, proteina_g_kg, gordura_g_kg, corrida_km, garrafa_ml, treino_minutos, calorias_descanso, calorias_treino, calorias_treino_corrida",
-    )
+    // `*` de propósito, e não a lista de colunas.
+    //
+    // O PostgREST derruba o select inteiro quando uma coluna não existe:
+    // basta uma migration ainda não rodada para `usuario` voltar nulo e a
+    // tela inteira parecer vazia, como se nada tivesse sido preenchido.
+    // Aconteceu em 2026-09-20 e custou uma tela de Nutrição em branco com
+    // todos os dados salvos no banco.
+    //
+    // Com `*`, coluna que ainda não existe simplesmente não vem, e o campo
+    // fica vazio em vez de derrubar o resto. É uma linha só de usuário: o
+    // custo de trazer tudo é nenhum.
+    .select("*")
     .eq("id", usuarioId)
     .maybeSingle();
 
