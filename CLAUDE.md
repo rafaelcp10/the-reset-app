@@ -425,6 +425,48 @@ O que mudou:
 caindo de 2 em 5 horas, ainda dá para perder um dia. A correção completa é
 tirar o disparo do GitHub Actions e pôr num agendador que cumpra horário.
 
+## Música (2026-09-19)
+
+O app **não integra com o Spotify**, e isso é decisão fechada, não falta de
+tempo. Desde fevereiro de 2026 um app de terceiro em modo de
+desenvolvimento aceita **cinco usuários**, todos Premium; passar disso
+exige "extended quota", que pede empresa registrada e **250 mil usuários
+ativos por mês**. Para um produto que vai ser vendido, não existe caminho.
+
+Os outros caminhos foram descartados com motivo:
+- **Embed do Spotify**: 30 segundos para quem não é Premium logado, e
+  **não permite autoplay** — o som só começa com um toque dentro do iframe.
+- **YouTube**: os termos da API proíbem explicitamente tocar em segundo
+  plano, tocar só o áudio e esconder o player. É exatamente o que a gente
+  faria.
+- **Hospedar o arquivo do usuário**: exposição real de direito autoral num
+  produto comercial.
+
+O que ficou:
+
+- As cinco vagas guardam o **link** da música. Cola-se o link do Spotify e
+  o nome aparece sozinho, pelo **oEmbed** — que é público e não precisa de
+  API nem conta. Falhando o oEmbed, a música é salva e a lista mostra o
+  link: pior, e melhor que recusar o que a pessoa colou.
+- O link é normalizado: `spotify:track:`, `/intl-pt/` e o `?si=` viram a
+  mesma URL canônica. O `?si=` é identificador de quem compartilhou e não
+  tem por que ficar guardado.
+- Qualquer outro serviço também serve. O app só guarda e abre.
+
+### Misturar a voz com a música
+
+`navigator.audioSession.type` decide, e **não dá para ter as duas coisas**:
+
+- `"playback"` ignora o interruptor de silencioso — foi o que consertou a
+  respiração não tocar — mas **interrompe** a música de outro aplicativo.
+- `"transient"` o WebKit mapeia para sessão misturável: a música continua e
+  a voz entra por cima, **ao preço de voltar a obedecer ao interruptor**.
+
+Por isso é preferência, e não automatismo: o navegador não enxerga o áudio
+de outro app, e quem liga isso está dizendo "eu ponho música antes" — quem
+põe música não está no silencioso. A opção só aparece para quem tem música
+salva, e a tela avisa do preço quando ela é ligada.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

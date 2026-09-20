@@ -124,6 +124,7 @@ export async function salvarCompromissoSlot(
 export async function salvarPreferenciasRitual(
   repsPadrao: number,
   modoMaosLivres: boolean,
+  misturarComMusica?: boolean,
 ) {
   const supabase = await createClient();
   const {
@@ -133,7 +134,13 @@ export async function salvarPreferenciasRitual(
 
   await supabase
     .from("usuarios")
-    .update({ reps_padrao: repsPadrao, modo_maos_livres: modoMaosLivres })
+    .update({
+      reps_padrao: repsPadrao,
+      modo_maos_livres: modoMaosLivres,
+      ...(misturarComMusica === undefined
+        ? {}
+        : { misturar_com_musica: misturarComMusica }),
+    })
     .eq("id", user.id);
 }
 

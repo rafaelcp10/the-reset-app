@@ -54,6 +54,7 @@ export default async function EspelhoPage() {
       musicaNome={estado.musica?.nome ?? null}
       repeticoesIniciais={estado.repsPadrao}
       maosLivresInicial={estado.modoMaosLivres}
+      misturarInicial={estado.misturarComMusica}
       dataHoje={estado.dataRitual}
       tarefasDeHoje={tarefasDeHoje}
       ditoOntem={estado.intencaoOntem}

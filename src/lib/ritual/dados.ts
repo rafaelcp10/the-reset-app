@@ -59,6 +59,8 @@ export type EstadoRitual = {
   intencaoOntem: string | null;
   repsPadrao: number;
   modoMaosLivres: boolean;
+  /** Tocar a voz por cima da música do aparelho, em vez de interrompê-la. */
+  misturarComMusica: boolean;
 };
 
 const HORARIO_PADRAO = "21:00";
@@ -76,7 +78,7 @@ export async function buscarEstadoRitual(
     supabase
       .from("usuarios")
       .select(
-        "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres",
+        "nome, horario_checkin, fuso, criado_em, reps_padrao, modo_maos_livres, misturar_com_musica",
       )
       .eq("id", usuarioId)
       .maybeSingle(),
@@ -89,6 +91,7 @@ export async function buscarEstadoRitual(
   const criadoEm: string = usuario?.criado_em ?? new Date().toISOString();
   const repsPadrao: number = usuario?.reps_padrao ?? REPS_PADRAO;
   const modoMaosLivres: boolean = usuario?.modo_maos_livres ?? false;
+  const misturarComMusica: boolean = usuario?.misturar_com_musica ?? false;
   // Só o primeiro nome: "Bom dia, Rafael Pires" soa como cadastro, não
   // como alguém falando com você.
   const nome: string | null =
@@ -168,5 +171,6 @@ export async function buscarEstadoRitual(
     intencaoOntem: diaOntem?.intencao_amanha ?? null,
     repsPadrao,
     modoMaosLivres,
+    misturarComMusica,
   };
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Mic, Music, Play, Square } from "lucide-react";
 import { salvarPreferenciasRitual } from "@/lib/ritual/acoes";
 import EscolhaDoDia from "./EscolhaDoDia";
-import { GuiaRespiracao, lerGuia } from "@/lib/ui/sensorial";
+import { GuiaRespiracao, definirModoDeAudio, lerGuia } from "@/lib/ui/sensorial";
 
 type ItemFrase = {
   rotulo: string;
@@ -28,6 +28,7 @@ export default function ModoEspelho({
   musicaNome,
   repeticoesIniciais,
   maosLivresInicial,
+  misturarInicial,
   dataHoje,
   tarefasDeHoje,
   ditoOntem,
@@ -38,6 +39,8 @@ export default function ModoEspelho({
   musicaNome: string | null;
   repeticoesIniciais: number;
   maosLivresInicial: boolean;
+  /** Tocar a voz por cima da música do aparelho em vez de interrompê-la. */
+  misturarInicial: boolean;
   dataHoje: string;
   /** O que já está no dia — vira a escolha da linha no fim do ritual. */
   tarefasDeHoje: string[];
@@ -65,10 +68,22 @@ export default function ModoEspelho({
   // o automático no meio do ritual não deveria ter que ir a Ajustes para
   // mantê-lo amanhã.
   const [maosLivres, setMaosLivres] = useState(maosLivresInicial);
+  const [misturar, setMisturar] = useState(misturarInicial);
+
+  // Antes de qualquer som: a categoria de áudio do iOS tem que estar certa
+  // quando o primeiro toque liberar o contexto, e não depois.
+  useEffect(() => {
+    definirModoDeAudio(misturar ? "misturado" : "sozinho");
+  }, [misturar]);
 
   function trocarAvanco(automatico: boolean) {
     setMaosLivres(automatico);
-    salvarPreferenciasRitual(repeticoes, automatico);
+    salvarPreferenciasRitual(repeticoes, automatico, misturar);
+  }
+
+  function trocarMistura(valor: boolean) {
+    setMisturar(valor);
+    salvarPreferenciasRitual(repeticoes, maosLivres, valor);
   }
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -118,7 +133,6 @@ export default function ModoEspelho({
 
   return (
     <div className="flex min-h-screen flex-col">
-      {musicaUrl && <audio ref={audioRef} src={musicaUrl} loop />}
 
       <div className="flex items-center justify-between px-6 pt-6">
         <span className="tipo-rotulo text-[13.5px] tracking-[.18em] text-auxiliar">
@@ -140,7 +154,10 @@ export default function ModoEspelho({
             <EscolhaModo
               temGravacao={temGravacao}
               maosLivres={maosLivres}
+              misturar={misturar}
+              temMusica={Boolean(musicaUrl)}
               aoTrocarAvanco={trocarAvanco}
+              aoTrocarMistura={trocarMistura}
               aoLer={() => avancar()}
               aoOuvir={() => {
                 setModoAudio(true);
@@ -190,13 +207,19 @@ export default function ModoEspelho({
 function EscolhaModo({
   temGravacao,
   maosLivres,
+  misturar,
+  temMusica,
   aoTrocarAvanco,
+  aoTrocarMistura,
   aoLer,
   aoOuvir,
 }: {
   temGravacao: boolean;
   maosLivres: boolean;
+  misturar: boolean;
+  temMusica: boolean;
   aoTrocarAvanco: (automatico: boolean) => void;
+  aoTrocarMistura: (valor: boolean) => void;
   aoLer: () => void;
   aoOuvir: () => void;
 }) {
@@ -269,6 +292,42 @@ function EscolhaModo({
           </button>
         </div>
       </div>
+
+      {/* Só aparece para quem tem música salva: para os outros seria uma
+          pergunta sobre algo que não existe. */}
+      {temMusica && (
+        <div className="flex flex-col gap-3">
+          <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
+            Com música tocando
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => aoTrocarMistura(false)}
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+                !misturar ? "pilula-ativa" : ""
+              }`}
+            >
+              Só a voz
+            </button>
+            <button
+              type="button"
+              onClick={() => aoTrocarMistura(true)}
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+                misturar ? "pilula-ativa" : ""
+              }`}
+            >
+              Por cima
+            </button>
+          </div>
+          {misturar && (
+            <p className="text-[14px] leading-[1.6] text-auxiliar-fraco">
+              A música continua tocando e a voz entra por cima. Com isso, o
+              interruptor de silencioso do aparelho volta a valer.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -629,16 +688,28 @@ function Rodape({
       onClick={(e) => e.stopPropagation()}
       className="vidro flex flex-col gap-4 px-6 pb-8 pt-4"
     >
+      {/* Tocar no nome abre a música no Spotify. Sai do app por um toque,
+          e volta com a música tocando — é o preço de não poder tocar áudio
+          de terceiro dentro do navegador, e é barato. */}
       <div className="flex items-center gap-2 text-[14.5px]">
         <Music className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.5} />
-        <span className="flex-1 truncate text-auxiliar">
-          {musicaUrl ? musicaNome || "Sua música" : "Sem música"}
-        </span>
+        {musicaUrl ? (
+          <a
+            href={musicaUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex min-h-11 flex-1 items-center truncate text-texto"
+          >
+            {musicaNome || "Sua música"}
+          </a>
+        ) : (
+          <span className="flex-1 truncate text-auxiliar">Sem música</span>
+        )}
         <Link
           href="/musicas"
           className="shrink-0 text-auxiliar underline underline-offset-4"
         >
-          {musicaUrl ? "trocar música" : "adicionar música"}
+          {musicaUrl ? "trocar" : "adicionar"}
         </Link>
       </div>
       <div className="flex gap-1.5">

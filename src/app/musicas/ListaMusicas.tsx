@@ -27,16 +27,15 @@ export default function ListaMusicas({
         >
           <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
-        <span className="rounded-[3px] bg-superficie2 px-2 py-0.5 text-[13px] uppercase tracking-[.16em] text-auxiliar-fraco">
-          Em breve
-        </span>
       </div>
 
       <div className="flex flex-col gap-1">
         <h1 className="text-[21px] text-texto">Minhas músicas</h1>
+        {/* Sem promessa de "conta conectada" no futuro: o Spotify fechou a
+            API para apps de terceiros, e esta é a versão definitiva. */}
         <p className="text-[15px] leading-[1.6] text-auxiliar">
-          Na primeira versão é um link salvo que abre o app de música.
-          Depois, conta conectada.
+          Cole o link da música — no Spotify, em Compartilhar, Copiar link.
+          O nome aparece sozinho. Tocar no nome abre o Spotify naquela faixa.
         </p>
       </div>
 
@@ -86,7 +85,7 @@ function LinhaFaixa({
             ref={inputRef}
             type="url"
             onBlur={salvar}
-            placeholder="adicionar música"
+            placeholder="colar link da música"
             className="w-full bg-transparent py-2 text-[16.5px] text-auxiliar outline-none placeholder:text-auxiliar focus:text-texto"
           />
         </div>
@@ -102,9 +101,14 @@ function LinhaFaixa({
   return (
     <div className="flex flex-col gap-1 py-2">
       <div className="flex items-center gap-2">
-        <p className="flex-1 truncate py-2 text-[16.5px] text-texto">
+        <a
+          href={slot.musica!.url}
+          target="_blank"
+          rel="noreferrer"
+          className="flex min-h-11 flex-1 items-center truncate py-2 text-[16.5px] text-texto"
+        >
           {slot.musica!.nome || slot.musica!.url}
-        </p>
+        </a>
         <button
           type="button"
           onClick={remover}

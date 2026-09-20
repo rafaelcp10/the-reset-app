@@ -89,11 +89,30 @@ function novoContexto(): AudioContext | null {
  * a mesma de um tocador de música, que ignora o interruptor. É o que
  * permite a alguém pôr a respiração para tocar sem antes lembrar de virar
  * uma chave física no lado do aparelho.
+ *
+ * `"transient"` é o oposto e existe para um caso só: quando a pessoa já
+ * pôs música para tocar e quer a voz por cima. O WebKit mapeia esse tipo
+ * para uma sessão **misturável**, então o Spotify continua tocando em vez
+ * de ser interrompido — ao preço de voltar a obedecer ao interruptor de
+ * silencioso. Não existe categoria que faça as duas coisas.
  */
+export type ModoDeAudio = "sozinho" | "misturado";
+
+let modoDeAudio: ModoDeAudio = "sozinho";
+
+/** Trocado pela preferência da pessoa, antes de qualquer som começar. */
+export function definirModoDeAudio(modo: ModoDeAudio) {
+  modoDeAudio = modo;
+  prepararSessaoDeAudio();
+}
+
 function prepararSessaoDeAudio() {
   try {
     const nav = navigator as Navigator & { audioSession?: { type: string } };
-    if (nav.audioSession) nav.audioSession.type = "playback";
+    if (nav.audioSession) {
+      nav.audioSession.type =
+        modoDeAudio === "misturado" ? "transient" : "playback";
+    }
   } catch {
     // Navegador sem a API: segue no comportamento padrão.
   }
