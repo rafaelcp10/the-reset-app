@@ -485,6 +485,29 @@ derrubar o resto. É uma linha só, o custo é nenhum.
 **A ordem certa continua sendo migration antes do deploy.** Isto é a rede
 por baixo, para quando a ordem escorregar — e ela escorregou três vezes.
 
+## Os inegociáveis atravessam a semana (2026-09-20)
+
+Eles são guardados por semana (`compromissos.semana_inicio`), e na virada
+do domingo a consulta deixava de achar os da semana anterior: os três
+sumiam da tela. **Nunca foi a intenção.** A revisão de domingo existe para
+lembrar de planejar a semana, não para apagar o que já valia — e na
+prática os três costumam ser os mesmos.
+
+`lib/ritual/inegociaveis.ts` copia os da última semana que teve algum para
+a semana atual, na primeira leitura de tela da semana. Não é
+necessariamente a semana de sete dias atrás: quem passou duas semanas sem
+abrir o app não perde os seus três por isso.
+
+**A marca `usuarios.inegociaveis_copiados_para` é o que faz isso rodar uma
+vez por semana**, e ela não é detalhe. Limpar um slot **apaga a linha**,
+então "semana nova, ainda vazia" e "esvaziei os três de propósito" são a
+mesma consulta vazia. Sem a marca, o que a pessoa apagasse voltaria na
+próxima leitura de tela.
+
+A cópia é `upsert` com conflito em (usuário, semana, ordem) — restrição
+que a tabela já tinha — então nunca sobrescreve o que já existe na semana
+atual.
+
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
 nunca em tela que não seja a do próprio usuário.

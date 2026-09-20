@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buscarFrasesAtuais } from "@/lib/frases/dados";
+import { garantirInegociaveisDaSemana } from "./inegociaveis";
 import type { Funcao, FraseRow } from "@/lib/frases/modelo";
 import {
   agoraNoFuso,
@@ -110,6 +111,16 @@ export async function buscarEstadoRitual(
   const hoje = dataRitual(partes);
   const ontem = diaAnteriorISO(hoje);
   const semanaInicio = domingoDaSemana(hoje);
+
+  // Antes de ler: se a semana virou e não há inegociáveis nela, os da
+  // semana anterior vêm junto. A revisão de domingo lembra de planejar,
+  // não zera o que já valia.
+  await garantirInegociaveisDaSemana(
+    supabase,
+    usuarioId,
+    semanaInicio,
+    (usuario?.inegociaveis_copiados_para as string | null) ?? null,
+  );
   const modo = modoRitual(partes, horarioCheckin);
   const periodo = periodoDoDia(partes);
 

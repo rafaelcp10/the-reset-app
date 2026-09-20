@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { buscarFrasesAtuais } from "@/lib/frases/dados";
 import type { Funcao, FraseRow } from "@/lib/frases/modelo";
 import type { CompromissoRow } from "@/lib/ritual/dados";
+import { garantirInegociaveisDaSemana } from "@/lib/ritual/inegociaveis";
 import {
   agoraNoFuso,
   dataRitual,
@@ -35,13 +36,25 @@ export async function buscarEstadoRevisao(
 ): Promise<EstadoRevisao> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("fuso")
+    // `*` pelo mesmo motivo de `lib/ritual/dados.ts`: coluna que ainda não
+    // existe não pode derrubar o select inteiro.
+    .select("*")
     .eq("id", usuarioId)
     .maybeSingle();
   const fuso: string = usuario?.fuso || FUSO_PADRAO;
 
   const hoje = dataRitual(agoraNoFuso(fuso));
   const semanaAtualInicio = domingoDaSemana(hoje);
+
+  // A revisão de domingo abre com os três da semana anterior já
+  // preenchidos: é o ponto de decidir se eles continuam, não de digitá-los
+  // de novo do zero.
+  await garantirInegociaveisDaSemana(
+    supabase,
+    usuarioId,
+    semanaAtualInicio,
+    (usuario?.inegociaveis_copiados_para as string | null) ?? null,
+  );
   const semanaPassadaInicio = semanaAnteriorISO(semanaAtualInicio);
   const datasSemanaPassada = Array.from({ length: 7 }, (_, i) =>
     somarDiasISO(semanaPassadaInicio, i),

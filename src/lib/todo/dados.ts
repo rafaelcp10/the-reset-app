@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CompromissoRow, InegociavelSlot } from "@/lib/ritual/dados";
+import { garantirInegociaveisDaSemana } from "@/lib/ritual/inegociaveis";
 import {
   agoraNoFuso,
   dataPorExtenso,
@@ -112,7 +113,9 @@ export async function buscarEstadoTodo(
 ): Promise<EstadoTodo> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("fuso, criado_em")
+    // `*` pelo mesmo motivo de `lib/ritual/dados.ts`: coluna que ainda não
+    // existe não pode derrubar o select inteiro.
+    .select("*")
     .eq("id", usuarioId)
     .maybeSingle();
 
@@ -121,6 +124,13 @@ export async function buscarEstadoTodo(
 
   const hoje = dataRitual(agoraNoFuso(fuso));
   const semanaInicio = domingoDaSemana(hoje);
+
+  await garantirInegociaveisDaSemana(
+    supabase,
+    usuarioId,
+    semanaInicio,
+    (usuario?.inegociaveis_copiados_para as string | null) ?? null,
+  );
   const fimDaSemana = somarDiasISO(semanaInicio, 6);
 
   const [{ data: tarefasBrutas }, { data: compromissos }] = await Promise.all([
