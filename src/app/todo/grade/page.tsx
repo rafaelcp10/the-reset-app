@@ -151,7 +151,7 @@ export default async function GradePage({
                         <span
                           key={dia}
                           className={`w-5 text-center text-[12.5px] ${
-                            dia === hoje ? "text-texto" : "text-auxiliar-minimo"
+                            dia === hoje ? "text-texto" : "text-auxiliar-fraco"
                           }`}
                         >
                           {Number(dia.slice(8))}

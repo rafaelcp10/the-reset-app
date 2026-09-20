@@ -82,7 +82,7 @@ export default function LinhaTarefa({
       )}
 
       <IconeTipo
-        className="h-[18px] w-[18px] shrink-0 text-auxiliar-minimo"
+        className="h-[18px] w-[18px] shrink-0 text-auxiliar-fraco"
         strokeWidth={1.5}
         aria-hidden="true"
       />

@@ -12,15 +12,18 @@ import {
 import { formatarDuracao } from "@/lib/saude/sessao";
 import CabecalhoSaude from "../CabecalhoSaude";
 import ContadorAgua from "./ContadorAgua";
-import AjustesNutricao from "./AjustesNutricao";
 import EscolhaObjetivo from "./EscolhaObjetivo";
-import Painel, { LinhaDoPainel, ParValor } from "@/components/saude/Painel";
+import LinhaCaloria from "./LinhaCaloria";
+import Painel, { ParValor } from "@/components/saude/Painel";
 import Revelar from "@/components/movimento/Revelar";
 
 const ORDEM: TipoDeDia[] = ["descanso", "treino", "treino_e_corrida"];
 
 const FALTANDO: Record<string, { texto: string; href?: string }> = {
-  biotipo: { texto: "escolher o biotipo, aqui embaixo" },
+  biotipo: {
+    texto: "escolher o biotipo, na engrenagem da Saúde",
+    href: "/saude/configurar",
+  },
   sexo: {
     texto: "dizer qual conta de gordura usar, na Evolução",
     href: "/saude/evolucao",
@@ -127,12 +130,14 @@ export default async function NutricaoPage() {
 
               <div className="flex flex-col gap-2 border-t border-filete pt-4">
                 {ORDEM.map((tipo) => (
-                  <LinhaDoPainel
+                  <LinhaCaloria
                     key={tipo}
-                    titulo={ROTULO_DIA[tipo]}
-                    detalhe={resumoDeMacros(n.macrosPorDia![tipo])}
-                    valor={comMilhar(n.calorias![tipo])}
-                    unidade="kcal"
+                    tipo={tipo}
+                    rotulo={ROTULO_DIA[tipo]}
+                    valor={n.calorias![tipo]}
+                    sugestao={n.sugestoes![tipo]}
+                    manual={n.manuais[tipo]}
+                    macros={resumoDeMacros(n.macrosPorDia![tipo])}
                   />
                 ))}
               </div>
@@ -150,7 +155,7 @@ export default async function NutricaoPage() {
                     : "No mesmo nível do gasto."}{" "}
                 {n.corridaKm > 0
                   ? `Corrida contada em ${String(n.corridaKm).replace(".", ",")} km.`
-                  : "Sem corrida na conta — diga quantos quilômetros ali embaixo."}
+                  : "Sem corrida na conta."}
               </p>
 
               {/* O piso não é detalhe: é a diferença entre um alvo e um
@@ -170,16 +175,6 @@ export default async function NutricaoPage() {
         <ContadorAgua data={n.hoje} agua={n.agua} pesoKg={n.pesoKg} />
       </Revelar>
 
-      <Revelar atraso={80}>
-        <AjustesNutricao
-          biotipo={n.biotipo}
-          garrafaMl={n.agua.garrafaMl}
-          corridaKm={n.corridaKm}
-          treinoMinutos={n.treinoMinutos}
-          proteinaGKg={n.proteinaGKg}
-          gorduraGKg={n.gorduraGKg}
-        />
-      </Revelar>
     </div>
   );
 }

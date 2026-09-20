@@ -15,7 +15,7 @@ function BotaoContinuar({ desabilitado }: { desabilitado: boolean }) {
       disabled={desabilitado || pending}
       className={`tipo-rotulo w-full rounded-[6px] py-3 text-center text-[16px] tracking-[.09em] ${
         desabilitado || pending
-          ? "bg-[#1C1E22] text-auxiliar-minimo"
+          ? "bg-[#1C1E22] text-auxiliar-fraco"
           : "bg-acento text-fundo"
       }`}
     >

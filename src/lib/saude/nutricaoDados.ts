@@ -35,8 +35,12 @@ export type Nutricao = {
   corridaKm: number;
   proteinaGKg: number;
   gorduraGKg: number;
-  /** O que comer, já com o objetivo aplicado. */
+  /** O que comer: o valor escrito à mão quando existe, senão a sugestão. */
   calorias: CaloriasDoDia | null;
+  /** A sugestão da conta, sempre — é ela que o botão de redefinir devolve. */
+  sugestoes: CaloriasDoDia | null;
+  /** Quais tipos de dia estão com valor escrito à mão. */
+  manuais: Record<TipoDeDia, boolean>;
   /** O que o corpo gasta, sem objetivo nenhum. */
   gastos: CaloriasDoDia | null;
   /** O metabolismo basal puro, sem fator de rotina. */
@@ -66,7 +70,7 @@ export async function buscarNutricao(
   const { data: usuario } = await supabase
     .from("usuarios")
     .select(
-      "fuso, sexo, nascimento, altura_cm, biotipo, meta_saude, proteina_g_kg, gordura_g_kg, corrida_km, garrafa_ml, treino_minutos",
+      "fuso, sexo, nascimento, altura_cm, biotipo, meta_saude, proteina_g_kg, gordura_g_kg, corrida_km, garrafa_ml, treino_minutos, calorias_descanso, calorias_treino, calorias_treino_corrida",
     )
     .eq("id", usuarioId)
     .maybeSingle();
@@ -192,7 +196,30 @@ export async function buscarNutricao(
       )
     : null;
 
-  const calorias = conta?.alvos ?? null;
+  // O valor escrito à mão ganha da sugestão. Nulo quer dizer "use a
+  // sugestão", e é o que faz redefinir custar uma linha.
+  const escritos: Record<TipoDeDia, number | null> = {
+    descanso: (usuario?.calorias_descanso as number | null) ?? null,
+    treino: (usuario?.calorias_treino as number | null) ?? null,
+    treino_e_corrida:
+      (usuario?.calorias_treino_corrida as number | null) ?? null,
+  };
+
+  const sugestoes = conta?.alvos ?? null;
+  const calorias = sugestoes
+    ? ({
+        descanso: escritos.descanso ?? sugestoes.descanso,
+        treino: escritos.treino ?? sugestoes.treino,
+        treino_e_corrida:
+          escritos.treino_e_corrida ?? sugestoes.treino_e_corrida,
+      } as CaloriasDoDia)
+    : null;
+
+  const manuais: Record<TipoDeDia, boolean> = {
+    descanso: escritos.descanso !== null,
+    treino: escritos.treino !== null,
+    treino_e_corrida: escritos.treino_e_corrida !== null,
+  };
 
   // Sem fita ainda, a massa magra não existe — a proteína então sai do
   // peso total. É pior, e é melhor que não mostrar nada: a tela diz que
@@ -245,6 +272,8 @@ export async function buscarNutricao(
     proteinaGKg,
     gorduraGKg,
     calorias,
+    sugestoes,
+    manuais,
     macrosPorDia,
     // O dia se declara pelo que aconteceu, não pelo que estava marcado:
     // "treino e corrida" só aparece como o de hoje quando há corrida

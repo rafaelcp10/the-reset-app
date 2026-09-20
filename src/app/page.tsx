@@ -9,6 +9,7 @@ import { FRASES_PADRAO } from "@/lib/frases/modelo";
 import Logo from "@/components/Logo";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 import FaixaSemanas from "@/components/home/FaixaSemanas";
+import MarcaFeito from "@/components/MarcaFeito";
 import Painel, { Barra, ParValor } from "@/components/saude/Painel";
 import Grafico from "@/components/saude/Grafico";
 import Revelar from "@/components/movimento/Revelar";
@@ -119,13 +120,10 @@ export default async function HomePage() {
             <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
           )}
 
-          {/* "Ontem" cabe num par, e antes era uma frase inteira. Sem cor no
-              "não feito": é registro válido, não falta. */}
+          {/* Com sinal, e não só palavra: era a única coisa da linha que
+              alguém vem conferir, e sumia no meio do cinza. */}
           {estado.feitoOntem !== null && (
-            <ParValor
-              valor={estado.feitoOntem ? "Feito" : "Não feito"}
-              rotulo="ontem"
-            />
+            <MarcaFeito feito={estado.feitoOntem} rotulo="ontem" />
           )}
         </Painel>
       </Revelar>

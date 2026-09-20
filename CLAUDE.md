@@ -30,16 +30,30 @@ PWA instalável. Sem app nativo, sem loja.
 - Ícones apenas da biblioteca Lucide.
 - Cores: #101114 (fundo), #F7F7F5 (texto), #A2A4A7 (auxiliar),
   #C97B3A (acento, uma aplicação por tela).
-- Contraste: nada abaixo de 4.5:1 sobre o fundo mais claro do app
-  (`superficie2`), nem contorno de campo abaixo de 3:1. Os cinzas foram
-  recalibrados em 2026-09-16 por isso — `auxiliar` era #8A8C8F e ficava em
-  5.2, mas `auxiliar-fraco` e `auxiliar-minimo` estavam em 3.2 e 2.6.
+- Contraste: nada abaixo de 4.5:1 sobre **a superfície mais clara que
+  existe hoje**, nem contorno de campo abaixo de 3:1. Em 2026-09-19 isso
+  virou `superficie3` (#2a2d33), que os painéis passaram a usar em toda
+  linha — e a medida de 2026-09-16, feita contra `superficie2`, ficou
+  velha sem ninguém notar. Sobre a superfície nova, `auxiliar-fraco` dava
+  4.10 e `auxiliar-minimo` 3.54.
+  **`auxiliar-minimo` foi removido**: entre #2a2d33 e o branco não cabem
+  três cinzas legíveis. `auxiliar-fraco` subiu para #96989d (4.78).
+  **Criar superfície nova obriga a re-medir todos os cinzas sobre ela** —
+  foi pular esse passo que deixou o app difícil de ler por três dias.
+- Só existem **dois cinzas**: `auxiliar` e `auxiliar-fraco`.
 - Nada de texto abaixo de 12.5px, nem ícone abaixo de 18px. O piso era
   11px e ainda custava esforço para ler: o app é usado com a vista cansada
   à noite, e rótulo em caixa alta com tracking largo cansa mais, não menos.
   Ícone pequeno é pior que texto pequeno — ele é alvo de toque e sinal de
   função ao mesmo tempo.
 - Texto em botão âmbar é #101114, nunca branco.
+- **"Feito" leva visto, e o visto é âmbar** (`components/MarcaFeito.tsx`).
+  Uma palavra cinza no meio de outras palavras cinzas não se vê, e era o
+  que acontecia com o resultado do dia. Verde foi cogitado e recusado: a
+  paleta tem quatro cores e não vale abrir uma quinta por um ícone.
+  **"Não feito" não ganha sinal de erro** — nem vermelho, nem X, nem
+  risco: um traço neutro e a palavra. É a regra mais fácil de quebrar
+  justamente aqui, onde toda outra interface do mundo põe vermelho.
 - Tipografia: Archivo (frases) e Inter (interface), via Google Fonts.
 - Nenhuma imagem, foto, ilustração ou mascote em nenhuma tela — **com uma
   exceção, aberta em 2026-09-18 e descrita abaixo**: a foto de antes e
@@ -139,6 +153,10 @@ deles. O painel de Hoje conta **o que falta**, não o que foi feito — a
 lista existe para mostrar o que ainda está de pé, e zerada ela diz zero,
 que é a única comemoração que cabe. A barra é cinza porque o âmbar dessa
 tela pertence à marcação.
+
+O campo de escrever tarefa nova fica **dentro do painel de Hoje**, depois
+da lista, e não no rodapé da tela: ele estava depois de tudo, longe da
+lista em que a tarefa ia aparecer.
 
 Texto de tarefa quebra em duas linhas em vez de cortar com reticências: o
 fim da frase costuma ser o que diz o que fazer, e "Responder o e-mail do
@@ -317,6 +335,16 @@ some da frente.
   o basal em até 40% e não há padrão razoável. A descrição de cada um é o
   que se vê no espelho, sem uma palavra de fisiologia.
 - `saude_geral` vira "manter" — é o único dos três que não empurra ninguém.
+- **Tudo que se configura mora na engrenagem da Saúde** (2026-09-19):
+  objetivo, biotipo, tamanho da garrafa, corrida, proteína e gordura por
+  quilo, tempo de treino, local e limitações. O painel "A sua conta", que
+  vivia no fim da aba de Nutrição, saiu — duas casas para a mesma coisa
+  ensinam a não confiar em nenhuma.
+- **As calorias de cada tipo de dia são editáveis, com "Redefinir"**. A
+  conta sugere; quem conhece o próprio corpo corrige. Redefinir **apaga**
+  o valor escrito em vez de copiar a sugestão para cima dele: apagado, o
+  alvo volta a acompanhar peso, treino e objetivo sozinho; copiado, ele
+  congelaria no número de hoje.
 - **O objetivo mora dentro do painel "Quanto comer", acima dos números**,
   e também na engrenagem da Saúde. É o controle que mais mexe no resultado
   — 35% entre as pontas — e ele começou escondido no perfil, depois no fim

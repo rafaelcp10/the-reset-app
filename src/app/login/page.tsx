@@ -113,7 +113,7 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-filete" />
-            <span className="tipo-rotulo text-[13px] tracking-[.18em] text-auxiliar-minimo">
+            <span className="tipo-rotulo text-[13px] tracking-[.18em] text-auxiliar-fraco">
               ou
             </span>
             <span className="h-px flex-1 bg-filete" />

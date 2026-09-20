@@ -8,15 +8,20 @@
   --color-superficie2: #17191d;
   --color-superficie3: #2a2d33;
   --color-texto: #f7f7f5;
-  /* Os cinzas foram recalibrados em 2026-09-16 para passar no AA da WCAG
-     sobre o fundo mais claro do app (superficie2). Antes, `auxiliar-fraco`
-     ficava em 3.16 e `auxiliar-minimo` em 2.63 — abaixo dos 4.5 exigidos
-     para texto normal, o que quer dizer ilegível para vista cansada e para
-     quem tem baixa visão. `filete-media` é contorno de campo, não enfeite:
-     a WCAG pede 3.0 para limite de controle e ele estava em 1.26. */
+  /* Recalibrados duas vezes.
+     Em 2026-09-16, para passar no AA da WCAG sobre `superficie2`, que era
+     então a superfície mais clara do app.
+     Em 2026-09-19, porque a medida de 2026-09-16 ficou velha: `superficie3`
+     virou a superfície mais clara quando os painéis passaram a usá-la em
+     toda linha, e ninguém re-mediu. Sobre ela, `auxiliar-fraco` dava 4.10 e
+     `auxiliar-minimo` 3.54 — os dois abaixo dos 4.5 exigidos.
+     `auxiliar-minimo` **foi removido**: entre #2a2d33 e o branco não cabem
+     três cinzas que passem todos. Dois cabem, e é o que ficou.
+     Regra que nasceu daqui: contraste se mede contra a superfície mais
+     clara **que existe hoje**, e re-medir faz parte de criar superfície
+     nova. `filete-media` é contorno de campo, e a WCAG pede 3.0 para isso. */
   --color-auxiliar: #a2a4a7;
-  --color-auxiliar-fraco: #8a8c91;
-  --color-auxiliar-minimo: #7f8185;
+  --color-auxiliar-fraco: #96989d;
   --color-aba-inativa: #2f3237;
   --color-filete: #1c1e22;
   --color-filete-media: #63656a;
@@ -49,7 +54,6 @@
   --color-texto: var(--color-texto);
   --color-auxiliar: var(--color-auxiliar);
   --color-auxiliar-fraco: var(--color-auxiliar-fraco);
-  --color-auxiliar-minimo: var(--color-auxiliar-minimo);
   --color-aba-inativa: var(--color-aba-inativa);
   --color-filete: var(--color-filete);
   --color-filete-media: var(--color-filete-media);

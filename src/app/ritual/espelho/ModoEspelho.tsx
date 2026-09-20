@@ -481,12 +481,12 @@ function TelaFrase({
               <span
                 key={i}
                 className={`h-[2px] w-4 transition-colors duration-500 ${
-                  i < volta ? "bg-texto" : "bg-auxiliar-minimo"
+                  i < volta ? "bg-texto" : "bg-auxiliar-fraco"
                 }`}
               />
             ))}
           </div>
-          <span className="tipo-rotulo text-[13px] tracking-[.16em] text-auxiliar-minimo">
+          <span className="tipo-rotulo text-[13px] tracking-[.16em] text-auxiliar-fraco">
             {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
           </span>
         </div>

@@ -203,6 +203,13 @@ export const ROTULO_DIA: Record<TipoDeDia, string> = {
 
 export type CaloriasDoDia = Record<TipoDeDia, number>;
 
+/** A coluna que guarda o valor escrito à mão de cada tipo de dia. */
+export const COLUNA_CALORIAS: Record<TipoDeDia, string> = {
+  descanso: "calorias_descanso",
+  treino: "calorias_treino",
+  treino_e_corrida: "calorias_treino_corrida",
+};
+
 /** O gasto de cada tipo de dia, sem objetivo nenhum aplicado. */
 export function gastoPorTipoDeDia(
   dados: DadosDoCorpo,

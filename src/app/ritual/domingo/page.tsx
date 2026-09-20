@@ -43,7 +43,7 @@ export default async function RevisaoDomingoPage() {
                 {dia.linha || "—"}
               </span>
               {dia.feito !== null && (
-                <span className="shrink-0 text-[14.5px] text-auxiliar-minimo">
+                <span className="shrink-0 text-[14.5px] text-auxiliar-fraco">
                   {dia.feito ? "fiz" : "não fiz"}
                 </span>
               )}

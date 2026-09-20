@@ -6,7 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
-import { BIOTIPOS, type Biotipo } from "./nutricao";
+import {
+  BIOTIPOS,
+  COLUNA_CALORIAS,
+  type Biotipo,
+  type TipoDeDia,
+} from "./nutricao";
 
 const CAMINHO = "/saude";
 
@@ -51,6 +56,25 @@ export async function salvarConfigAcademia(
     .map(String)
     .filter((l) => (LIMITACOES as readonly string[]).includes(l));
 
+  // Os números da Nutrição moraram na própria aba por um dia. Saíram: quem
+  // procura configuração procura na engrenagem, e ter dois lugares para a
+  // mesma coisa só ensina a não confiar em nenhum.
+  const numero = (campo: string, minimo: number, maximo: number) => {
+    const bruto = String(formData.get(campo) ?? "").replace(",", ".").trim();
+    if (bruto === "") return null;
+    const valor = Number(bruto);
+    if (!Number.isFinite(valor) || valor < minimo || valor > maximo) return null;
+    return valor;
+  };
+
+  const biotipo = String(formData.get("biotipo") ?? "");
+  const biotipoValido = BIOTIPOS.includes(biotipo as Biotipo);
+
+  const garrafa = numero("garrafa_ml", 100, 5000);
+  const corrida = numero("corrida_km", 0, 100);
+  const proteina = numero("proteina_g_kg", 0.5, 5);
+  const gordura = numero("gordura_g_kg", 0.2, 3);
+
   const { supabase, user } = await usuarioAtual();
   await supabase
     .from("usuarios")
@@ -59,6 +83,11 @@ export async function salvarConfigAcademia(
       treino_minutos: minutos,
       treino_limitacoes: limitacoes,
       ...(objetivoValido ? { meta_saude: objetivo } : {}),
+      ...(biotipoValido ? { biotipo } : {}),
+      garrafa_ml: garrafa === null ? null : Math.round(garrafa),
+      corrida_km: corrida,
+      proteina_g_kg: proteina,
+      gordura_g_kg: gordura,
       academia_configurada_em: new Date().toISOString(),
     })
     .eq("id", user.id);
@@ -533,6 +562,32 @@ export async function apagarFoto(data: string, angulo: string) {
  * perfil, longe de onde os números aparecem, e ninguém tinha como
  * perceber que estava no valor errado.
  */
+/**
+ * As calorias de um tipo de dia, escritas à mão.
+ *
+ * Vazio apaga a coluna e devolve a sugestão — é isso, e só isso, que o
+ * botão de redefinir faz. Guardar o valor calculado no lugar congelaria o
+ * número, e ele deixaria de acompanhar peso, treino e objetivo.
+ */
+export async function salvarCaloriasDoDia(tipo: string, bruto: string) {
+  if (!(tipo in COLUNA_CALORIAS)) return;
+  const coluna = COLUNA_CALORIAS[tipo as TipoDeDia];
+  const { supabase, user } = await usuarioAtual();
+
+  const limpo = bruto.replace(/[^\d]/g, "");
+  const valor = limpo === "" ? null : Number(limpo);
+  if (valor !== null && (!Number.isFinite(valor) || valor < 800 || valor > 10000)) {
+    return;
+  }
+
+  await supabase
+    .from("usuarios")
+    .update({ [coluna]: valor })
+    .eq("id", user.id);
+
+  revalidatePath(`${CAMINHO}/nutricao`);
+}
+
 export async function salvarObjetivo(valor: string) {
   if (!["perder_peso", "manter", "ganhar_massa"].includes(valor)) return;
   const { supabase, user } = await usuarioAtual();
@@ -540,55 +595,6 @@ export async function salvarObjetivo(valor: string) {
     .from("usuarios")
     .update({ meta_saude: valor })
     .eq("id", user.id);
-  revalidatePath(`${CAMINHO}/nutricao`);
-}
-
-export async function salvarBiotipo(valor: string) {
-  if (!BIOTIPOS.includes(valor as Biotipo)) return;
-  const { supabase, user } = await usuarioAtual();
-  await supabase.from("usuarios").update({ biotipo: valor }).eq("id", user.id);
-  revalidatePath(`${CAMINHO}/nutricao`);
-}
-
-const LIMITES_NUTRICAO: Record<string, [number, number]> = {
-  proteina_g_kg: [0.5, 5],
-  gordura_g_kg: [0.2, 3],
-  corrida_km: [0, 100],
-  garrafa_ml: [100, 5000],
-  // Quanto dura um treino típico. Vale como reserva quando não houve
-  // cronômetro no dia — e 15 minutos a mais ou a menos mudam a conta em
-  // mais de cem calorias, então ele precisa ser visível e editável aqui.
-  treino_minutos: [10, 300],
-};
-
-export async function salvarAjusteNutricao(campo: string, bruto: string) {
-  if (!(campo in LIMITES_NUTRICAO)) return;
-  const { supabase, user } = await usuarioAtual();
-  const limpo = bruto.replace(",", ".").trim();
-
-  if (limpo === "") {
-    await supabase
-      .from("usuarios")
-      .update({ [campo]: null })
-      .eq("id", user.id);
-    revalidatePath(`${CAMINHO}/nutricao`);
-    return;
-  }
-
-  const valor = Number(limpo);
-  const [minimo, maximo] = LIMITES_NUTRICAO[campo];
-  if (!Number.isFinite(valor) || valor < minimo || valor > maximo) return;
-
-  await supabase
-    .from("usuarios")
-    .update({
-      [campo]:
-        campo === "garrafa_ml" || campo === "treino_minutos"
-          ? Math.round(valor)
-          : valor,
-    })
-    .eq("id", user.id);
-
   revalidatePath(`${CAMINHO}/nutricao`);
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Check } from "lucide-react";
 import {
   confirmarDia,
   salvarIntencaoAmanha,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/ritual/acoes";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
+import MarcaFeito from "@/components/MarcaFeito";
 
 /**
  * A linha de hoje, e o fechamento dela.
@@ -106,12 +108,15 @@ export default function LinhaDoDia({
           >
             <button
               type="submit"
-              className={`tipo-rotulo w-full rounded-[10px] py-3.5 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
+              className={`tipo-rotulo flex w-full items-center justify-center gap-2 rounded-[10px] py-3.5 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
                 feitoHoje === true
                   ? "bg-acento text-fundo"
                   : "bg-superficie2 text-texto"
               }`}
             >
+              {feitoHoje === true && (
+                <Check className="h-[18px] w-[18px]" strokeWidth={2.5} />
+              )}
               Fiz
             </button>
           </form>
@@ -136,10 +141,18 @@ export default function LinhaDoDia({
       )}
 
       {feitoOntem !== null && (
-        <p className="text-[15px] text-auxiliar">
-          Ontem · {feitoOntem ? "feita" : "não feita"}
-          {linhaOntem ? ` — ${linhaOntem}` : ""}
-        </p>
+        <div className="flex flex-col gap-1">
+          <MarcaFeito
+            feito={feitoOntem}
+            rotulo="ontem"
+            texto={{ sim: "Feita", nao: "Não feita" }}
+          />
+          {linhaOntem && (
+            <p className="text-[15px] leading-[1.5] text-auxiliar">
+              {linhaOntem}
+            </p>
+          )}
+        </div>
       )}
 
       {modo === "noite" && (

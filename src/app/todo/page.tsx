@@ -71,6 +71,13 @@ export default async function TodoPage() {
               />
             </>
           )}
+
+          {/* Escrever a tarefa nova fica dentro do painel dela, e não no
+              rodapé da tela: o campo estava depois de tudo, longe da lista
+              em que a tarefa ia aparecer. */}
+          <div className="border-t border-filete pt-3">
+            <CampoAdicionar caminhoAtual={CAMINHO} />
+          </div>
         </Painel>
       </Revelar>
 
@@ -102,9 +109,6 @@ export default async function TodoPage() {
         </Painel>
       </Revelar>
 
-      <Revelar atraso={120} className="px-1 pt-2">
-        <CampoAdicionar caminhoAtual={CAMINHO} />
-      </Revelar>
     </div>
   );
 }

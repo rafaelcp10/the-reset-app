@@ -50,7 +50,7 @@ export default function ContadorAgua({
         <p className="text-[15.5px] leading-[1.6] text-auxiliar">
           {otimista.metaMl === 0
             ? "Registre seu peso na Evolução para a conta de água sair."
-            : "Diga o tamanho da sua garrafa, ali embaixo, e a conta aparece aqui."}
+            : "Diga o tamanho da sua garrafa na engrenagem da Saúde, e a conta aparece aqui."}
         </p>
       </Painel>
     );

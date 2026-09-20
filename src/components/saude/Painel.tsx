@@ -40,7 +40,7 @@ export default function Painel({
         </span>
         {href ? (
           <ChevronRight
-            className="h-[20px] w-[20px] shrink-0 text-auxiliar-minimo"
+            className="h-[20px] w-[20px] shrink-0 text-auxiliar-fraco"
             strokeWidth={1.5}
           />
         ) : (
@@ -104,7 +104,7 @@ export function LinhaDoPainel({
         </span>
       ) : href ? (
         <ChevronRight
-          className="h-[20px] w-[20px] shrink-0 text-auxiliar-minimo"
+          className="h-[20px] w-[20px] shrink-0 text-auxiliar-fraco"
           strokeWidth={1.5}
         />
       ) : null}

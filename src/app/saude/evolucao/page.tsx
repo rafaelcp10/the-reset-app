@@ -159,7 +159,7 @@ export default async function EvolucaoPage() {
                 </span>
                 <span className="shrink-0 text-[16.5px] tabular-nums text-auxiliar">
                   {kg(c.primeira)}{" "}
-                  <span className="text-auxiliar-minimo">→</span>{" "}
+                  <span className="text-auxiliar-fraco">→</span>{" "}
                   <span className="text-texto">{kg(c.ultima)} kg</span>
                 </span>
               </Link>
