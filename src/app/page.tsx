@@ -9,6 +9,8 @@ import { FRASES_PADRAO } from "@/lib/frases/modelo";
 import Logo from "@/components/Logo";
 import FraseIdentidadeRitual from "@/components/frases/FraseIdentidadeRitual";
 import FaixaSemanas from "@/components/home/FaixaSemanas";
+import QuadroDaSemana from "@/components/home/QuadroDaSemana";
+import ContadorAgua from "@/app/saude/nutricao/ContadorAgua";
 import MarcaFeito from "@/components/MarcaFeito";
 import Painel, { Barra, ParValor } from "@/components/saude/Painel";
 import Grafico from "@/components/saude/Grafico";
@@ -104,6 +106,21 @@ export default async function HomePage() {
         </Painel>
       </Revelar>
 
+      {/* A água vem logo depois do ritual, e não lá no fim, porque é a
+          outra coisa da Home que se **faz** em vez de se ler — e a que se
+          faz mais vezes por dia. Estava a três toques de distância, dentro
+          da Nutrição; aqui é um.
+
+          Sem âmbar: o acento desta tela é o botão do espelho. */}
+      <Revelar imediato atraso={110}>
+        <ContadorAgua
+          data={resumo.hoje}
+          agua={resumo.agua}
+          pesoKg={resumo.pesoAtual}
+          acento={false}
+        />
+      </Revelar>
+
       <Revelar imediato atraso={140}>
         <Painel icone={CalendarCheck} rotulo="Semana">
           <div className="flex items-baseline gap-1.5">
@@ -119,6 +136,17 @@ export default async function HomePage() {
           {estado.faixaSemanas.length > 1 && (
             <FaixaSemanas faixaSemanas={estado.faixaSemanas} />
           )}
+
+          {/* Os sete dias desta semana, linha por linha: ritual,
+              inegociáveis, treino e água. Fica dentro do painel da Semana
+              porque é a mesma pergunta — e um painel a menos na tela.
+
+              Cuidado permanente: aqui não entra total, percentual da
+              semana, nem comparação com a semana passada. A grade descreve
+              o que aconteceu e para por aí. */}
+          <div className="border-t border-filete pt-4">
+            <QuadroDaSemana semana={resumo.semana} />
+          </div>
 
           {/* Com sinal, e não só palavra: era a única coisa da linha que
               alguém vem conferir, e sumia no meio do cinza. */}

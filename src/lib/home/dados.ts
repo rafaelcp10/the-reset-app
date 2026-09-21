@@ -43,7 +43,9 @@ export async function buscarEstadoHome(
 ): Promise<EstadoHome> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("fuso, criado_em")
+    // `*`: uma coluna que ainda não existe derrubaria o select inteiro,
+    // e com ele a primeira tela do app.
+    .select("*")
     .eq("id", usuarioId)
     .maybeSingle();
 

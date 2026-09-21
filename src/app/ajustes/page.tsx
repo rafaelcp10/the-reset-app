@@ -12,7 +12,9 @@ export default async function AjustesPage() {
 
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("horario_checkin, lembrete_ativo, reps_padrao, modo_maos_livres")
+    // `*`: uma coluna que ainda não existe derrubaria o select inteiro,
+    // e os Ajustes apareceriam vazios com tudo salvo no banco.
+    .select("*")
     .eq("id", user.id)
     .maybeSingle();
 

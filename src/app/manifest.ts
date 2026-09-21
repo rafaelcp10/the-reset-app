@@ -5,7 +5,13 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "The Reset",
     short_name: "The Reset",
     description: "Ritual diário.",
-    start_url: "/ritual",
+    // A Home, e não o ritual.
+    //
+    // O app instalado abre por aqui toda vez que é aberto do zero, e a
+    // Home é o painel de controle: ritual, semana, tarefas, treino, água
+    // e peso. Abrir direto no espelho pulava tudo isso — inclusive a água,
+    // que é o que se toca mais vezes por dia.
+    start_url: "/",
     display: "standalone",
     background_color: "#101114",
     theme_color: "#101114",

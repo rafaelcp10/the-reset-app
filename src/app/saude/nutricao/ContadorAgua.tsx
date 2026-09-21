@@ -21,15 +21,21 @@ import { vibrarMarcacao } from "@/lib/ui/sensorial";
  *
  * Passar da meta não vira nada — nem parabéns, nem barra que transborda.
  * Beber cinco garrafas num dia de calor é o corpo pedindo, não excesso.
+ *
+ * `acento` é falso na Home: lá o âmbar já é o botão do ritual, e a regra
+ * é uma função de acento por tela. O mesmo painel, o mesmo gesto, a luz
+ * de acordo com quem está em volta.
  */
 export default function ContadorAgua({
   data,
   agua,
   pesoKg,
+  acento = true,
 }: {
   data: string;
   agua: Agua;
   pesoKg: number | null;
+  acento?: boolean;
 }) {
   const [otimista, aplicar] = useOptimistic(agua, (atual, deltaMl: number) =>
     montarAgua(pesoKg, atual.garrafaMl, Math.max(0, atual.bebidoMl + deltaMl)),
@@ -96,7 +102,11 @@ export default function ContadorAgua({
           type="button"
           disabled={enviando}
           onClick={() => mexer(garrafa)}
-          className="botao-acento tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] py-3.5 text-center text-[15px] tracking-[.06em] text-fundo disabled:opacity-60"
+          className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] py-3.5 text-center text-[15px] tracking-[.06em] disabled:opacity-60 ${
+            acento
+              ? "botao-acento text-fundo"
+              : "bg-superficie3 text-texto shadow-baixa"
+          }`}
         >
           <Droplet className="h-[18px] w-[18px]" strokeWidth={2} />
           Bebi uma garrafa

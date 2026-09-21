@@ -485,6 +485,15 @@ derrubar o resto. É uma linha só, o custo é nenhum.
 **A ordem certa continua sendo migration antes do deploy.** Isto é a rede
 por baixo, para quando a ordem escorregar — e ela escorregou três vezes.
 
+Em 2026-09-21 a varredura pegou mais três: `lib/home/resumo.ts` e
+`lib/home/dados.ts` (que derrubariam a Home inteira) e a tela de Ajustes.
+Todas passaram a `*`.
+
+**A regra vale para toda leitura de uma linha de `usuarios` que monte uma
+tela.** As rotas de cron seguem com lista de colunas de propósito: elas
+varrem a tabela inteira, `*` ali custa de verdade, e cron quebrado aparece
+no log — tela em branco não aparece em lugar nenhum.
+
 ## Os inegociáveis atravessam a semana (2026-09-20)
 
 Eles são guardados por semana (`compromissos.semana_inicio`), e na virada
@@ -507,6 +516,42 @@ próxima leitura de tela.
 A cópia é `upsert` com conflito em (usuário, semana, ordem) — restrição
 que a tabela já tinha — então nunca sobrescreve o que já existe na semana
 atual.
+
+### A Home ganhou a água e o quadro da semana (2026-09-21)
+
+O app instalado abria no `/ritual` — era o `start_url` do manifesto. Passou
+a abrir na Home: abrir direto no espelho pulava tudo o que a Home resume,
+inclusive a água, que é o que se toca mais vezes por dia. **Quem já
+instalou continua abrindo no ritual até reinstalar** — o iPhone lê o
+manifesto na hora da instalação e não volta a ler.
+
+- **A água é o segundo painel, logo depois do Ritual**, e não o último. É a
+  outra coisa da Home que se *faz* em vez de se ler, e a que se faz mais
+  vezes por dia; estava a três toques, dentro da Nutrição. É o mesmo
+  `ContadorAgua`, com `acento={false}`: o âmbar da Home é o botão do
+  espelho, e a regra é uma função de acento por tela.
+- **O quadro da semana mora dentro do painel Semana**
+  (`components/home/QuadroDaSemana.tsx`), abaixo da faixa — é a mesma
+  pergunta, e é um painel a menos na tela. Sete dias, uma linha por coisa:
+  Ritual, cada inegociável, Treino e Água. Mesma gramática de pontos da
+  Academia: cheio é feito, contornado é dia que passou em branco, pontinho
+  é dia sem nada previsto. Pontinho e não disco cinza cheio — com seis
+  linhas, um disco por dia vazio viraria ruído e pareceria mais um estado.
+- **Hoje é pontinho enquanto não for feito, nunca contorno.** O dia ainda
+  está aberto, e cobrar às dez da manhã por algo que ainda cabe no dia é
+  exatamente o que este app não faz. A coluna de hoje se distingue pelo
+  traço embaixo da abreviação, não pelo estado dos pontos.
+- **`esperado` é o que separa "não fiz" de "não era para fazer"**: domingo
+  sem treino marcado não é treino perdido, e dia anterior à criação da
+  conta não é ritual perdido. Sem isso, a grade de quem acabou de entrar
+  viria contornada de ponta a ponta.
+- O que **não** entra nessa grade, e é o risco permanente dela: total da
+  semana, percentual, comparação com a semana passada, recorde, e cor que
+  muda conforme o quanto falta. Ela descreve o que aconteceu e para aí.
+- **Os inegociáveis da grade saem de `buscarEstadoTodo`**, nunca de uma
+  consulta própria: é ela que copia os da semana passada na virada do
+  domingo, e uma consulta paralela chegaria antes da cópia — a Home
+  mostraria a semana vazia até alguém recarregar.
 
 ## Privacidade
 Os textos do usuário são pessoais. Nunca em log, nunca em analytics,
