@@ -172,6 +172,47 @@ zera, não guarda recorde. Dia marcado que passou em branco fica
 **contornado — nunca riscado, nunca vermelho**, porque "não fiz" é registro
 válido e não falta.
 
+## Série variável (Academia, 2026-09-21)
+
+Um exercício era "N séries de M repetições": três números e pronto. Isso
+não descreve metade do que se faz na academia — 12, 10, 8 e 6 repetições,
+subindo a carga a cada série que encurta.
+
+- `exercicios.repeticoes_serie` guarda a lista. **Nulo é "todas iguais"**,
+  e é o que toda linha que já existia continua sendo: nenhuma migração de
+  dados, nenhum exercício mudando de comportamento, e o caso comum segue
+  com três campos em vez de seis.
+- No registro, `repeticoes_serie` e `cargas_serie` guardam o que de fato
+  aconteceu. **A carga é por série, nunca uma só** — numa pirâmide a
+  primeira série e a última não têm o mesmo peso, e um campo de carga faria
+  o registro guardar um número que não aconteceu em série nenhuma.
+- `carga_kg` e `repeticoes` **continuam preenchidos** no registro variável
+  (a carga e as repetições da primeira série): são eles que o histórico e
+  os resumos leem de relance, e um registro que só existisse em lista
+  ficaria invisível nessas telas.
+- **Registro antigo é lido como a mesma carga em todas as séries**
+  (`cargasDoRegistro`, em `lib/saude/serie.ts`). Ligar a série variável num
+  exercício com meses de histórico não pode fazer a proposta de hoje
+  recomeçar do zero.
+- A proposta é por série: cada uma parte do que foi feito **naquela** série
+  da última vez, mais o degrau.
+- A carga aparece em **faixa** — "40 a 55 kg" — e não em lista: quatro
+  cargas não cabem ao lado de quatro repetições, e de relance o que se quer
+  saber é onde começou e onde terminou.
+- Esticar a lista **repete a última repetição** em vez de inventar número:
+  quem põe uma quinta série numa pirâmide de 12/10/8/6 quase sempre quer 6
+  de novo, e corrigir um número é mais barato que descobrir de onde veio.
+- **O nome não é "drop set", e isso foi uma escolha.** O Rafael pediu com
+  esse nome, mas o que ele descreveu — repetição caindo, carga subindo — é
+  pirâmide crescente; drop set é o contrário, a carga caindo sem descanso
+  entre as séries. Como o app vai ser vendido, a peça ficou genérica ("Reps
+  iguais" / "Por série") e serve às duas, à pirâmide decrescente e à série
+  reta com carga variável. O app não precisa saber o nome de nenhuma.
+- **`<input type="number">` recusa vírgula decimal e apaga o próprio valor
+  sem avisar.** A proposta de 42,5 kg chegava ao campo como campo vazio.
+  Valor de campo numérico vai com ponto; o formatador pt-BR é só para
+  texto.
+
 ## Evolução (aba de Saúde, 2026-09-18)
 
 Registro do que aconteceu, não placar. É o que a faz caber na regra de

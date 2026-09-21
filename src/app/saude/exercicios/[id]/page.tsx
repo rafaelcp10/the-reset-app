@@ -4,6 +4,11 @@ import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarHistorico } from "@/lib/saude/sessao";
 import { ROTULO_GRUPO } from "@/lib/saude/catalogo";
+import {
+  cargasDoRegistro,
+  faixaDeCargas,
+  resumoDeReps,
+} from "@/lib/saude/serie";
 import Revelar from "@/components/movimento/Revelar";
 
 /** 60, não 60,00. */
@@ -106,12 +111,23 @@ export default async function HistoricoExercicioPage({
                   <span className="tipo-rotulo w-12 shrink-0 text-[13px] tracking-[.14em] text-auxiliar-fraco">
                     {dataCurta(registro.data)}
                   </span>
+                  {/* No variável a carga sai em faixa — "40 a 55 kg" —
+                      porque uma pirâmide não tem uma carga só, e escolher
+                      uma delas para mostrar seria escolher errado. */}
                   <span className="flex-1 text-[16.5px] text-auxiliar">
-                    {registro.series ?? exercicio.series}×
-                    {registro.repeticoes ?? exercicio.repeticoes}
+                    {registro.repeticoes_serie?.length
+                      ? resumoDeReps(registro.repeticoes_serie.map(Number))
+                      : `${registro.series ?? exercicio.series}×${registro.repeticoes ?? exercicio.repeticoes}`}
                   </span>
-                  <span className="text-[16px] text-texto">
-                    {kg(registro.carga_kg)}
+                  <span className="shrink-0 text-[16px] text-texto">
+                    {registro.repeticoes_serie?.length
+                      ? faixaDeCargas(
+                          cargasDoRegistro(
+                            registro,
+                            registro.repeticoes_serie.length,
+                          ),
+                        )
+                      : kg(registro.carga_kg)}
                   </span>
                 </div>
               ))}

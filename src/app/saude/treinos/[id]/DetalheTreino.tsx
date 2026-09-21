@@ -12,6 +12,12 @@ import {
 } from "@/lib/saude/acoes";
 import { ROTULO_GRUPO, sugerir, type ExercicioCatalogo } from "@/lib/saude/catalogo";
 import type { ExercicioRow, TreinoRow } from "@/lib/saude/dados";
+import {
+  ajustarAoTamanho,
+  ehVariavel,
+  planoDeReps,
+  quantasSeries,
+} from "@/lib/saude/serie";
 import { DIAS_ABREV } from "@/lib/saude/semana";
 import { useEstadoSalvo } from "@/lib/ui/useEstadoSalvo";
 import IndicadorSalvo from "@/components/IndicadorSalvo";
@@ -140,6 +146,10 @@ export default function DetalheTreino({
  * O degrau é o passo de carga: o quanto o app vai propor a mais na próxima
  * vez. Zero quer dizer que ali quem sobe é a repetição, não o peso — é o
  * caso de barra fixa e flexão.
+ *
+ * "Reps iguais" e "por série" é a escolha entre três séries de dez e uma
+ * pirâmide de 12, 10, 8 e 6. O caso comum continua com três campos; quem
+ * precisa da lista pede a lista.
  */
 function LinhaExercicio({
   exercicio,
@@ -156,26 +166,81 @@ function LinhaExercicio({
   // se reescrevia sozinho com "0" e não dava mais para digitar 12 sem antes
   // vencer um zero que voltava a cada tecla. Agora o vazio continua vazio
   // enquanto se digita, e só ao sair do campo vira número.
-  const [series, setSeries] = useState(String(exercicio.series));
+  const [series, setSeries] = useState(String(quantasSeries(exercicio)));
   const [reps, setReps] = useState(String(exercicio.repeticoes));
   const [degrau, setDegrau] = useState(String(Number(exercicio.incremento_kg)));
+  const [variavel, setVariavel] = useState(ehVariavel(exercicio));
+  const [lista, setLista] = useState<string[]>(
+    planoDeReps(exercicio).map(String),
+  );
 
   function numeroOu(bruto: string, padrao: number) {
     const valor = Number(bruto.replace(",", "."));
     return Number.isFinite(valor) && bruto.trim() !== "" ? valor : padrao;
   }
 
-  function salvar() {
+  /**
+   * Grava, e devolve à tela o que foi mesmo gravado.
+   *
+   * Recebe o estado por parâmetro em vez de só ler o do componente: quem
+   * troca de modo precisa gravar o valor novo, e o `useState` ainda teria
+   * o antigo dentro do mesmo evento.
+   */
+  function salvar(estado?: { variavel?: boolean; lista?: string[] }) {
+    const ehVar = estado?.variavel ?? variavel;
+    const listaAtual = estado?.lista ?? lista;
+
+    const repeticoesSerie = ehVar
+      ? listaAtual.map((r) => numeroOu(r, exercicio.repeticoes))
+      : null;
+
     const novo = {
-      series: numeroOu(series, exercicio.series),
+      series: numeroOu(series, quantasSeries(exercicio)),
       repeticoes: numeroOu(reps, exercicio.repeticoes),
       incremento_kg: numeroOu(degrau, Number(exercicio.incremento_kg)),
+      repeticoes_serie: repeticoesSerie,
     };
-    // Devolve à tela o que foi mesmo gravado, já corrigido pelos limites.
-    setSeries(String(novo.series));
+
+    setSeries(String(repeticoesSerie ? repeticoesSerie.length : novo.series));
     setReps(String(novo.repeticoes));
     setDegrau(String(novo.incremento_kg));
+    if (repeticoesSerie) setLista(repeticoesSerie.map(String));
+
     aoExecutar(salvarExercicio(exercicio.id, treinoId, novo));
+  }
+
+  /** Mexer em "Séries" estica ou encurta a lista junto. */
+  function mudarSeries(bruto: string) {
+    setSeries(bruto);
+    if (!variavel) return;
+    const quantas = numeroOu(bruto, lista.length);
+    if (quantas < 1 || quantas > 20) return;
+    setLista(
+      ajustarAoTamanho(
+        lista.map((r) => numeroOu(r, exercicio.repeticoes)),
+        quantas,
+      ).map(String),
+    );
+  }
+
+  function trocarModo(novoVariavel: boolean) {
+    if (novoVariavel === variavel) return;
+    setVariavel(novoVariavel);
+
+    if (!novoVariavel) {
+      salvar({ variavel: false });
+      return;
+    }
+
+    // Entrando no modo lista: parte do que já estava, repetido. É o mesmo
+    // exercício até alguém mudar um número.
+    const quantas = numeroOu(series, exercicio.series);
+    const nova = ajustarAoTamanho(
+      [numeroOu(reps, exercicio.repeticoes)],
+      quantas,
+    ).map(String);
+    setLista(nova);
+    salvar({ variavel: true, lista: nova });
   }
 
   const CAMPO =
@@ -213,26 +278,32 @@ function LinhaExercicio({
             min={1}
             max={20}
             value={series}
-            onChange={(e) => setSeries(e.target.value)}
-            onBlur={salvar}
+            onChange={(e) => mudarSeries(e.target.value)}
+            onBlur={() => salvar()}
             className={CAMPO}
           />
         </label>
-        <label className="flex flex-1 flex-col gap-1">
-          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
-            Reps
-          </span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={100}
-            value={reps}
-            onChange={(e) => setReps(e.target.value)}
-            onBlur={salvar}
-            className={CAMPO}
-          />
-        </label>
+
+        {/* No modo lista a repetição não é um número só, então o campo sai
+            em vez de ficar ali mostrando um valor que ninguém usa. */}
+        {!variavel && (
+          <label className="flex flex-1 flex-col gap-1">
+            <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
+              Reps
+            </span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={100}
+              value={reps}
+              onChange={(e) => setReps(e.target.value)}
+              onBlur={() => salvar()}
+              className={CAMPO}
+            />
+          </label>
+        )}
+
         <label className="flex flex-1 flex-col gap-1">
           <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
             Degrau
@@ -245,11 +316,55 @@ function LinhaExercicio({
             max={50}
             value={degrau}
             onChange={(e) => setDegrau(e.target.value)}
-            onBlur={salvar}
+            onBlur={() => salvar()}
             className={CAMPO}
           />
         </label>
       </div>
+
+      <div className="flex gap-1.5 pt-1">
+        {[
+          { rotulo: "Reps iguais", valor: false },
+          { rotulo: "Por série", valor: true },
+        ].map((opcao) => (
+          <button
+            key={opcao.rotulo}
+            type="button"
+            onClick={() => trocarModo(opcao.valor)}
+            aria-pressed={variavel === opcao.valor}
+            className={`pilula tipo-rotulo min-h-11 rounded-[8px] px-4 text-center text-[12.5px] tracking-[.06em] text-texto ${
+              variavel === opcao.valor ? "pilula-ativa" : ""
+            }`}
+          >
+            {opcao.rotulo}
+          </button>
+        ))}
+      </div>
+
+      {variavel && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {lista.map((valor, i) => (
+            <label key={i} className="flex w-[62px] flex-col gap-1">
+              <span className="tipo-rotulo text-[12.5px] tracking-[.1em] text-auxiliar-fraco">
+                {i + 1}ª
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={100}
+                value={valor}
+                aria-label={`Repetições da ${i + 1}ª série`}
+                onChange={(e) =>
+                  setLista(lista.map((v, j) => (j === i ? e.target.value : v)))
+                }
+                onBlur={() => salvar()}
+                className={CAMPO}
+              />
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ExercicioRow, TreinoRow } from "./dados";
 import { hojeDaPessoa } from "./dados";
+import { cargasDoRegistro, ehVariavel, planoDeReps, quantasSeries } from "./serie";
 
 export type RegistroRow = {
   id: string;
@@ -9,7 +10,14 @@ export type RegistroRow = {
   carga_kg: number | null;
   repeticoes: number | null;
   series: number | null;
+  /** O que foi feito em cada série. Nulos = registro de série fixa. */
+  repeticoes_serie: number[] | null;
+  cargas_serie: number[] | null;
 };
+
+/** As colunas de `registros_exercicio`, num lugar só. */
+const COLUNAS_REGISTRO =
+  "id, exercicio_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie";
 
 export type ItemSessao = {
   exercicio: ExercicioRow;
@@ -21,6 +29,12 @@ export type ItemSessao = {
   propostaCarga: number | null;
   /** Repetições propostas — sobem no lugar da carga quando o degrau é 0. */
   propostaReps: number;
+  /** Este exercício tem repetição diferente a cada série. */
+  variavel: boolean;
+  /** As repetições planejadas, uma por série. */
+  planoReps: number[];
+  /** A carga proposta para cada série. Nula onde não há de onde partir. */
+  propostaCargas: (number | null)[];
 };
 
 export type Sessao = {
@@ -67,6 +81,30 @@ function proporProximo(
   return { carga: Number(cargaAnterior) + degrau, reps: repsAnteriores };
 }
 
+/**
+ * A carga proposta para cada série, num exercício de série variável.
+ *
+ * Parte do que foi feito naquela série da última vez, e não de uma carga
+ * só: numa pirâmide a primeira série e a última não têm o mesmo peso, e
+ * propor o mesmo número para as duas seria propor errado nas duas.
+ *
+ * Registro antigo, sem lista, é lido como a mesma carga em todas as
+ * séries — ligar a série variável num exercício com meses de histórico
+ * não pode fazer a proposta recomeçar do zero.
+ */
+function proporPorSerie(
+  exercicio: ExercicioRow,
+  ultimo: RegistroRow | null,
+): (number | null)[] {
+  const quantas = quantasSeries(exercicio);
+  const degrau = Number(exercicio.incremento_kg);
+  const anteriores = cargasDoRegistro(ultimo, quantas);
+
+  return anteriores.map((carga) =>
+    carga === null ? null : carga + degrau,
+  );
+}
+
 export async function buscarSessao(
   supabase: SupabaseClient,
   usuarioId: string,
@@ -100,7 +138,7 @@ export async function buscarSessao(
   if (ids.length > 0) {
     const { data } = await supabase
       .from("registros_exercicio")
-      .select("id, exercicio_id, data, carga_kg, repeticoes, series")
+      .select(COLUNAS_REGISTRO)
       .eq("usuario_id", usuarioId)
       .in("exercicio_id", ids)
       .order("data", { ascending: false })
@@ -122,6 +160,9 @@ export async function buscarSessao(
       hoje: deHoje,
       propostaCarga: proposta.carga,
       propostaReps: proposta.reps,
+      variavel: ehVariavel(exercicio),
+      planoReps: planoDeReps(exercicio),
+      propostaCargas: proporPorSerie(exercicio, ultimo),
     };
   });
 
@@ -150,7 +191,7 @@ export async function buscarHistorico(
       .maybeSingle(),
     supabase
       .from("registros_exercicio")
-      .select("id, exercicio_id, data, carga_kg, repeticoes, series")
+      .select(COLUNAS_REGISTRO)
       .eq("usuario_id", usuarioId)
       .eq("exercicio_id", exercicioId)
       .order("data", { ascending: false }),

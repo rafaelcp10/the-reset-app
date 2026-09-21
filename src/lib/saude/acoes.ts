@@ -192,26 +192,51 @@ export async function adicionarExercicio(treinoId: string, formData: FormData) {
   revalidatePath(`${CAMINHO}/treinos/${treinoId}`);
 }
 
+/** Uma repetição válida: inteiro entre 1 e 100. */
+function reps(valor: number, padrao: number): number {
+  return Number.isFinite(valor)
+    ? Math.min(Math.max(Math.round(valor), 1), 100)
+    : padrao;
+}
+
 export async function salvarExercicio(
   exercicioId: string,
   treinoId: string,
-  campos: { series: number; repeticoes: number; incremento_kg: number },
+  campos: {
+    series: number;
+    repeticoes: number;
+    incremento_kg: number;
+    /** A lista da série variável. Nula (ou vazia) volta a ser "todas iguais". */
+    repeticoes_serie?: number[] | null;
+  },
 ) {
   const series = Math.min(Math.max(Math.round(campos.series), 1), 20);
-  const repeticoes = Math.min(Math.max(Math.round(campos.repeticoes), 1), 100);
+  const repeticoes = reps(campos.repeticoes, 10);
   const incremento =
     Number.isFinite(campos.incremento_kg) && campos.incremento_kg >= 0
       ? Math.min(campos.incremento_kg, 50)
       : 2.5;
 
+  // A lista manda em `series` quando existe: dois lugares dizendo quantas
+  // séries são é um lugar a mais para discordarem.
+  const lista = campos.repeticoes_serie?.length
+    ? campos.repeticoes_serie.slice(0, 20).map((r) => reps(r, repeticoes))
+    : null;
+
   const { supabase, user } = await usuarioAtual();
   await supabase
     .from("exercicios")
-    .update({ series, repeticoes, incremento_kg: incremento })
+    .update({
+      series: lista ? lista.length : series,
+      repeticoes,
+      incremento_kg: incremento,
+      repeticoes_serie: lista,
+    })
     .eq("usuario_id", user.id)
     .eq("id", exercicioId);
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}`);
+  revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
 }
 
 export async function excluirExercicio(exercicioId: string, treinoId: string) {
@@ -237,25 +262,48 @@ export async function registrarSerie(
   exercicioId: string,
   treinoId: string,
   data: string,
-  valores: { carga: number | null; repeticoes: number; series: number },
+  valores: {
+    carga: number | null;
+    repeticoes: number;
+    series: number;
+    /** O que foi feito em cada série, quando o exercício é variável. */
+    repeticoesSerie?: number[] | null;
+    cargasSerie?: (number | null)[] | null;
+  },
 ) {
   const { supabase, user } = await usuarioAtual();
 
-  const carga =
-    valores.carga !== null && Number.isFinite(valores.carga) && valores.carga >= 0
-      ? Math.min(valores.carga, 1000)
+  const peso = (valor: number | null) =>
+    valor !== null && Number.isFinite(valor) && valor >= 0
+      ? Math.min(valor, 1000)
       : null;
+
+  const carga = peso(valores.carga);
   const repeticoes = Math.min(Math.max(Math.round(valores.repeticoes), 1), 100);
   const series = Math.min(Math.max(Math.round(valores.series), 1), 20);
+
+  const repsSerie = valores.repeticoesSerie?.length
+    ? valores.repeticoesSerie.slice(0, 20).map((r) => reps(r, repeticoes))
+    : null;
+  const cargasSerie = valores.cargasSerie?.length
+    ? valores.cargasSerie.slice(0, 20).map(peso)
+    : null;
 
   await supabase.from("registros_exercicio").upsert(
     {
       usuario_id: user.id,
       exercicio_id: exercicioId,
       data,
-      carga_kg: carga,
-      repeticoes,
-      series,
+      // `carga_kg` e `repeticoes` continuam preenchidos mesmo no variável:
+      // são eles que o histórico e a Home leem de relance, e um registro
+      // que só existisse em lista ficaria invisível nas duas telas.
+      carga_kg: cargasSerie
+        ? (cargasSerie.find((c) => c !== null) ?? carga)
+        : carga,
+      repeticoes: repsSerie ? repsSerie[0] : repeticoes,
+      series: repsSerie ? repsSerie.length : series,
+      repeticoes_serie: repsSerie,
+      cargas_serie: cargasSerie,
     },
     { onConflict: "exercicio_id,data" },
   );

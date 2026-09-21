@@ -60,6 +60,8 @@ export type ExercicioRow = {
   grupo: GrupoMuscular | null;
   series: number;
   repeticoes: number;
+  /** Repetições de cada série. Nulo é "todas iguais a `repeticoes`". */
+  repeticoes_serie: number[] | null;
   incremento_kg: number;
   ordem: number;
   criado_em: string;
