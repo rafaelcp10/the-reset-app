@@ -47,7 +47,7 @@ export default function Cabecalho({
             </Link>
           </div>
         </div>
-        <p className="tipo-rotulo mt-1 text-[12.5px] tracking-[.18em] text-auxiliar">
+        <p className="tipo-rotulo mt-1 text-[13.5px] tracking-[.1em] text-auxiliar">
           {dataExtenso} · semana {numeroSemana}
         </p>
       </div>

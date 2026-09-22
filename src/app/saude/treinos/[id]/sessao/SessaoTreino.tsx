@@ -46,7 +46,7 @@ const CAMPO =
   "w-full border-b border-filete-media bg-transparent py-1.5 text-center text-[17px] text-texto outline-none transition-colors duration-200 focus:border-acento focus:bg-acento-escuro";
 
 const ROTULO =
-  "tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco";
+  "tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco";
 
 function LinhaSessao({
   item,
@@ -143,12 +143,12 @@ function LinhaSessao({
 
       {/* A memória, em uma linha. É ela que transforma a tela num registro
           em vez de um formulário. */}
-      <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+      <p className="text-[15.5px] leading-[1.6] text-auxiliar">
         {ultimo ? `última vez · ${resumoDoUltimo(item)}` : "primeira vez — o que você fizer hoje vira a base."}
       </p>
 
       {ultimo && !registrado && (
-        <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
+        <p className="text-[15.5px] leading-[1.6] text-auxiliar-fraco">
           {item.variavel
             ? `hoje a proposta é ${faixaDeCargas(item.propostaCargas)}`
             : semCarga
@@ -228,21 +228,21 @@ function LinhaSessao({
 
       {registrado ? (
         <div className="flex items-center gap-4">
-          <span className="tipo-rotulo flex items-center gap-2 text-[13.5px] tracking-[.16em] text-acento">
+          <span className="tipo-rotulo flex items-center gap-2 text-[14.5px] tracking-[.1em] text-acento-claro">
             <Check className="h-[19px] w-[19px]" strokeWidth={2} />
             Registrado
           </span>
           <button
             type="button"
             onClick={desfazer}
-            className="text-[14.5px] text-auxiliar-fraco underline underline-offset-4"
+            className="text-[15.5px] text-auxiliar-fraco underline underline-offset-4"
           >
             desfazer
           </button>
           <button
             type="button"
             onClick={registrar}
-            className="text-[14.5px] text-auxiliar underline underline-offset-4"
+            className="text-[15.5px] text-auxiliar underline underline-offset-4"
           >
             corrigir
           </button>
@@ -252,7 +252,7 @@ function LinhaSessao({
           type="button"
           onClick={registrar}
           disabled={salvando}
-          className="pilula tipo-rotulo min-h-11 self-start rounded-[8px] px-6 text-center text-[13.5px] tracking-[.09em] text-texto disabled:opacity-50"
+          className="pilula tipo-rotulo min-h-11 self-start rounded-[8px] px-6 text-center text-[14.5px] tracking-[.09em] text-texto disabled:opacity-50"
         >
           {salvando ? "Gravando" : "Registrar"}
         </button>
@@ -281,7 +281,7 @@ function Serie({
 }) {
   return (
     <>
-      <span className="text-[14px] tabular-nums text-auxiliar-fraco">
+      <span className="text-[15px] tabular-nums text-auxiliar-fraco">
         {indice + 1}ª
       </span>
       <input

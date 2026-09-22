@@ -45,7 +45,7 @@ export default function FormularioConta() {
           />
 
           {estado.erro && (
-            <p className="text-[14px] leading-[1.5] text-erro">{estado.erro}</p>
+            <p className="text-[15px] leading-[1.5] text-erro">{estado.erro}</p>
           )}
 
           <button
@@ -66,7 +66,7 @@ export default function FormularioConta() {
 
         <Link
           href="/login"
-          className="self-center text-[14.5px] text-auxiliar underline underline-offset-4"
+          className="self-center text-[15.5px] text-auxiliar underline underline-offset-4"
         >
           já tenho conta
         </Link>

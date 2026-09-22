@@ -16,12 +16,16 @@ import type { EstadoDia, SemanaEmCurso } from "@/lib/home/semana";
  */
 export default function QuadroDaSemana({ semana }: { semana: SemanaEmCurso }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,26px)] items-center gap-y-2.5">
+    <div className="grid grid-cols-[minmax(0,1fr)_repeat(7,28px)] items-center gap-y-2.5">
       <span aria-hidden />
       {semana.abrevs.map((abrev, i) => (
         <span key={abrev + i} className="flex flex-col items-center gap-1">
+          {/* Em caixa baixa, ao contrário do resto dos rótulos do app: em
+              caixa alta "DOM SEG TER" não cabe em sete colunas de 28px sem
+              as palavras se encostarem — e caixa baixa se lê melhor, que é
+              o motivo de a largura condensada ter saído daqui também. */}
           <span
-            className={`tipo-rotulo text-[12.5px] tracking-[.04em] ${
+            className={`text-[13.5px] ${
               i === semana.indiceDeHoje ? "text-texto" : "text-auxiliar-fraco"
             }`}
           >
@@ -64,7 +68,7 @@ function Linha({
       {/* Duas linhas, e não reticências: o fim da frase costuma ser o que
           diz o que fazer, e um inegociável cortado no meio não se
           reconhece de relance. */}
-      <span className="line-clamp-2 pr-3 text-[14px] leading-[1.35] text-auxiliar">
+      <span className="line-clamp-2 pr-3 text-[15px] leading-[1.35] text-auxiliar">
         {rotulo}
       </span>
 

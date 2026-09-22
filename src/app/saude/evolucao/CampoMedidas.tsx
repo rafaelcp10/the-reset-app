@@ -84,12 +84,12 @@ export default function CampoMedidas({
 
       <div className="flex flex-col gap-4 border-t border-filete pt-5">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
             Com a fita
           </h2>
           <Link
             href="/saude/evolucao/medir"
-            className="inline-flex min-h-11 items-center gap-1.5 text-[14.5px] text-auxiliar"
+            className="inline-flex min-h-11 items-center gap-1.5 text-[15.5px] text-auxiliar"
           >
             <Ruler className="h-[18px] w-[18px]" strokeWidth={1.5} />
             Como medir
@@ -113,7 +113,7 @@ export default function CampoMedidas({
         )}
       </div>
 
-      <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+      <p className="text-[15.5px] leading-[1.6] text-auxiliar">
         Uma semana sem medir não é um buraco.
       </p>
     </div>
@@ -163,7 +163,7 @@ function Numero({
           placeholder="—"
           className="w-[88px] border-b border-filete-media bg-transparent py-1.5 text-right text-[21px] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
         />
-        <span className="w-6 text-[14.5px] text-auxiliar">
+        <span className="w-6 text-[15.5px] text-auxiliar">
           {campo.unidade}
         </span>
       </span>
@@ -182,7 +182,7 @@ function EscolhaSexo() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+      <p className="text-[16px] leading-[1.6] text-auxiliar">
         A conta de gordura pela fita tem duas versões. Qual delas usar?
       </p>
       <div className="flex gap-2">
@@ -192,13 +192,13 @@ function EscolhaSexo() {
             type="button"
             disabled={enviando}
             onClick={() => iniciar(() => void salvarSexo(valor))}
-            className="tipo-rotulo min-h-11 flex-1 rounded-[10px] bg-superficie3 px-3 text-[13px] tracking-[.09em] text-texto"
+            className="tipo-rotulo min-h-11 flex-1 rounded-[10px] bg-superficie3 px-3 text-[14px] tracking-[.09em] text-texto"
           >
             {valor === "masculino" ? "Masculina" : "Feminina"}
           </button>
         ))}
       </div>
-      <p className="text-[14px] leading-[1.6] text-auxiliar-fraco">
+      <p className="text-[15px] leading-[1.6] text-auxiliar-fraco">
         Usado só nesta conta. Não aparece em nenhuma outra tela.
       </p>
     </div>
@@ -226,7 +226,7 @@ function CampoAltura() {
           placeholder="—"
           className="w-[88px] border-b border-filete-media bg-transparent py-1.5 text-right text-[21px] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
         />
-        <span className="w-6 text-[14.5px] text-auxiliar">cm</span>
+        <span className="w-6 text-[15.5px] text-auxiliar">cm</span>
       </span>
     </label>
   );

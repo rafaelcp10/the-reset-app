@@ -74,7 +74,7 @@ export default function ComoMedirPage() {
             atraso={80 + indice * 50}
           >
             <div className="bloco flex flex-col gap-2 px-4 py-4">
-              <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+              <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
                 {passo.titulo}
               </h2>
               <p className="text-[16.5px] leading-[1.6] text-texto">
@@ -86,7 +86,7 @@ export default function ComoMedirPage() {
       </div>
 
       <Revelar atraso={60} className="px-1">
-        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Medir sempre do mesmo jeito vale mais do que medir com precisão. O
           que esta tela guarda é a distância entre duas semanas, e para isso a
           régua só precisa ser a mesma.

@@ -85,7 +85,7 @@ export default async function HomePage() {
               </p>
               <Link
                 href="/ritual/espelho"
-                className="text-[15px] text-auxiliar underline underline-offset-4"
+                className="text-[16px] text-auxiliar underline underline-offset-4"
               >
                 entrar de novo
               </Link>
@@ -127,7 +127,7 @@ export default async function HomePage() {
             <span className="text-[34px] leading-none tabular-nums text-texto">
               {estado.numeroSemana}
             </span>
-            <span className="text-[15px] text-auxiliar">
+            <span className="text-[16px] text-auxiliar">
               {estado.semanasCumpridas}{" "}
               {estado.semanasCumpridas === 1 ? "cumprida" : "cumpridas"}
             </span>
@@ -159,7 +159,7 @@ export default async function HomePage() {
       <Revelar atraso={40}>
         <Painel icone={Sun} rotulo="Hoje" href="/todo">
           {resumo.tarefas.total === 0 ? (
-            <p className="text-[15.5px] leading-[1.5] text-auxiliar">
+            <p className="text-[16px] leading-[1.5] text-auxiliar">
               Nada marcado para hoje.
             </p>
           ) : (
@@ -168,7 +168,7 @@ export default async function HomePage() {
                 <span className="text-[34px] leading-none tabular-nums text-texto">
                   {resumo.tarefas.faltam}
                 </span>
-                <span className="text-[15px] text-auxiliar">
+                <span className="text-[16px] text-auxiliar">
                   {resumo.tarefas.faltam === 1 ? "restante" : "restantes"}
                 </span>
               </div>
@@ -197,7 +197,7 @@ export default async function HomePage() {
                 />
               </>
             ) : (
-              <p className="text-[15.5px] leading-[1.5] text-auxiliar">
+              <p className="text-[16px] leading-[1.5] text-auxiliar">
                 Hoje é descanso.
               </p>
             )}
@@ -212,7 +212,7 @@ export default async function HomePage() {
               <span className="text-[34px] leading-none tabular-nums text-texto">
                 {kg(resumo.pesoAtual)}
               </span>
-              <span className="text-[15px] text-auxiliar">kg</span>
+              <span className="text-[16px] text-auxiliar">kg</span>
               {resumo.gorduraAtual !== null && (
                 <span className="ml-2">
                   <ParValor

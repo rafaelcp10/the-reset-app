@@ -22,7 +22,7 @@ import { ROTULO_ANGULO, type DiaDeFotos as Dia, type Foto } from "@/lib/saude/fo
 export default function DiaDeFotos({ dia }: { dia: Dia }) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="tipo-rotulo px-1 text-[13px] tracking-[.14em] text-auxiliar">
+      <h2 className="tipo-rotulo px-1 text-[14px] tracking-[.1em] text-auxiliar">
         {porExtenso(dia.data)}
       </h2>
       <div className="grid grid-cols-2 gap-3">
@@ -60,7 +60,7 @@ function Quadro({ foto }: { foto: Foto }) {
             <button
               type="button"
               onClick={() => setConfirmando(false)}
-              className="min-h-11 pr-1 text-[14px] text-auxiliar"
+              className="min-h-11 pr-1 text-[15px] text-auxiliar"
             >
               Cancelar
             </button>
@@ -70,14 +70,14 @@ function Quadro({ foto }: { foto: Foto }) {
               onClick={() =>
                 iniciar(() => void apagarFoto(foto.data, foto.angulo))
               }
-              className="tipo-rotulo min-h-11 rounded-[8px] bg-superficie3 px-3 text-[12.5px] tracking-[.06em] text-texto disabled:opacity-60"
+              className="tipo-rotulo min-h-11 rounded-[8px] bg-superficie3 px-3 text-[13.5px] tracking-[.06em] text-texto disabled:opacity-60"
             >
               {apagando ? "…" : "Apagar"}
             </button>
           </>
         ) : (
           <>
-            <span className="text-[14px] text-auxiliar">
+            <span className="text-[15px] text-auxiliar">
               {ROTULO_ANGULO[foto.angulo]}
             </span>
             <button

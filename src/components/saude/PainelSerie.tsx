@@ -107,7 +107,7 @@ export default function PainelSerie({
   return (
     <div className="bloco flex flex-col gap-3 overflow-hidden px-4 py-4">
       <div className="flex items-start justify-between gap-3">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
           {rotulo}
         </span>
         {acao}
@@ -120,7 +120,7 @@ export default function PainelSerie({
           </span>
           <span className="text-[18px] text-auxiliar">{unidade}</span>
         </span>
-        <span className="text-[14.5px] leading-[1.5] text-auxiliar">
+        <span className="text-[15.5px] leading-[1.5] text-auxiliar">
           {nota}
         </span>
       </div>
@@ -136,7 +136,7 @@ export default function PainelSerie({
                 setJanela(j.dias);
                 setEscolhido(null);
               }}
-              className={`tipo-rotulo min-h-11 rounded-[8px] px-2.5 text-[12.5px] tracking-[.06em] transition-colors duration-200 ${
+              className={`tipo-rotulo min-h-11 rounded-[8px] px-2.5 text-[13.5px] tracking-[.06em] transition-colors duration-200 ${
                 janela === j.dias
                   ? "bg-superficie3 text-texto"
                   : "text-auxiliar-fraco"

@@ -115,7 +115,7 @@ export default function AjustesForm({
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[16px] text-texto">Check-in noturno</p>
-              <p className="text-[14.5px] text-auxiliar">Aviso às {horario}</p>
+              <p className="text-[15.5px] text-auxiliar">Aviso às {horario}</p>
             </div>
             <button
               type="button"
@@ -136,14 +136,14 @@ export default function AjustesForm({
           </div>
 
           {avisoPush && (
-            <p className="text-[14px] leading-[1.5] text-erro">{avisoPush}</p>
+            <p className="text-[15px] leading-[1.5] text-erro">{avisoPush}</p>
           )}
 
           {/* O caso silencioso: a conta quer o lembrete, mas este aparelho
               nunca foi inscrito. Antes disso aparecer, a pessoa esperava
               uma notificação que não tinha por onde chegar. */}
           {inscrito === false && lembrete && !avisoPush && (
-            <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+            <p className="text-[15.5px] leading-[1.6] text-auxiliar">
               Este aparelho ainda não recebe o aviso. Toque no botão acima
               para ligar aqui. No iPhone, só funciona com o app instalado na
               tela de início.
@@ -156,7 +156,7 @@ export default function AjustesForm({
                 key={opcao}
                 type="button"
                 onClick={() => alterarHorario(opcao)}
-                className={`pilula tipo-rotulo flex-1 rounded-[8px] py-2.5 text-center text-[14.5px] tracking-[.09em] text-texto ${
+                className={`pilula tipo-rotulo flex-1 rounded-[8px] py-2.5 text-center text-[15.5px] tracking-[.09em] text-texto ${
                   horario === opcao ? "pilula-ativa" : ""
                 }`}
               >
@@ -169,7 +169,7 @@ export default function AjustesForm({
 
       <Revelar imediato atraso={140}>
         <section className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+          <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
             Repetições por frase
           </h2>
           <div className="flex gap-2">
@@ -191,14 +191,14 @@ export default function AjustesForm({
 
       <Revelar imediato atraso={220}>
         <section className="flex flex-col gap-3">
-          <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+          <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
             Como as frases avançam
           </h2>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => alterarAvanco(false)}
-              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3.5 text-center text-[14.5px] tracking-[.09em] text-texto ${
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3.5 text-center text-[15.5px] tracking-[.09em] text-texto ${
                 !maosLivres ? "pilula-ativa" : ""
               }`}
             >
@@ -207,7 +207,7 @@ export default function AjustesForm({
             <button
               type="button"
               onClick={() => alterarAvanco(true)}
-              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3.5 text-center text-[14.5px] tracking-[.09em] text-texto ${
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3.5 text-center text-[15.5px] tracking-[.09em] text-texto ${
                 maosLivres ? "pilula-ativa" : ""
               }`}
             >

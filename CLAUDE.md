@@ -28,24 +28,38 @@ PWA instalável. Sem app nativo, sem loja.
 ## Regras de código
 - Mobile primeiro. Uma coluna.
 - Ícones apenas da biblioteca Lucide.
-- Cores: #101114 (fundo), #F7F7F5 (texto), #A2A4A7 (auxiliar),
+- Cores: #101114 (fundo), #F7F7F5 (texto), #B6B8BB (auxiliar),
   #C97B3A (acento, uma aplicação por tela).
+- **Âmbar de letra e de ícone é `acento-claro` (#DB9A60), não `acento`.**
+  #C97B3A dá 4.19 sobre `superficie3` — como preenchimento de botão está
+  certo, como texto está abaixo do mínimo. Não é cor nova: é o mesmo âmbar
+  na claridade que passa. O botão continua no âmbar cheio, e o texto dentro
+  dele continua #101114.
 - Contraste: nada abaixo de 4.5:1 sobre **a superfície mais clara que
-  existe hoje**, nem contorno de campo abaixo de 3:1. Em 2026-09-19 isso
-  virou `superficie3` (#2a2d33), que os painéis passaram a usar em toda
-  linha — e a medida de 2026-09-16, feita contra `superficie2`, ficou
-  velha sem ninguém notar. Sobre a superfície nova, `auxiliar-fraco` dava
-  4.10 e `auxiliar-minimo` 3.54.
-  **`auxiliar-minimo` foi removido**: entre #2a2d33 e o branco não cabem
-  três cinzas legíveis. `auxiliar-fraco` subiu para #96989d (4.78).
-  **Criar superfície nova obriga a re-medir todos os cinzas sobre ela** —
-  foi pular esse passo que deixou o app difícil de ler por três dias.
+  existe hoje**, nem contorno de campo abaixo de 3:1. Desde 2026-09-19 essa
+  superfície é `superficie3` (#2a2d33). **Criar superfície nova obriga a
+  re-medir todos os cinzas sobre ela.**
+- **4.5 é o mínimo, não o confortável — e três calibragens ensinaram isso
+  do jeito caro.** Em 2026-09-21 tudo passava no AA e o Rafael ainda dizia
+  que forçava a vista à noite. O alvo dos cinzas passou a ser a faixa do
+  AAA sobre `superficie3`: `auxiliar` 5.52 → 6.94 (#B6B8BB) e
+  `auxiliar-fraco` 4.78 → 5.79 (#A6A8AB). A escala andou um degrau — o que
+  era o cinza forte virou o cinza fraco. `filete-media` estava em 2.37,
+  abaixo do 3.0 que ele mesmo exige, e foi para #7B7D82 (3.35).
 - Só existem **dois cinzas**: `auxiliar` e `auxiliar-fraco`.
-- Nada de texto abaixo de 12.5px, nem ícone abaixo de 18px. O piso era
-  11px e ainda custava esforço para ler: o app é usado com a vista cansada
-  à noite, e rótulo em caixa alta com tracking largo cansa mais, não menos.
-  Ícone pequeno é pior que texto pequeno — ele é alvo de toque e sinal de
-  função ao mesmo tempo.
+- Nada de texto abaixo de 13.5px, nem ícone abaixo de 18px. O piso foi
+  11px, depois 12.5px, e as duas vezes ainda custava esforço: o app é usado
+  com a vista cansada à noite. Ícone pequeno é pior que texto pequeno — ele
+  é alvo de toque e sinal de função ao mesmo tempo.
+- **Rótulo em caixa alta não é condensado.** `.tipo-rotulo` rodou em
+  `font-stretch: 66%` até 2026-09-21, e junto com caixa alta, 12,5px e
+  tracking de 0.18em dava a combinação mais difícil de ler do app — que
+  por azar era também a mais comum, em 79 lugares. **Era isto que cansava
+  a vista, e não o contraste, que já passava.** Hoje são 88% de largura e
+  no máximo 0.1em de tracking. Duas calibragens de cor foram gastas
+  procurando no lugar errado; quando a letra parecer difícil, olhar
+  primeiro a **forma** da letra — largura, caixa, tracking, tamanho — e só
+  depois o hex.
 - Texto em botão âmbar é #101114, nunca branco.
 - **"Feito" leva visto, e o visto é âmbar** (`components/MarcaFeito.tsx`).
   Uma palavra cinza no meio de outras palavras cinzas não se vê, e era o
@@ -88,6 +102,13 @@ O que substitui a regra:
   soma peso sem somar informação.
 - Vale onde o uso justifica. A Academia usa; Ritual e To-do seguem na
   coluna limpa até haver motivo, e não por inércia.
+- **Formulário empilhado precisa de bloco, e não só de espaçamento**
+  (2026-09-21). O cadastro de exercício era uma lista corrida: nome, grupo,
+  três campos e duas pílulas de um exercício se encostavam nos do seguinte,
+  e a tela inteira lia como um parágrafo. A sessão de treino já usava bloco
+  por esse motivo; o cadastro passou a usar também. A regra prática: quando
+  o item empilhado tem mais de duas linhas de coisa dentro, espaçamento não
+  dá conta.
 
 Duas regras novas que nasceram daí:
 - Bloco acima da dobra entra por animação CSS (`imediato` no `Revelar`),

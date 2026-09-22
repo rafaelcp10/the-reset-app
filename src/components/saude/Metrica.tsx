@@ -29,7 +29,7 @@ export default function Metrica({
   return (
     <div className="bloco flex flex-col gap-3 overflow-hidden px-4 py-4">
       <div className="flex flex-col gap-1.5">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
           {rotulo}
         </span>
 
@@ -38,12 +38,12 @@ export default function Metrica({
             {valor}
           </span>
           {unidade && (
-            <span className="text-[15px] text-auxiliar">{unidade}</span>
+            <span className="text-[16px] text-auxiliar">{unidade}</span>
           )}
         </span>
 
         {nota && (
-          <span className="text-[14.5px] leading-[1.5] text-auxiliar">
+          <span className="text-[15.5px] leading-[1.5] text-auxiliar">
             {nota}
           </span>
         )}

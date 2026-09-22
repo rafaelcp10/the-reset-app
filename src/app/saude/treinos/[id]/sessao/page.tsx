@@ -58,7 +58,7 @@ export default async function SessaoPage({
         <h1 className="text-[26px] leading-tight text-texto">
           {sessao.treino.nome}
         </h1>
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           {emCurso
             ? "Confirme cada um conforme for fazendo."
             : ultima

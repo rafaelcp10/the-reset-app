@@ -42,7 +42,7 @@ export default function BottomNav() {
                   className="flex select-none flex-col items-center gap-1 py-2 text-auxiliar/40"
                 >
                   <Icon className="h-7 w-7" strokeWidth={1.5} />
-                  <span className="text-[12.5px] font-interface">
+                  <span className="text-[13.5px] font-interface">
                     {tab.label}
                   </span>
                   <span className="h-[3px] w-[3px]" />
@@ -65,7 +65,7 @@ export default function BottomNav() {
                   }`}
                   strokeWidth={1.5}
                 />
-                <span className="text-[12.5px]">{tab.label}</span>
+                <span className="text-[13.5px]">{tab.label}</span>
                 <span
                   className={`h-[3px] w-[3px] rounded-full bg-acento transition-opacity duration-500 ${
                     isCurrent ? "opacity-100" : "opacity-0"

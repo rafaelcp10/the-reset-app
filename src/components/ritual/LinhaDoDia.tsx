@@ -65,7 +65,7 @@ export default function LinhaDoDia({
   return (
     <section id="linha-do-dia" className="bloco flex flex-col gap-3 px-4 py-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-acento">
+        <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-acento-claro">
           A linha de hoje
         </h2>
         <IndicadorSalvo estado={estadoSalvo} />
@@ -92,7 +92,7 @@ export default function LinhaDoDia({
           <button
             type="button"
             onClick={() => setEditando(true)}
-            className="shrink-0 text-[14.5px] text-auxiliar underline underline-offset-4"
+            className="shrink-0 text-[15.5px] text-auxiliar underline underline-offset-4"
           >
             editar
           </button>
@@ -148,7 +148,7 @@ export default function LinhaDoDia({
             texto={{ sim: "Feita", nao: "Não feita" }}
           />
           {linhaOntem && (
-            <p className="text-[15px] leading-[1.5] text-auxiliar">
+            <p className="text-[16px] leading-[1.5] text-auxiliar">
               {linhaOntem}
             </p>
           )}
@@ -192,7 +192,7 @@ function CampoAmanha({
   return (
     <div className="mt-2 flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+        <h3 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
           E amanhã
         </h3>
         <IndicadorSalvo estado={estadoSalvo} />

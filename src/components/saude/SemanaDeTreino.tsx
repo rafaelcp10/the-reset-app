@@ -16,7 +16,7 @@ export default function SemanaDeTreino({ dias }: { dias: DiaDaSemana[] }) {
       {dias.map((dia) => (
         <div key={dia.indice} className="flex flex-1 flex-col items-center gap-2">
           <span
-            className={`tipo-rotulo text-[12.5px] tracking-[.06em] ${
+            className={`tipo-rotulo text-[13.5px] tracking-[.06em] ${
               dia.hoje ? "text-texto" : "text-auxiliar-fraco"
             }`}
           >

@@ -111,7 +111,7 @@ export default function ConfigForm({
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Como você treina?
         </h1>
-        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Poucas perguntas, uma vez. O app não vai montar treino nenhum —
           quem escreve os seus é você. Isto aqui decide o que ele te mostra,
           e o objetivo decide a conta de calorias da Nutrição.
@@ -131,7 +131,7 @@ export default function ConfigForm({
           {/* Primeiro de todos: é a única pergunta daqui que muda um número
               de verdade, e em até 35% entre as pontas. */}
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Objetivo
             </h2>
             <div className="flex flex-col gap-1.5">
@@ -152,7 +152,7 @@ export default function ConfigForm({
                   >
                     {ROTULO_OBJETIVO[opcao]}
                   </span>
-                  <span className="text-[13.5px] leading-[1.4] text-auxiliar-fraco">
+                  <span className="text-[14.5px] leading-[1.4] text-auxiliar-fraco">
                     {DESCRICAO_OBJETIVO[opcao]}
                   </span>
                 </button>
@@ -163,7 +163,7 @@ export default function ConfigForm({
           {/* Logo depois do objetivo, porque é a segunda coisa que mais
               mexe na conta de calorias: multiplica o basal em até 40%. */}
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Biotipo
             </h2>
             <div className="flex flex-col gap-1.5">
@@ -184,7 +184,7 @@ export default function ConfigForm({
                   >
                     {ROTULO_BIOTIPO[opcao]}
                   </span>
-                  <span className="text-[13.5px] leading-[1.4] text-auxiliar-fraco">
+                  <span className="text-[14.5px] leading-[1.4] text-auxiliar-fraco">
                     {DESCRICAO_BIOTIPO[opcao]}
                   </span>
                 </button>
@@ -193,7 +193,7 @@ export default function ConfigForm({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Onde
             </h2>
             <div className="flex gap-2">
@@ -202,7 +202,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => setLocal(opcao)}
-                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[13.5px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] px-2 text-center text-[14.5px] tracking-[.06em] text-texto ${
                     local === opcao ? "pilula-ativa" : ""
                   }`}
                 >
@@ -213,7 +213,7 @@ export default function ConfigForm({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Quanto tempo por sessão
             </h2>
             <div className="flex gap-2">
@@ -222,7 +222,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => setMinutos(minutos === opcao ? null : opcao)}
-                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[13.5px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[8px] text-center text-[14.5px] tracking-[.06em] text-texto ${
                     minutos === opcao ? "pilula-ativa" : ""
                   }`}
                 >
@@ -233,7 +233,7 @@ export default function ConfigForm({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Onde costuma doer
             </h2>
             {/* Não é diagnóstico, e o app não vai proibir nada: fica
@@ -244,7 +244,7 @@ export default function ConfigForm({
                   key={opcao}
                   type="button"
                   onClick={() => alternarLimitacao(opcao)}
-                  className={`pilula tipo-rotulo min-h-11 rounded-[8px] px-4 text-center text-[13.5px] tracking-[.06em] text-texto ${
+                  className={`pilula tipo-rotulo min-h-11 rounded-[8px] px-4 text-center text-[14.5px] tracking-[.06em] text-texto ${
                     limitacoes.includes(opcao) ? "pilula-ativa" : ""
                   }`}
                 >
@@ -252,7 +252,7 @@ export default function ConfigForm({
                 </button>
               ))}
             </div>
-            <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
+            <p className="text-[15.5px] leading-[1.6] text-auxiliar-fraco">
               Nada aqui bloqueia exercício. Serve para você lembrar na hora de
               escolher a carga.
             </p>
@@ -262,7 +262,7 @@ export default function ConfigForm({
               quem procura configuração procura na engrenagem, e dois
               lugares para a mesma coisa ensinam a não confiar em nenhum. */}
           <section className="flex flex-col gap-4">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Números da conta
             </h2>
             {CAMPOS.map((campo) => (
@@ -282,12 +282,12 @@ export default function ConfigForm({
                       placeholder="—"
                       className="w-[86px] border-b border-filete-media bg-transparent py-1.5 text-right text-[19px] text-texto outline-none transition-colors duration-200 placeholder:text-auxiliar-fraco focus:border-acento focus:bg-acento-escuro"
                     />
-                    <span className="w-10 text-[14px] text-auxiliar">
+                    <span className="w-10 text-[15px] text-auxiliar">
                       {campo.unidade}
                     </span>
                   </span>
                 </span>
-                <span className="text-[13.5px] leading-[1.4] text-auxiliar-fraco">
+                <span className="text-[14.5px] leading-[1.4] text-auxiliar-fraco">
                   {campo.nota}
                 </span>
               </label>
@@ -295,7 +295,7 @@ export default function ConfigForm({
           </section>
 
           {estado.erro && (
-            <p className="text-[14px] leading-[1.5] text-erro">{estado.erro}</p>
+            <p className="text-[15px] leading-[1.5] text-erro">{estado.erro}</p>
           )}
 
           <button

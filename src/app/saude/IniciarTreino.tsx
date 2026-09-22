@@ -65,7 +65,7 @@ export default function IniciarTreino({
           <button
             type="button"
             onClick={() => setAbrindo((a) => !a)}
-            className="tipo-rotulo -mr-1 min-h-11 px-2 text-[12.5px] tracking-[.14em] text-auxiliar"
+            className="tipo-rotulo -mr-1 min-h-11 px-2 text-[13.5px] tracking-[.1em] text-auxiliar"
           >
             {abrindo ? "fechar" : "trocar"}
           </button>

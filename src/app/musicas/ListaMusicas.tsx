@@ -33,7 +33,7 @@ export default function ListaMusicas({
         <h1 className="text-[21px] text-texto">Minhas músicas</h1>
         {/* Sem promessa de "conta conectada" no futuro: o Spotify fechou a
             API para apps de terceiros, e esta é a versão definitiva. */}
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Cole o link da música — no Spotify, em Compartilhar, Copiar link.
           O nome aparece sozinho. Tocar no nome abre o Spotify naquela faixa.
         </p>

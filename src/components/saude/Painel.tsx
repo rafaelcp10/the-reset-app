@@ -34,7 +34,7 @@ export default function Painel({
             className="h-[18px] w-[18px] shrink-0 text-auxiliar"
             strokeWidth={1.5}
           />
-          <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+          <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
             {rotulo}
           </span>
         </span>
@@ -89,7 +89,7 @@ export function LinhaDoPainel({
           {titulo}
         </span>
         {detalhe && (
-          <span className="truncate text-[13.5px] text-auxiliar-fraco">
+          <span className="truncate text-[14.5px] text-auxiliar-fraco">
             {detalhe}
           </span>
         )}
@@ -99,7 +99,7 @@ export function LinhaDoPainel({
         <span className="flex shrink-0 items-baseline gap-1">
           <span className="text-[19px] tabular-nums text-texto">{valor}</span>
           {unidade && (
-            <span className="text-[13px] text-auxiliar">{unidade}</span>
+            <span className="text-[14px] text-auxiliar">{unidade}</span>
           )}
         </span>
       ) : href ? (
@@ -162,8 +162,8 @@ export function ParValor({
 }) {
   return (
     <span className="flex items-baseline gap-1.5">
-      <span className="text-[15.5px] tabular-nums text-texto">{valor}</span>
-      <span className="tipo-rotulo text-[12.5px] tracking-[.14em] text-auxiliar-fraco">
+      <span className="text-[16px] tabular-nums text-texto">{valor}</span>
+      <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
         {rotulo}
       </span>
     </span>

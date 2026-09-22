@@ -77,7 +77,7 @@ export default function FraseAutoSalvar({
         type="button"
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => salvar(textoPadrao)}
-        className="self-start text-[14.5px] text-auxiliar underline underline-offset-4"
+        className="self-start text-[15.5px] text-auxiliar underline underline-offset-4"
       >
         restaurar padrão
       </button>

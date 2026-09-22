@@ -30,7 +30,7 @@ export default function RecomecoPage() {
         </Link>
         <Link
           href="/ritual?editarIdentidade=1"
-          className="text-center text-[15px] text-auxiliar underline underline-offset-4"
+          className="text-center text-[16px] text-auxiliar underline underline-offset-4"
         >
           trocar a palavra da frase 1
         </Link>

@@ -41,7 +41,7 @@ export default function IdentidadeForm({
       className="flex flex-1 flex-col justify-between px-6 pb-10 pt-10"
     >
       <div className="flex flex-col gap-4">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar">
           Identidade
         </span>
         <p className="text-[28px] leading-[1.5] text-texto">
@@ -56,11 +56,11 @@ export default function IdentidadeForm({
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"
-            className="mx-1 w-40 border-b-2 border-acento bg-acento-escuro text-center text-acento outline-none placeholder:text-acento/40"
+            className="mx-1 w-40 border-b-2 border-acento bg-acento-escuro text-center text-acento-claro outline-none placeholder:text-acento-claro/40"
           />
           {depois}
         </p>
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           A única coisa que o app pede de você. Uma palavra basta — e ela
           pode mudar amanhã.
         </p>

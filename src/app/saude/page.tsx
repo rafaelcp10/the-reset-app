@@ -75,7 +75,7 @@ export default async function AcademiaPage() {
                 <span className="text-[34px] leading-none tabular-nums text-texto">
                   {semana.feitos}
                 </span>
-                <span className="text-[15px] text-auxiliar">
+                <span className="text-[16px] text-auxiliar">
                   {semana.marcados > 0
                     ? `de ${semana.marcados} ${semana.marcados === 1 ? "dia marcado" : "dias marcados"}`
                     : semana.feitos === 1

@@ -42,7 +42,7 @@ export default function CabecalhoSaude({
             key={item.id}
             href={item.href}
             aria-current={aba === item.id ? "page" : undefined}
-            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-full text-center text-[12.5px] tracking-[.04em] transition-colors duration-200 ${
+            className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center rounded-full text-center text-[13.5px] tracking-[.04em] transition-colors duration-200 ${
               aba === item.id
                 ? "bg-superficie3 text-texto"
                 : "text-auxiliar-fraco"

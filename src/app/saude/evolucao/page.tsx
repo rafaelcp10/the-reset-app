@@ -139,7 +139,7 @@ export default async function EvolucaoPage() {
 
       {evo.cargas.length > 0 && (
         <Revelar atraso={60} className="flex flex-col gap-3 pt-3">
-          <h2 className="tipo-rotulo px-1 text-[12.5px] tracking-[.18em] text-auxiliar">
+          <h2 className="tipo-rotulo px-1 text-[13.5px] tracking-[.1em] text-auxiliar">
             Cargas
           </h2>
           <div className="bloco flex flex-col px-4">
@@ -153,7 +153,7 @@ export default async function EvolucaoPage() {
                   <span className="text-[16.5px] leading-[1.3] text-texto">
                     {c.nome}
                   </span>
-                  <span className="tipo-rotulo text-[12.5px] tracking-[.16em] text-auxiliar-fraco">
+                  <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
                     {c.treinos} {c.treinos === 1 ? "treino" : "treinos"}
                   </span>
                 </span>
@@ -177,7 +177,7 @@ export default async function EvolucaoPage() {
               <span className="text-[26px] leading-none tabular-nums text-texto">
                 {evo.semanasComTreino}/{evo.semanasDesdeOComeco}
               </span>
-              <span className="text-[15px] text-auxiliar">
+              <span className="text-[16px] text-auxiliar">
                 {evo.semanasDesdeOComeco === 1 ? "semana" : "semanas"} com treino
               </span>
             </div>

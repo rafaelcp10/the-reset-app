@@ -117,7 +117,7 @@ export default function AnelAgua({
         y={centro + 22}
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-[var(--color-auxiliar)] text-[13px]"
+        className="fill-[var(--color-auxiliar)] text-[14px]"
       >
         %
       </text>

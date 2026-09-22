@@ -26,7 +26,7 @@ export default function ProgressoOnboarding() {
       ) : (
         <div className="h-6 w-6" />
       )}
-      <span className="tipo-rotulo text-[13.5px] tracking-[.18em] text-auxiliar">
+      <span className="tipo-rotulo text-[14.5px] tracking-[.1em] text-auxiliar">
         {passoMacro ? `Passo ${passoMacro} de 5` : ""}
       </span>
     </div>

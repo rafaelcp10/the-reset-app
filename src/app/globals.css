@@ -20,13 +20,28 @@
      Regra que nasceu daqui: contraste se mede contra a superfície mais
      clara **que existe hoje**, e re-medir faz parte de criar superfície
      nova. `filete-media` é contorno de campo, e a WCAG pede 3.0 para isso. */
-  --color-auxiliar: #a2a4a7;
-  --color-auxiliar-fraco: #96989d;
+  /* Terceira calibragem, em 2026-09-21, e desta vez a causa não era o hex.
+     Os dois passavam no AA (5.52 e 4.78 sobre `superficie3`) e mesmo assim
+     a tela cansava a vista à noite. AA é o mínimo, não o confortável: os
+     dois subiram para a faixa do AAA sobre a superfície mais clara.
+     `auxiliar` 5.52 -> 6.94, `auxiliar-fraco` 4.78 -> 5.79.
+     A escala andou um degrau: o que era o cinza forte virou o cinza fraco. */
+  --color-auxiliar: #b6b8bb;
+  --color-auxiliar-fraco: #a6a8ab;
   --color-aba-inativa: #2f3237;
   --color-filete: #1c1e22;
-  --color-filete-media: #63656a;
+  /* Contorno de campo: a WCAG pede 3.0, e sobre `superficie3` ele dava
+     2.37 — a sublinha de todo campo dentro de painel estava abaixo do
+     mínimo. #7b7d82 dá 3.35 lá e 4.58 sobre o fundo. */
+  --color-filete-media: #7b7d82;
   --color-filete-forte: #33363b;
   --color-acento: #c97b3a;
+  /* O mesmo âmbar, na claridade que passa no contraste — **não é cor nova**.
+     #c97b3a dá 4.19 sobre `superficie3`, abaixo dos 4.5: como preenchimento
+     de botão ele está certo, mas como letra e como ícone estava ilegível
+     justamente onde mais aparece. O botão continua no âmbar cheio; quem
+     escreve e quem desenha usa este. */
+  --color-acento-claro: #db9a60;
   --color-acento-escuro: #3a2a1e;
   /* Único uso de vermelho no app — erro de sistema, nunca comportamento do
      usuário (ver CLAUDE.md). */
@@ -59,6 +74,7 @@
   --color-filete-media: var(--color-filete-media);
   --color-filete-forte: var(--color-filete-forte);
   --color-acento: var(--color-acento);
+  --color-acento-claro: var(--color-acento-claro);
   --color-acento-escuro: var(--color-acento-escuro);
   --color-erro: var(--color-erro);
   --font-frase: var(--font-archivo);
@@ -85,9 +101,20 @@ body {
 /* Vale também para botões dentro do bloco: o Preflight do Tailwind zera
    text-transform em `button`, então sem isto um controle vira caixa mista
    no meio de uma fileira em caixa alta. */
+/* O rótulo em caixa alta.
+ *
+ * A largura era 66% — condensada. Junte a isso caixa alta, 12,5px e
+ * tracking de 0.18em e sai a combinação mais difícil de ler do app, que por
+ * azar era também a mais comum: 79 lugares. **Era isto que cansava a vista
+ * à noite**, e não o contraste, que já passava no AA.
+ *
+ * 88% é estreito o bastante para o rótulo continuar sendo rótulo e largo o
+ * bastante para a letra ter contraforma. O tracking desceu junto, no mesmo
+ * motivo que já estava escrito no CLAUDE.md e que ninguém tinha aplicado:
+ * caixa alta com tracking largo cansa mais, não menos. */
 .tipo-rotulo,
 .tipo-rotulo button {
-  font-stretch: 66%;
+  font-stretch: 88%;
   text-transform: uppercase;
 }
 

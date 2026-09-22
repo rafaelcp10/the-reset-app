@@ -109,7 +109,7 @@ export default async function NutricaoPage() {
                 />
               </div>
 
-              <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+              <p className="text-[15px] leading-[1.5] text-auxiliar-fraco">
                 {n.gastos &&
                   `Você gasta ${comMilhar(n.gastos[n.tipoDeHoje])} kcal hoje. `}
                 {n.treinoDeHojeReal
@@ -147,7 +147,7 @@ export default async function NutricaoPage() {
                   vale aqui inteira. O objetivo aparece junto dos números, e
                   não só lá embaixo nos ajustes, porque é o que mais mexe
                   neles — e porque morava invisível no perfil. */}
-              <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+              <p className="text-[15px] leading-[1.5] text-auxiliar-fraco">
                 {n.objetivo === "perder_peso"
                   ? "20% abaixo do gasto."
                   : n.objetivo === "ganhar_massa"
@@ -161,7 +161,7 @@ export default async function NutricaoPage() {
               {/* O piso não é detalhe: é a diferença entre um alvo e um
                   problema. Quando ele entra, a tela diz. */}
               {n.pisoAplicado && (
-                <p className="text-[14px] leading-[1.5] text-auxiliar">
+                <p className="text-[15px] leading-[1.5] text-auxiliar">
                   O corte parou no seu mínimo. Abaixo disso o app não
                   recomenda, por mais que a conta peça.
                 </p>

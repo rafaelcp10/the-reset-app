@@ -31,7 +31,7 @@ export default function ListaPorPeriodo({
       {grupos.map((grupo) => (
         <div key={grupo.rotulo} className="flex flex-col gap-1.5">
           {mostrarRotulos && (
-            <h3 className="tipo-rotulo px-1 text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
+            <h3 className="tipo-rotulo px-1 text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
               {grupo.rotulo}
             </h3>
           )}

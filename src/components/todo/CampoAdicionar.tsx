@@ -82,7 +82,7 @@ export default function CampoAdicionar({
               onClick={() =>
                 setQuando(quando === opcao.valor ? null : opcao.valor)
               }
-              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[10px] px-3 text-center text-[12.5px] tracking-[.06em] text-texto ${
+              className={`pilula tipo-rotulo min-h-11 flex-1 rounded-[10px] px-3 text-center text-[13.5px] tracking-[.06em] text-texto ${
                 quando === opcao.valor ? "pilula-ativa" : ""
               }`}
             >

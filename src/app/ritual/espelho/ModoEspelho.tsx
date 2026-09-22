@@ -135,14 +135,14 @@ export default function ModoEspelho({
     <div className="flex min-h-screen flex-col">
 
       <div className="flex items-center justify-between px-6 pt-6">
-        <span className="tipo-rotulo text-[13.5px] tracking-[.18em] text-auxiliar">
+        <span className="tipo-rotulo text-[14.5px] tracking-[.1em] text-auxiliar">
           {mostrandoRodape
             ? `Passo ${passo + 1} de ${frases.length + 1}${maosLivres ? " · Automático" : ""}`
             : ""}
         </span>
         <Link
           href="/ritual"
-          className="tipo-rotulo -m-3 inline-flex p-3 text-[13.5px] tracking-[.18em] text-auxiliar"
+          className="tipo-rotulo -m-3 inline-flex p-3 text-[14.5px] tracking-[.1em] text-auxiliar"
         >
           Sair
         </Link>
@@ -229,7 +229,7 @@ function EscolhaModo({
       className="entrada-frase flex flex-1 flex-col justify-center gap-8 px-6 py-8"
     >
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar">
           As cinco frases
         </span>
         <h1 className="text-[26px] leading-[1.3] text-texto">Como hoje?</h1>
@@ -252,13 +252,13 @@ function EscolhaModo({
           type="button"
           onClick={aoOuvir}
           disabled={!temGravacao}
-          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[15.5px] tracking-[.09em] text-texto disabled:opacity-40"
+          className="pilula tipo-rotulo w-full rounded-[10px] py-4 text-center text-[16px] tracking-[.09em] text-texto disabled:opacity-40"
         >
           Ouvir na minha voz
         </button>
 
         {!temGravacao && (
-          <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
+          <p className="text-[15.5px] leading-[1.6] text-auxiliar-fraco">
             Grave sua voz em alguma frase, na tela do Ritual, e ela toca aqui.
           </p>
         )}
@@ -268,14 +268,14 @@ function EscolhaModo({
           momento em que ele importa. A pergunta é a mesma — como hoje —
           então a resposta fica aqui. */}
       <div className="flex flex-col gap-3">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
           A frase passa
         </span>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => aoTrocarAvanco(false)}
-            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[14.5px] tracking-[.09em] text-texto ${
               !maosLivres ? "pilula-ativa" : ""
             }`}
           >
@@ -284,7 +284,7 @@ function EscolhaModo({
           <button
             type="button"
             onClick={() => aoTrocarAvanco(true)}
-            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[14.5px] tracking-[.09em] text-texto ${
               maosLivres ? "pilula-ativa" : ""
             }`}
           >
@@ -297,14 +297,14 @@ function EscolhaModo({
           pergunta sobre algo que não existe. */}
       {temMusica && (
         <div className="flex flex-col gap-3">
-          <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
             Com música tocando
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => aoTrocarMistura(false)}
-              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[14.5px] tracking-[.09em] text-texto ${
                 !misturar ? "pilula-ativa" : ""
               }`}
             >
@@ -313,7 +313,7 @@ function EscolhaModo({
             <button
               type="button"
               onClick={() => aoTrocarMistura(true)}
-              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+              className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[14.5px] tracking-[.09em] text-texto ${
                 misturar ? "pilula-ativa" : ""
               }`}
             >
@@ -321,7 +321,7 @@ function EscolhaModo({
             </button>
           </div>
           {misturar && (
-            <p className="text-[14px] leading-[1.6] text-auxiliar-fraco">
+            <p className="text-[15px] leading-[1.6] text-auxiliar-fraco">
               A música continua tocando e a voz entra por cima. Com isso, o
               interruptor de silencioso do aparelho volta a valer.
             </p>
@@ -379,7 +379,7 @@ function TelaRespiracao({
         <h1 className="text-[26px] leading-[1.3] text-texto">
           Respire dez vezes
         </h1>
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           {precisaToque
             ? "Puxe o ar pelo nariz e solte fundo pela boca. Toque uma vez na tela para o som começar."
             : semSom
@@ -494,10 +494,10 @@ function TelaFrase({
   return (
     <div className="entrada-frase flex flex-1 flex-col justify-between px-6 py-8">
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar">
           {item.rotulo} · frase {indice} de {total}
         </span>
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           {esperandoToque
             ? "Na sua voz · um toque segue para a próxima."
             : modoAudio
@@ -519,7 +519,7 @@ function TelaFrase({
       <div className="flex flex-col gap-3">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="tipo-rotulo flex items-center gap-4 text-[13px] tracking-[.16em]"
+          className="tipo-rotulo flex items-center gap-4 text-[14px] tracking-[.1em]"
         >
           <OuvirGravacao url={item.urlGravacao} />
           <span className="flex items-center gap-1.5 text-auxiliar-fraco">
@@ -545,7 +545,7 @@ function TelaFrase({
               />
             ))}
           </div>
-          <span className="tipo-rotulo text-[13px] tracking-[.16em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[14px] tracking-[.1em] text-auxiliar-fraco">
             {repeticoes} {repeticoes === 1 ? "leitura" : "leituras"}
           </span>
         </div>
@@ -648,7 +648,7 @@ function formatarTexto(texto: string, palavraEscolhida: string | null) {
   return (
     <>
       {texto.slice(0, indice)}
-      <span className="text-acento">{palavraEscolhida}</span>
+      <span className="text-acento-claro">{palavraEscolhida}</span>
       {texto.slice(indice + palavraEscolhida.length)}
     </>
   );
@@ -667,7 +667,7 @@ function TelaEco({ palavra }: { palavra: string | null | undefined }) {
         }}
       />
       <p
-        className="relative text-center text-[56px] font-semibold leading-[1.1] text-acento"
+        className="relative text-center text-[56px] font-semibold leading-[1.1] text-acento-claro"
         style={{ textShadow: "0 0 48px rgb(201 123 58 / 0.45)" }}
       >
         {palavra || "presente"}.
@@ -691,7 +691,7 @@ function Rodape({
       {/* Tocar no nome abre a música no Spotify. Sai do app por um toque,
           e volta com a música tocando — é o preço de não poder tocar áudio
           de terceiro dentro do navegador, e é barato. */}
-      <div className="flex items-center gap-2 text-[14.5px]">
+      <div className="flex items-center gap-2 text-[15.5px]">
         <Music className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.5} />
         {musicaUrl ? (
           <a

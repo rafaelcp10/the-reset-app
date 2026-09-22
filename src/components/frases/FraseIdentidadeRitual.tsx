@@ -99,7 +99,7 @@ export default function FraseIdentidadeRitual({
               <IndicadorSalvo estado={estadoSalvo} />
             </GravacaoFrase>
           ) : (
-            <div className="tipo-rotulo flex items-center gap-5 text-[13px] tracking-[.16em]">
+            <div className="tipo-rotulo flex items-center gap-5 text-[14px] tracking-[.1em]">
               {botaoEditar}
               <IndicadorSalvo estado={estadoSalvo} />
             </div>
@@ -120,7 +120,7 @@ export default function FraseIdentidadeRitual({
         spellCheck={false}
         autoComplete="off"
         autoCorrect="off"
-        className="mx-1 w-40 border-b-2 border-acento bg-acento-escuro text-center text-acento outline-none"
+        className="mx-1 w-40 border-b-2 border-acento bg-acento-escuro text-center text-acento-claro outline-none"
       />
       {depois}
     </p>

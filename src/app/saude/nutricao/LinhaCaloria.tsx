@@ -45,7 +45,7 @@ export default function LinhaCaloria({
           <span className="block truncate text-[16px] leading-[1.3] text-texto">
             {rotulo}
           </span>
-          <span className="block truncate text-[13.5px] text-auxiliar-fraco">
+          <span className="block truncate text-[14.5px] text-auxiliar-fraco">
             {macros}
           </span>
         </span>
@@ -68,14 +68,14 @@ export default function LinhaCaloria({
             aria-label={`Calorias em dia de ${rotulo.toLowerCase()}`}
             className="w-[72px] border-b border-filete-media bg-transparent py-0.5 text-right text-[19px] tabular-nums text-texto outline-none transition-colors duration-200 focus:border-acento focus:bg-acento-escuro disabled:opacity-60"
           />
-          <span className="text-[13px] text-auxiliar">kcal</span>
+          <span className="text-[14px] text-auxiliar">kcal</span>
         </span>
       </div>
 
       {/* A sugestão e o botão só aparecem quando há o que desfazer. */}
       {manual && (
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[13.5px] text-auxiliar-fraco">
+          <span className="text-[14.5px] text-auxiliar-fraco">
             Sugestão: {comMilhar(sugestao)}
           </span>
           <button
@@ -85,7 +85,7 @@ export default function LinhaCaloria({
               setTexto(String(Math.round(sugestao)));
               salvar("");
             }}
-            className="-mr-2 inline-flex min-h-11 items-center gap-1.5 px-2 text-[13.5px] text-auxiliar disabled:opacity-60"
+            className="-mr-2 inline-flex min-h-11 items-center gap-1.5 px-2 text-[14.5px] text-auxiliar disabled:opacity-60"
           >
             <RotateCcw className="h-[18px] w-[18px]" strokeWidth={1.5} />
             Redefinir

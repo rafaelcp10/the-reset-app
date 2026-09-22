@@ -59,7 +59,7 @@ export default async function HistoricoExercicioPage({
           {exercicio.nome}
         </h1>
         {exercicio.grupo && (
-          <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar-fraco">
+          <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
             {ROTULO_GRUPO[exercicio.grupo]}
           </span>
         )}
@@ -74,23 +74,23 @@ export default async function HistoricoExercicioPage({
           <Revelar imediato atraso={80} className="flex flex-col gap-5">
             <div className="flex gap-10">
               <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
                   Comecei
                 </span>
                 <span className="text-[19px] text-texto">{kg(inicial)}</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
+                <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
                   Última vez
                 </span>
-                <span className="text-[19px] text-acento">{kg(atual)}</span>
+                <span className="text-[19px] text-acento-claro">{kg(atual)}</span>
               </div>
             </div>
 
             {/* Sem gráfico e sem percentual: é um registro do que aconteceu,
                 não uma nota de desempenho. */}
             {subiu !== null && subiu !== 0 && (
-              <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+              <p className="text-[16px] leading-[1.6] text-auxiliar">
                 {subiu > 0
                   ? `São ${kg(subiu)} a mais desde o começo, em ${registros.length} ${registros.length === 1 ? "treino" : "treinos"}.`
                   : `Hoje está ${kg(Math.abs(subiu))} abaixo de onde começou. A base é essa, e daqui sobe de novo.`}
@@ -99,7 +99,7 @@ export default async function HistoricoExercicioPage({
           </Revelar>
 
           <Revelar atraso={40} className="flex flex-col gap-4">
-            <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+            <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Cada vez
             </h2>
             <div className="flex flex-col">
@@ -108,7 +108,7 @@ export default async function HistoricoExercicioPage({
                   key={registro.id}
                   className="flex min-h-11 items-baseline justify-between gap-4"
                 >
-                  <span className="tipo-rotulo w-12 shrink-0 text-[13px] tracking-[.14em] text-auxiliar-fraco">
+                  <span className="tipo-rotulo w-12 shrink-0 text-[14px] tracking-[.1em] text-auxiliar-fraco">
                     {dataCurta(registro.data)}
                   </span>
                   {/* No variável a carga sai em faixa — "40 a 55 kg" —

@@ -35,13 +35,13 @@ export default function MarcaFeito({
     <span className="flex items-center gap-1.5">
       <Icone
         className={`h-[18px] w-[18px] shrink-0 ${
-          feito ? "text-acento" : "text-auxiliar-fraco"
+          feito ? "text-acento-claro" : "text-auxiliar-fraco"
         }`}
         strokeWidth={feito ? 2.5 : 2}
       />
-      <span className="text-[15.5px] text-texto">{palavra}</span>
+      <span className="text-[16px] text-texto">{palavra}</span>
       {rotulo && (
-        <span className="tipo-rotulo text-[12.5px] tracking-[.14em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
           {rotulo}
         </span>
       )}

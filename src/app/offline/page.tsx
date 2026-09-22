@@ -20,7 +20,7 @@ export default function OfflinePage() {
         </p>
       </div>
 
-      <span className="tipo-rotulo text-[13px] tracking-[.18em] text-auxiliar-fraco">
+      <span className="tipo-rotulo text-[14px] tracking-[.1em] text-auxiliar-fraco">
         The Reset
       </span>
     </div>

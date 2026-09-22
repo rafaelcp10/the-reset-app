@@ -14,7 +14,7 @@ const VARIANTES = {
     opacidade: "opacity-100",
   },
   rodape: {
-    texto: "text-[12.5px]",
+    texto: "text-[13.5px]",
     gap: "gap-1",
     barra1: "h-px w-3.5",
     barra2: "h-px w-6",

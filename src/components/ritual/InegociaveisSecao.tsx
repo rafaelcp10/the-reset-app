@@ -17,12 +17,12 @@ export default function InegociaveisSecao({
 
   return (
     <section className="flex flex-col gap-3.5">
-      <h2 className="tipo-rotulo px-1 text-[15.5px] tracking-[.18em] text-texto">
+      <h2 className="tipo-rotulo px-1 text-[16px] tracking-[.1em] text-texto">
         Inegociáveis
       </h2>
 
       {temSlotVazio && (
-        <p className="px-1 text-[15px] leading-[1.6] text-auxiliar">
+        <p className="px-1 text-[16px] leading-[1.6] text-auxiliar">
           Os três inegociáveis são definidos na{" "}
           <Link href="/ritual/domingo" className="underline underline-offset-4">
             revisão de domingo

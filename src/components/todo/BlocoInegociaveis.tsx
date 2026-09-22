@@ -50,7 +50,7 @@ export default function BlocoInegociaveis({
 
           <Link
             href="/ritual/domingo"
-            className="text-[14.5px] text-auxiliar underline underline-offset-4"
+            className="text-[15.5px] text-auxiliar underline underline-offset-4"
           >
             editar no ritual de domingo
           </Link>

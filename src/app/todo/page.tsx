@@ -27,7 +27,7 @@ export default async function TodoPage() {
   return (
     <div className="flex grow flex-col gap-5 px-5 pb-10 pt-8">
       <Revelar imediato y={14} desfoque={4} className="mb-1 px-1">
-        <p className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+        <p className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
           {estado.dataExtenso} · semana {estado.numeroSemana}
         </p>
       </Revelar>
@@ -55,7 +55,7 @@ export default async function TodoPage() {
                 <span className="text-[34px] leading-none tabular-nums text-texto">
                   {faltamHoje}
                 </span>
-                <span className="text-[15px] text-auxiliar">
+                <span className="text-[16px] text-auxiliar">
                   {faltamHoje === 1 ? "restante" : "restantes"}
                   {feitasHoje > 0 && ` · ${feitasHoje} de ${estado.hoje.length}`}
                 </span>
@@ -103,7 +103,7 @@ export default async function TodoPage() {
           não diz para onde leva. */}
       <Revelar atraso={80}>
         <Painel icone={CalendarDays} rotulo="O mês" href="/todo/grade">
-          <p className="text-[15.5px] leading-[1.5] text-auxiliar">
+          <p className="text-[16px] leading-[1.5] text-auxiliar">
             Os dias de trás, e o que ficou marcado em cada um.
           </p>
         </Painel>

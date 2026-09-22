@@ -85,7 +85,7 @@ export default function FotosEvolucao({
   return (
     <div className="bloco flex flex-col gap-4 px-4 py-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar">
+        <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
           Antes e depois
         </h2>
 
@@ -94,7 +94,7 @@ export default function FotosEvolucao({
             type="button"
             onClick={girar}
             aria-label={`Girar. Mostrando ${ROTULO_ANGULO[angulo].toLowerCase()}.`}
-            className="tipo-rotulo -mr-1 inline-flex min-h-11 items-center gap-1.5 rounded-[10px] px-2 text-[12.5px] tracking-[.06em] text-texto"
+            className="tipo-rotulo -mr-1 inline-flex min-h-11 items-center gap-1.5 rounded-[10px] px-2 text-[13.5px] tracking-[.06em] text-texto"
           >
             <RotateCw className="h-[18px] w-[18px]" strokeWidth={1.5} />
             {ROTULO_ANGULO[angulo]}
@@ -103,7 +103,7 @@ export default function FotosEvolucao({
       </div>
 
       {fotos.total === 0 ? (
-        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Quatro fotos: frente, um lado, costas, o outro lado. Outras quatro
           daqui a um mês. É o que os números não conseguem mostrar.
         </p>
@@ -123,7 +123,7 @@ export default function FotosEvolucao({
       />
 
       <div className="flex flex-col gap-2">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
           Hoje
         </span>
         {/* Quatro alvos em grade, e não quatro numa linha: "Lado esquerdo"
@@ -135,7 +135,7 @@ export default function FotosEvolucao({
               type="button"
               disabled={enviando !== null}
               onClick={() => pedirFoto(a)}
-              className={`inline-flex min-h-11 items-center justify-between gap-2 rounded-[10px] px-3 py-2 text-left text-[14.5px] transition-colors duration-200 disabled:opacity-60 ${
+              className={`inline-flex min-h-11 items-center justify-between gap-2 rounded-[10px] px-3 py-2 text-left text-[15.5px] transition-colors duration-200 disabled:opacity-60 ${
                 fotos.hoje[a]
                   ? "bg-superficie3 text-texto"
                   : "bg-superficie3/40 text-auxiliar"
@@ -143,7 +143,7 @@ export default function FotosEvolucao({
             >
               {ROTULO_ANGULO[a]}
               {enviando === a ? (
-                <span className="shrink-0 text-[12.5px] text-auxiliar">…</span>
+                <span className="shrink-0 text-[13.5px] text-auxiliar">…</span>
               ) : fotos.hoje[a] ? (
                 // Sem âmbar: o acento desta tela são as curvas, e o fundo
                 // aceso do botão já diz que este ângulo foi tirado.
@@ -162,16 +162,16 @@ export default function FotosEvolucao({
         </div>
       </div>
 
-      {erro && <p className="text-[14.5px] text-erro">{erro}</p>}
+      {erro && <p className="text-[15.5px] text-erro">{erro}</p>}
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[14px] leading-[1.6] text-auxiliar-fraco">
+        <p className="text-[15px] leading-[1.6] text-auxiliar-fraco">
           Guardadas só para você, em pasta privada.
         </p>
         {fotos.total > 0 && (
           <Link
             href="/saude/evolucao/fotos"
-            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[14.5px] text-auxiliar"
+            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[15.5px] text-auxiliar"
           >
             <Images className="h-[18px] w-[18px]" strokeWidth={1.5} />
             Ver todas
@@ -185,7 +185,7 @@ export default function FotosEvolucao({
 function Quadro({ rotulo, foto }: { rotulo: string; foto: Foto | null }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="tipo-rotulo text-[12.5px] tracking-[.2em] text-auxiliar-fraco">
+      <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
         {rotulo}
       </span>
       <div className="aspect-[3/4] overflow-hidden rounded-[10px] bg-superficie3">
@@ -200,14 +200,14 @@ function Quadro({ rotulo, foto }: { rotulo: string; foto: Foto | null }) {
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full items-center justify-center px-3 text-center text-[14px] leading-[1.5] text-auxiliar-fraco">
+          <div className="flex h-full items-center justify-center px-3 text-center text-[15px] leading-[1.5] text-auxiliar-fraco">
             {rotulo === "Antes"
               ? "Sem foto neste ângulo"
               : "A próxima entra aqui"}
           </div>
         )}
       </div>
-      <span className="text-[14px] text-auxiliar">
+      <span className="text-[15px] text-auxiliar">
         {foto ? dataCurta(foto.data) : "—"}
       </span>
     </div>

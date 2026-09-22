@@ -61,7 +61,7 @@ export default function FraseLeituraEditavel({
               setValor(textoAtual);
               setEditando(true);
             }}
-            className="tipo-rotulo flex items-center gap-1.5 text-[13px] tracking-[.16em] text-auxiliar"
+            className="tipo-rotulo flex items-center gap-1.5 text-[14px] tracking-[.1em] text-auxiliar"
           >
             <Pencil className="h-[18px] w-[18px]" strokeWidth={1.5} />
             Editar

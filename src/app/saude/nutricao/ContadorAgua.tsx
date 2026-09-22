@@ -53,7 +53,7 @@ export default function ContadorAgua({
   if (!otimista.garrafaMl || otimista.metaMl === 0) {
     return (
       <Painel icone={Droplet} rotulo="Água">
-        <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           {otimista.metaMl === 0
             ? "Registre seu peso na Evolução para a conta de água sair."
             : "Diga o tamanho da sua garrafa na engrenagem da Saúde, e a conta aparece aqui."}
@@ -79,7 +79,7 @@ export default function ContadorAgua({
             <span className="text-[30px] leading-none tabular-nums text-texto">
               {otimista.completou ? 0 : otimista.faltamGarrafas}
             </span>
-            <span className="text-[14.5px] leading-[1.3] text-auxiliar">
+            <span className="text-[15.5px] leading-[1.3] text-auxiliar">
               {otimista.completou
                 ? "garrafas restantes"
                 : `${otimista.faltamGarrafas === 1 ? "garrafa" : "garrafas"} de ${emLitros(garrafa)}`}
@@ -87,10 +87,10 @@ export default function ContadorAgua({
           </span>
 
           <span className="flex flex-col gap-0.5">
-            <span className="text-[15.5px] tabular-nums text-texto">
+            <span className="text-[16px] tabular-nums text-texto">
               {emLitros(otimista.bebidoMl)}
             </span>
-            <span className="tipo-rotulo text-[12.5px] tracking-[.14em] text-auxiliar-fraco">
+            <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
               de {emLitros(otimista.metaMl)}
             </span>
           </span>
@@ -102,7 +102,7 @@ export default function ContadorAgua({
           type="button"
           disabled={enviando}
           onClick={() => mexer(garrafa)}
-          className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] py-3.5 text-center text-[15px] tracking-[.06em] disabled:opacity-60 ${
+          className={`tipo-rotulo flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[12px] py-3.5 text-center text-[16px] tracking-[.06em] disabled:opacity-60 ${
             acento
               ? "botao-acento text-fundo"
               : "bg-superficie3 text-texto shadow-baixa"

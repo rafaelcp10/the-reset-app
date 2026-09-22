@@ -51,13 +51,13 @@ export default function BotaoGoogle({
         type="button"
         onClick={acionar}
         disabled={indo}
-        className="pilula tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[10px] py-3.5 text-[14.5px] tracking-[.09em] text-texto disabled:opacity-50"
+        className="pilula tipo-rotulo flex w-full items-center justify-center gap-2.5 rounded-[10px] py-3.5 text-[15.5px] tracking-[.09em] text-texto disabled:opacity-50"
       >
         <MarcaGoogle />
         {indo ? "Abrindo" : rotulo}
       </button>
 
-      {erro && <p className="text-[14px] leading-[1.5] text-erro">{erro}</p>}
+      {erro && <p className="text-[15px] leading-[1.5] text-erro">{erro}</p>}
     </div>
   );
 }

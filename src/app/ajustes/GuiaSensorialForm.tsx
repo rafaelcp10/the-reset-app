@@ -53,7 +53,7 @@ export default function GuiaSensorialForm() {
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+      <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
         Guia da respiração
       </h2>
 
@@ -63,7 +63,7 @@ export default function GuiaSensorialForm() {
             key={opcao.valor}
             type="button"
             onClick={() => escolher(opcao.valor)}
-            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[13.5px] tracking-[.09em] text-texto ${
+            className={`pilula tipo-rotulo flex-1 rounded-[8px] py-3 text-center text-[14.5px] tracking-[.09em] text-texto ${
               guia === opcao.valor ? "pilula-ativa" : ""
             }`}
           >
@@ -81,11 +81,11 @@ export default function GuiaSensorialForm() {
           <button
             type="button"
             onClick={ouvirAmostra}
-            className="pilula tipo-rotulo min-h-11 self-start rounded-[10px] px-6 text-center text-[13.5px] tracking-[.09em] text-texto"
+            className="pilula tipo-rotulo min-h-11 self-start rounded-[10px] px-6 text-center text-[14.5px] tracking-[.09em] text-texto"
           >
             {amostra === "tocando" ? "Tocando" : "Ouvir uma amostra"}
           </button>
-          <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+          <p className="text-[15.5px] leading-[1.6] text-auxiliar">
             {amostra === "erro"
               ? "Este navegador não deixa o app fazer som."
               : "Não ouviu nada? Confira o interruptor de silencioso na lateral do iPhone e o volume — no iOS ele corta o som de site mesmo com o volume alto."}
@@ -93,7 +93,7 @@ export default function GuiaSensorialForm() {
         </div>
       )}
 
-      <p className="text-[14.5px] leading-[1.6] text-auxiliar">
+      <p className="text-[15.5px] leading-[1.6] text-auxiliar">
         {guia === "som"
           ? "Um tom grave sobe e desce no ritmo da respiração. Dá para fechar os olhos."
           : guia === "vibracao"
@@ -102,7 +102,7 @@ export default function GuiaSensorialForm() {
       </p>
 
       {!temVibracao && (
-        <p className="text-[14px] leading-[1.5] text-auxiliar-fraco">
+        <p className="text-[15px] leading-[1.5] text-auxiliar-fraco">
           Este aparelho não vibra pelo navegador — no iPhone o Safari não
           permite. O som funciona normalmente.
         </p>

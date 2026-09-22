@@ -34,7 +34,7 @@ export default async function TelaFraseLeitura({
   return (
     <AvancarAoTocar proximaRota={proximaRota}>
       <div className="flex flex-col gap-4">
-        <span className="tipo-rotulo text-[12.5px] tracking-[.22em] text-auxiliar">
+        <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar">
           {ROTULOS_FUNCAO[funcao]} · {numero} de {FUNCOES.length}
         </span>
         <FraseLeituraEditavel
@@ -43,7 +43,7 @@ export default async function TelaFraseLeitura({
           acaoSalvar={salvarEdicaoFrase.bind(null, funcao, caminhoAtual)}
         />
       </div>
-      <div className="flex items-center justify-center gap-1.5 text-[15px] text-auxiliar">
+      <div className="flex items-center justify-center gap-1.5 text-[16px] text-auxiliar">
         <span>Toque para continuar</span>
         <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
       </div>

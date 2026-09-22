@@ -155,7 +155,7 @@ export default function GravacaoFrase({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="tipo-rotulo flex items-center gap-5 text-[13px] tracking-[.16em]">
+      <div className="tipo-rotulo flex items-center gap-5 text-[14px] tracking-[.1em]">
         <button
           type="button"
           onClick={ouvir}
@@ -173,7 +173,7 @@ export default function GravacaoFrase({
           onClick={gravando ? pararDeGravar : comecarAGravar}
           disabled={estado === "enviando"}
           className={`flex items-center gap-1.5 ${
-            gravando ? "text-acento" : "text-auxiliar"
+            gravando ? "text-acento-claro" : "text-auxiliar"
           }`}
         >
           {gravando ? (
@@ -204,7 +204,7 @@ export default function GravacaoFrase({
         {children}
       </div>
 
-      {erro && <p className="text-[12.5px] text-erro">{erro}</p>}
+      {erro && <p className="text-[13.5px] text-erro">{erro}</p>}
 
       {url && (
         <audio

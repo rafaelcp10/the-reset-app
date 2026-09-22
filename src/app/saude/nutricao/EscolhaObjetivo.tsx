@@ -28,7 +28,7 @@ export default function EscolhaObjetivo({ atual }: { atual: Objetivo }) {
       {/* O rótulo não é enfeite: sem ele, estas três linhas ficam iguais às
           três dos dias logo abaixo, e a tela passa a ter seis linhas que
           parecem a mesma lista. */}
-      <span className="tipo-rotulo text-[12.5px] tracking-[.18em] text-auxiliar-fraco">
+      <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
         Objetivo
       </span>
       {OBJETIVOS.map((opcao) => (
@@ -38,7 +38,7 @@ export default function EscolhaObjetivo({ atual }: { atual: Objetivo }) {
           disabled={enviando}
           aria-pressed={atual === opcao}
           onClick={() => iniciar(() => void salvarObjetivo(opcao))}
-          className={`flex min-h-11 items-center rounded-[10px] px-3.5 text-left text-[15.5px] transition-colors duration-200 disabled:opacity-60 ${
+          className={`flex min-h-11 items-center rounded-[10px] px-3.5 text-left text-[16px] transition-colors duration-200 disabled:opacity-60 ${
             atual === opcao
               ? "bg-superficie3 text-texto"
               : "bg-superficie3/40 text-auxiliar"

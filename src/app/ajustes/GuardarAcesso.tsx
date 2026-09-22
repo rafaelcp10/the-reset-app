@@ -27,11 +27,11 @@ export default function GuardarAcesso({
   if (!emailAtual) {
     return (
       <section className="flex flex-col gap-3">
-        <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+        <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
           Guardar seu acesso
         </h2>
 
-        <p className="text-[15px] leading-[1.6] text-auxiliar">
+        <p className="text-[16px] leading-[1.6] text-auxiliar">
           Tudo o que você escreveu vive só neste aparelho. Limpar os dados ou
           trocar de celular apaga as frases, as gravações e o histórico. Uma
           conta resolve isso — e nada do que já está aqui se perde.
@@ -39,14 +39,14 @@ export default function GuardarAcesso({
 
         <Link
           href="/onboarding/conta"
-          className="botao-acento tipo-rotulo self-start rounded-[10px] px-6 py-3.5 text-[15.5px] tracking-[.09em] text-fundo"
+          className="botao-acento tipo-rotulo self-start rounded-[10px] px-6 py-3.5 text-[16px] tracking-[.09em] text-fundo"
         >
           Criar conta
         </Link>
 
         <Link
           href="/login"
-          className="text-[14.5px] text-auxiliar underline underline-offset-4"
+          className="text-[15.5px] text-auxiliar underline underline-offset-4"
         >
           já tenho conta em outro aparelho
         </Link>
@@ -56,17 +56,17 @@ export default function GuardarAcesso({
 
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+      <h2 className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
         Seu acesso
       </h2>
 
-      <p className="text-[15.5px] leading-[1.6] text-auxiliar">
+      <p className="text-[16px] leading-[1.6] text-auxiliar">
         Conectado como <span className="text-texto">{emailAtual}</span>. Se
         trocar de aparelho, entre com esse e-mail e tudo volta.
       </p>
 
       {!confirmado && (
-        <p className="text-[14.5px] leading-[1.6] text-auxiliar-fraco">
+        <p className="text-[15.5px] leading-[1.6] text-auxiliar-fraco">
           Falta confirmar esse endereço pelo link que enviamos.
         </p>
       )}
@@ -76,7 +76,7 @@ export default function GuardarAcesso({
       <form action={sairDaConta} className="mt-2">
         <button
           type="submit"
-          className="text-[15px] text-auxiliar underline underline-offset-4"
+          className="text-[16px] text-auxiliar underline underline-offset-4"
         >
           sair desta conta
         </button>

@@ -30,7 +30,7 @@ export default async function SemanasPage() {
       <div className="flex grow flex-col justify-center gap-8">
         <Revelar imediato y={18} className="flex flex-col gap-2">
           <p
-            className="text-[78px] font-bold leading-[.84] text-acento"
+            className="text-[78px] font-bold leading-[.84] text-acento-claro"
             style={{
               fontStretch: "66%",
               textShadow: "0 0 60px rgb(201 123 58 / 0.4)",
@@ -38,10 +38,10 @@ export default async function SemanasPage() {
           >
             {estado.semanasCumpridas}
           </p>
-          <p className="tipo-rotulo text-[15.5px] tracking-[.18em] text-texto">
+          <p className="tipo-rotulo text-[16px] tracking-[.1em] text-texto">
             semanas cumpridas
           </p>
-          <p className="text-[15px] leading-[1.6] text-auxiliar">
+          <p className="text-[16px] leading-[1.6] text-auxiliar">
             Uma semana conta quando você abriu e respondeu. Não precisa ter sido
             uma boa semana.
           </p>

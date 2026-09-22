@@ -40,7 +40,7 @@ export default function AberturaPage() {
             Sem esta saída, a pessoa recomeçaria do zero sem entender. */}
         <Link
           href="/login"
-          className="self-center text-[15px] text-auxiliar underline underline-offset-4"
+          className="self-center text-[16px] text-auxiliar underline underline-offset-4"
         >
           já tenho conta
         </Link>
