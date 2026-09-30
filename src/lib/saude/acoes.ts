@@ -169,9 +169,17 @@ export async function adicionarExercicio(treinoId: string, formData: FormData) {
     ? (grupoBruto as GrupoMuscular)
     : null;
 
-  const degrauBruto = Number(formData.get("degrau"));
+  // Campo ausente não é zero. Quem escreve o nome à mão em vez de tocar numa
+  // sugestão não manda `degrau`, e `Number(null)` dá 0, não NaN — passava
+  // na checagem e todo exercício digitado nascia com degrau zero, que o app
+  // lê como "peso do corpo" e resolve subindo a repetição em vez da carga.
+  const degrauBruto = formData.get("degrau");
+  const degrauNumero =
+    typeof degrauBruto === "string" && degrauBruto.trim() !== ""
+      ? Number(degrauBruto)
+      : NaN;
   const degrau =
-    Number.isFinite(degrauBruto) && degrauBruto >= 0 ? degrauBruto : 2.5;
+    Number.isFinite(degrauNumero) && degrauNumero >= 0 ? degrauNumero : 2.5;
 
   const { supabase, user } = await usuarioAtual();
   const { count } = await supabase

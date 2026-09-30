@@ -7,6 +7,7 @@ import { buscarSessaoAberta } from "@/lib/saude/sessao";
 import { DIAS_ABREV, resumoDaSemana } from "@/lib/saude/semana";
 import CabecalhoSaude from "./CabecalhoSaude";
 import IniciarTreino from "./IniciarTreino";
+import TreinoEmAndamento from "./TreinoEmAndamento";
 import NovoTreino from "./NovoTreino";
 import Painel, { Barra, LinhaDoPainel } from "@/components/saude/Painel";
 import SemanaDeTreino from "@/components/saude/SemanaDeTreino";
@@ -31,9 +32,12 @@ export default async function AcademiaPage() {
   // Quem nunca respondeu as cinco perguntas começa por elas.
   if (!config.configurada) redirect("/saude/configurar");
 
-  // Com treino em curso, a aba inteira é esse treino: qualquer outra coisa
-  // aqui seria convite para abandonar o que já está começado.
-  if (aberta) redirect(`/saude/treinos/${aberta.treino_id}/sessao`);
+  // Com treino em curso, a aba abre normalmente e o treino ocupa o lugar do
+  // botão de começar. Já foi um redirecionamento direto para a sessão, e
+  // isso trancava a pessoa dentro do treino — ver `TreinoEmAndamento`.
+  const treinoAberto = aberta
+    ? treinos.find((t) => t.id === aberta.treino_id)
+    : undefined;
 
   const diasMarcados = [
     ...new Set(treinos.flatMap((t) => t.dias_semana ?? [])),
@@ -90,7 +94,15 @@ export default async function AcademiaPage() {
           </Revelar>
 
           <Revelar imediato atraso={140}>
-            <IniciarTreino opcoes={opcoes} data={hoje.data} />
+            {aberta ? (
+              <TreinoEmAndamento
+                treinoId={aberta.treino_id}
+                nome={treinoAberto?.nome ?? "Treino"}
+                inicio={aberta.inicio}
+              />
+            ) : (
+              <IniciarTreino opcoes={opcoes} data={hoje.data} />
+            )}
           </Revelar>
 
           <Revelar atraso={40}>

@@ -59,7 +59,7 @@ const JANELA_REGISTROS = 200;
  * barra fixa, flexão, prancha. Ali quem sobe é a repetição, e a carga fica
  * como estava.
  */
-function proporProximo(
+export function proporProximo(
   exercicio: ExercicioRow,
   ultimo: RegistroRow | null,
 ): { carga: number | null; reps: number } {
@@ -72,7 +72,15 @@ function proporProximo(
   const repsAnteriores = ultimo.repeticoes ?? exercicio.repeticoes;
 
   if (degrau === 0) {
-    return { carga: ultimo.carga_kg, reps: repsAnteriores + 1 };
+    // Subir a repetição é a progressão de quem não tem onde pendurar peso —
+    // barra fixa, flexão. Com carga registrada, degrau zero quer dizer só
+    // "eu cuido da carga": a repetição fica onde estava. Sem isso, um
+    // tríceps na corda de 3×10 com 20 kg virava proposta de 3×11.
+    const semPeso = ultimo.carga_kg === null || Number(ultimo.carga_kg) === 0;
+    return {
+      carga: ultimo.carga_kg,
+      reps: semPeso ? repsAnteriores + 1 : repsAnteriores,
+    };
   }
 
   const cargaAnterior = ultimo.carga_kg;
