@@ -10,6 +10,8 @@ import {
   resumoDeReps,
 } from "@/lib/saude/serie";
 import Revelar from "@/components/movimento/Revelar";
+import { montarProgresso } from "@/lib/saude/progresso";
+import ProgressoExercicio from "./ProgressoExercicio";
 
 /** 60, não 60,00. */
 function kg(valor: number | null): string {
@@ -38,11 +40,7 @@ export default async function HistoricoExercicioPage({
   const historico = await buscarHistorico(supabase, user.id, id);
   if (!historico) notFound();
 
-  const { exercicio, registros, primeiro, ultimo } = historico;
-  const inicial = primeiro?.carga_kg ?? null;
-  const atual = ultimo?.carga_kg ?? null;
-  const subiu =
-    inicial !== null && atual !== null ? Number(atual) - Number(inicial) : null;
+  const { exercicio, registros } = historico;
 
   return (
     <div className="flex grow flex-col gap-9 px-6 pb-10 pt-6">
@@ -71,38 +69,21 @@ export default async function HistoricoExercicioPage({
         </p>
       ) : (
         <>
-          <Revelar imediato atraso={80} className="flex flex-col gap-5">
-            <div className="flex gap-10">
-              <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
-                  Comecei
-                </span>
-                <span className="text-[19px] text-texto">{kg(inicial)}</span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
-                  Última vez
-                </span>
-                <span className="text-[19px] text-acento-claro">{kg(atual)}</span>
-              </div>
-            </div>
-
-            {/* Sem gráfico e sem percentual: é um registro do que aconteceu,
-                não uma nota de desempenho. */}
-            {subiu !== null && subiu !== 0 && (
-              <p className="text-[16px] leading-[1.6] text-auxiliar">
-                {subiu > 0
-                  ? `São ${kg(subiu)} a mais desde o começo, em ${registros.length} ${registros.length === 1 ? "treino" : "treinos"}.`
-                  : `Hoje está ${kg(Math.abs(subiu))} abaixo de onde começou. A base é essa, e daqui sobe de novo.`}
-              </p>
-            )}
+          {/* A curva no lugar de "Comecei / Última vez" e de uma frase
+              sobre a diferença: dois números e uma frase não mostravam o
+              caminho, e é o caminho que se vem conferir aqui. */}
+          <Revelar imediato atraso={80}>
+            <ProgressoExercicio
+              progresso={montarProgresso(registros)}
+              treinos={registros.length}
+            />
           </Revelar>
 
           <Revelar atraso={40} className="flex flex-col gap-4">
             <h2 className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar">
               Cada vez
             </h2>
-            <div className="flex flex-col">
+            <div className="bloco flex flex-col px-4 py-1.5">
               {registros.map((registro) => (
                 <div
                   key={registro.id}

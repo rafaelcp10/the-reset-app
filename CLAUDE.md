@@ -234,6 +234,60 @@ subindo a carga a cada série que encurta.
   Valor de campo numérico vai com ponto; o formatador pt-BR é só para
   texto.
 
+## Progressão (Academia, 2026-09-30)
+
+Pedido do Rafael: a progressão estava "simples demais" — "Comecei 30 kg /
+Última vez 40 kg", uma frase e uma lista. Olhei Hevy, Strong, Fitbod,
+Liftosaur e Stronglifts. O que entrou, e o que ficou fora pelas regras:
+
+- **Curva por exercício, com troca entre Carga e Volume**
+  (`exercicios/[id]/ProgressoExercicio.tsx`, sobre o `PainelSerie`). Maior
+  carga é a série mais pesada do treino; volume é repetição vezes carga,
+  somadas. **O volume existe porque a carga máxima esconde progresso**:
+  quem foi de 4×6 a 4×8 com os mesmos 55 kg levantou um terço a mais, e na
+  curva de carga isso é uma linha reta. Exercício sem peso nenhum mostra
+  repetições em vez dos dois.
+- **Coluna "Antes" por série na sessão**, no modo por série — o PREVIOUS do
+  Hevy. Com a barra na mão, a pergunta é "quanto fiz nesta série da última
+  vez", não a curva de três meses.
+- **Curva pequena em cada linha de Cargas na Evolução**
+  (`components/saude/Tracinho.tsx`), a lista "Main exercises" do Hevy. Sem
+  âmbar: dez linhas seriam dez acentos.
+- **Maior carga, e nunca `carga_kg`, em toda leitura de progressão**
+  (`maiorCarga`, em `lib/saude/progresso.ts`). Numa pirâmide `carga_kg` é a
+  primeira série — a mais leve — e uma pirâmide de 40 a 55 kg aparecia na
+  Evolução como 40.
+
+Fora, e não deve entrar por analogia:
+- **1RM estimado / "força estimada"**, o número principal de Strong, Fitbod
+  e Stronglifts. É o palpite de uma fórmula sobre uma série que a pessoa
+  nunca fez; o app mostra o que aconteceu, não o que uma conta imagina.
+- **Troféu de recorde pessoal** (Hevy, Strong) — é medalha.
+- **Nível de força comparado com outros usuários** (Hevy) — comparação
+  entre usuários.
+- **Mapa do corpo com os músculos treinados** (Hevy, Fitbod) — ilustração.
+
+### A repetição não sobe sozinha quando há carga (2026-09-30)
+
+Degrau zero era lido como "peso do corpo", e a proposta subia a repetição
+em vez da carga. Isso é certo para barra fixa e errado para todo o resto —
+e **todo exercício digitado à mão nascia com degrau zero**: sem sugestão
+tocada não vai campo `degrau`, e **`Number(null)` é 0, não NaN**, então
+passava na checagem. Tríceps na corda de 3×10 com 20 kg virava proposta de
+3×11. Duas correções: campo ausente cai no padrão de 2,5, e a repetição só
+sobe sozinha quando não há carga registrada nenhuma. Degrau zero com carga
+quer dizer "eu cuido da carga" — nada sobe.
+
+### A Saúde abre mesmo com treino em curso (2026-09-30)
+
+Com sessão aberta, a aba redirecionava direto para ela: a ideia era não
+convidar a abandonar o treino. Na prática **trancava a pessoa dentro dele**
+— conferir a água, o quanto comer ou a carga de um mês atrás no meio da
+série ficava impossível, e é exatamente quando essas coisas se consultam.
+Agora a aba abre, e o treino em curso ocupa o lugar do botão de começar
+(`saude/TreinoEmAndamento.tsx`), com o tempo e "Voltar ao treino" em âmbar.
+Começar outro não aparece: uma sessão por vez continua sendo regra.
+
 ## Evolução (aba de Saúde, 2026-09-18)
 
 Registro do que aconteceu, não placar. É o que a faz caber na regra de

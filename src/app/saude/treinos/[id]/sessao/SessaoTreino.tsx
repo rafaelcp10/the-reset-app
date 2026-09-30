@@ -87,6 +87,27 @@ function LinhaSessao({
     ).map((c) => (c === null ? "" : String(c))),
   );
 
+  // A última vez, série por série — a coluna "Antes". É o que o Hevy chama
+  // de PREVIOUS, e é a progressão lida onde ela é usada: com a barra na
+  // mão, a pergunta é "quanto fiz nesta série da última vez", não a curva
+  // de três meses. Só no modo lista: no fixo, a linha "última vez" já diz
+  // tudo, porque as séries são iguais.
+  const antes = ultimo
+    ? (() => {
+        const n = repsSerie.length;
+        const cargas = cargasDoRegistro(ultimo, n);
+        const reps = ultimo.repeticoes_serie?.length
+          ? ultimo.repeticoes_serie.map(Number)
+          : Array.from({ length: n }, () => ultimo.repeticoes);
+        return Array.from({ length: n }, (_, i) => {
+          const r = reps[i];
+          if (r === undefined || r === null) return "—";
+          const c = cargas[i];
+          return c === null ? `${r}` : `${r}×${semZeroAtoa(c)}`;
+        });
+      })()
+    : null;
+
   const [registrado, setRegistrado] = useState(Boolean(hoje));
   const [salvando, setSalvando] = useState(false);
 
@@ -161,8 +182,15 @@ function LinhaSessao({
         /* Uma linha por série. A carga não é uma só: numa pirâmide ela
            sobe a cada série que encurta, e um campo de carga só faria o
            registro guardar um número que não aconteceu em série nenhuma. */
-        <div className="grid grid-cols-[28px_1fr_1.4fr] items-center gap-x-3 gap-y-1">
+        <div
+          className={`grid items-center gap-x-2.5 gap-y-1 ${
+            antes
+              ? "grid-cols-[22px_58px_1fr_1.25fr]"
+              : "grid-cols-[28px_1fr_1.4fr]"
+          }`}
+        >
           <span aria-hidden />
+          {antes && <span className={ROTULO}>Antes</span>}
           <span className={`${ROTULO} text-center`}>Reps</span>
           <span className={`${ROTULO} text-center`}>Carga (kg)</span>
 
@@ -171,6 +199,7 @@ function LinhaSessao({
               key={i}
               indice={i}
               nome={exercicio.nome}
+              antes={antes ? (antes[i] ?? "—") : undefined}
               reps={valor}
               carga={cargasSerie[i] ?? ""}
               semCarga={semCarga}
@@ -265,6 +294,7 @@ function LinhaSessao({
 function Serie({
   indice,
   nome,
+  antes,
   reps,
   carga,
   semCarga,
@@ -273,6 +303,8 @@ function Serie({
 }: {
   indice: number;
   nome: string;
+  /** "12×40": o que foi feito nesta série da última vez. */
+  antes?: string;
   reps: string;
   carga: string;
   semCarga: boolean;
@@ -284,6 +316,9 @@ function Serie({
       <span className="text-[15px] tabular-nums text-auxiliar-fraco">
         {indice + 1}ª
       </span>
+      {antes !== undefined && (
+        <span className="text-[15px] tabular-nums text-auxiliar">{antes}</span>
+      )}
       <input
         type="number"
         inputMode="numeric"

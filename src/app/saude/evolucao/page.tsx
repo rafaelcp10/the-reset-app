@@ -11,6 +11,7 @@ import Painel, { ParValor } from "@/components/saude/Painel";
 import PainelSerie from "@/components/saude/PainelSerie";
 import type { Ponto } from "@/components/saude/Grafico";
 import Revelar from "@/components/movimento/Revelar";
+import Tracinho from "@/components/saude/Tracinho";
 
 /** 60, não 60,00. */
 function kg(valor: number | null): string {
@@ -157,10 +158,18 @@ export default async function EvolucaoPage() {
                     {c.treinos} {c.treinos === 1 ? "treino" : "treinos"}
                   </span>
                 </span>
-                <span className="shrink-0 text-[16.5px] tabular-nums text-auxiliar">
-                  {kg(c.primeira)}{" "}
-                  <span className="text-auxiliar-fraco">→</span>{" "}
-                  <span className="text-texto">{kg(c.ultima)} kg</span>
+                {/* A curva diz a direção antes de qualquer número; o par
+                    ao lado diz de onde para onde. */}
+                <span className="flex shrink-0 items-center gap-3">
+                  <Tracinho
+                    valores={c.curva}
+                    descricao={`${c.nome}: de ${kg(c.primeira)} a ${kg(c.ultima)} kg em ${c.treinos} treinos.`}
+                  />
+                  <span className="text-[16.5px] tabular-nums text-auxiliar">
+                    {kg(c.primeira)}{" "}
+                    <span className="text-auxiliar-fraco">→</span>{" "}
+                    <span className="text-texto">{kg(c.ultima)} kg</span>
+                  </span>
                 </span>
               </Link>
             ))}

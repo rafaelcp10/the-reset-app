@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { maiorCarga } from "./progresso";
 import {
   agoraNoFuso,
   dataRitual,
@@ -26,6 +27,8 @@ export type CargaEvoluida = {
   primeira: number;
   ultima: number;
   treinos: number;
+  /** A maior carga de cada treino, do mais antigo para o mais recente. */
+  curva: number[];
 };
 
 export type Evolucao = {
@@ -166,15 +169,29 @@ async function montarCargas(
 
   const { data: registros } = await supabase
     .from("registros_exercicio")
-    .select("exercicio_id, data, carga_kg")
+    .select(
+      "exercicio_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie",
+    )
     .eq("usuario_id", usuarioId)
     .not("carga_kg", "is", null)
     .order("data", { ascending: true });
 
+  // A maior carga do treino, e não `carga_kg`: numa pirâmide `carga_kg` é a
+  // primeira série, a mais leve, e uma pirâmide de 40 a 55 kg apareceria
+  // aqui como 40.
   const porExercicio = new Map<string, { carga: number }[]>();
   for (const r of registros ?? []) {
+    const carga = maiorCarga({
+      data: r.data as string,
+      carga_kg: r.carga_kg as number | null,
+      repeticoes: r.repeticoes as number | null,
+      series: r.series as number | null,
+      repeticoes_serie: r.repeticoes_serie as number[] | null,
+      cargas_serie: r.cargas_serie as number[] | null,
+    });
+    if (carga === null) continue;
     const lista = porExercicio.get(r.exercicio_id as string) ?? [];
-    lista.push({ carga: Number(r.carga_kg) });
+    lista.push({ carga });
     porExercicio.set(r.exercicio_id as string, lista);
   }
 
@@ -191,6 +208,7 @@ async function montarCargas(
       primeira: lista[0].carga,
       ultima: lista[lista.length - 1].carga,
       treinos: lista.length,
+      curva: lista.map((x) => x.carga),
     });
   }
 

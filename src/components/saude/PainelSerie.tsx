@@ -34,11 +34,13 @@ const JANELAS: Janela[] = [
  * monta este painel roda no servidor.
  *
  * "enxuto" é o peso: 85, não 85,0. "uma-casa" é o percentual, onde a casa
- * decimal é a informação.
+ * decimal é a informação. "milhar" é o volume de treino: 1.660, e não 1660
+ * — número de quatro dígitos sem ponto se lê errado de relance.
  */
-export type FormatoNumero = "enxuto" | "uma-casa";
+export type FormatoNumero = "enxuto" | "uma-casa" | "milhar";
 
 function escrever(valor: number, formato: FormatoNumero): string {
+  if (formato === "milhar") return Math.round(valor).toLocaleString("pt-BR");
   if (formato === "enxuto" && valor % 1 === 0) return String(valor);
   return valor.toFixed(1).replace(".", ",");
 }
@@ -101,7 +103,7 @@ export default function PainelSerie({
     visiveis.length < 2
       ? "Primeiro registro"
       : ehOUltimo
-        ? variacao(primeiro.valor, atual.valor, unidade, primeiro.data)
+        ? variacao(primeiro.valor, atual.valor, unidade, primeiro.data, formato)
         : porExtenso(atual.data);
 
   return (
@@ -181,11 +183,14 @@ function variacao(
   atual: number,
   unidade: string,
   data: string,
+  formato: FormatoNumero,
 ): string {
   const delta = atual - inicial;
   const quando = `${data.slice(8, 10)}/${data.slice(5, 7)}`;
   if (Math.abs(delta) < 0.05) return `Igual a ${quando}`;
-  const numero = Math.abs(delta).toFixed(1).replace(".", ",");
+  // Escrita como o número grande: "+5 kg" na carga, "+300 kg" no volume.
+  // Com casa fixa sairia "+5,0 kg" e "+300,0 kg", precisão que não existe.
+  const numero = escrever(Math.abs(delta), formato);
   const medida = unidade === "%" ? "p.p." : unidade;
   return `${delta > 0 ? "+" : "−"}${numero} ${medida} desde ${quando}`;
 }
