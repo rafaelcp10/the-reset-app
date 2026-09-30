@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ChevronDown, TrendingUp } from "lucide-react";
 import type { GrupoDeProgresso } from "@/lib/saude/evolucao";
+import { escreverPercentual } from "@/lib/saude/progresso";
 import { ParValor } from "./Painel";
-import Tracinho from "./Tracinho";
+import LinhaDoTempo from "./LinhaDoTempo";
 
 /** 60, não 60,00. */
 function kg(valor: number): string {
@@ -18,12 +19,17 @@ function kg(valor: number): string {
  * conferir. Não lembra o que ficou aberto da última vez, de propósito: a
  * tela se abre para uma pergunta nova.
  *
- * `<details>` do navegador, e não estado em React: abre e fecha sem
- * JavaScript, e teclado e leitor de tela já sabem usar.
+ * Na caixa fechada, quantos exercícios e quanto a carga variou, em média.
+ * **A porcentagem foi pedido do Rafael** e revisa a regra antiga de "sem
+ * percentual" nesta tela — o que continua valendo é o resto dela: sem cor
+ * pela direção, sem seta, e queda escrita com o mesmo peso da subida.
  *
- * Dentro, cada exercício é um bloco próprio, uma superfície acima da
- * caixa — a mesma gramática do `LinhaDoPainel`. Sem âmbar: o acento da
- * Evolução são as curvas grandes lá em cima.
+ * Aberta, cada exercício é um bloco próprio com o primeiro treino e os três
+ * mais recentes, datados.
+ *
+ * `<details>` do navegador, e não estado em React: abre e fecha sem
+ * JavaScript, e teclado e leitor de tela já sabem usar. Sem âmbar: o
+ * acento da Evolução são as curvas grandes lá em cima.
  */
 export default function Progressao({ grupos }: { grupos: GrupoDeProgresso[] }) {
   if (grupos.length === 0) return null;
@@ -39,21 +45,32 @@ export default function Progressao({ grupos }: { grupos: GrupoDeProgresso[] }) {
 
       {grupos.map((grupo) => (
         <details key={grupo.chave} className="group bloco overflow-hidden">
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-            <span className="min-w-0 text-[19px] leading-[1.3] text-texto">
-              {grupo.titulo}
+          {/* Título em cima e os números embaixo, e não tudo numa linha:
+              "Fora da série atual" com quantidade, porcentagem e seta não
+              cabe em 375px. */}
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+            <span className="flex min-w-0 flex-col gap-1">
+              <span className="text-[19px] leading-[1.3] text-texto">
+                {grupo.titulo}
+              </span>
+              <span className="flex flex-wrap gap-x-4 gap-y-0.5">
+                <ParValor
+                  valor={String(grupo.itens.length)}
+                  rotulo={grupo.itens.length === 1 ? "exercício" : "exercícios"}
+                />
+                {grupo.variacaoMedia !== null && (
+                  <ParValor
+                    valor={escreverPercentual(grupo.variacaoMedia)}
+                    rotulo="na carga"
+                  />
+                )}
+              </span>
             </span>
-            <span className="flex shrink-0 items-center gap-3">
-              <ParValor
-                valor={String(grupo.itens.length)}
-                rotulo={grupo.itens.length === 1 ? "exercício" : "exercícios"}
-              />
-              <ChevronDown
-                className="h-5 w-5 text-auxiliar transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
-                strokeWidth={1.75}
-                aria-hidden
-              />
-            </span>
+            <ChevronDown
+              className="h-5 w-5 shrink-0 text-auxiliar transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+              strokeWidth={1.75}
+              aria-hidden
+            />
           </summary>
 
           <div className="flex flex-col gap-2 px-3 pb-3">
@@ -61,36 +78,24 @@ export default function Progressao({ grupos }: { grupos: GrupoDeProgresso[] }) {
               <Link
                 key={item.movimentoId}
                 href={`/saude/exercicios/${item.movimentoId}`}
-                className="flex flex-col gap-1.5 rounded-[10px] bg-superficie3 px-3.5 py-3"
+                className="flex flex-col gap-2.5 rounded-[10px] bg-superficie3 px-3.5 py-3"
               >
-                {/* O nome na linha de cima, com a largura inteira. Ao lado da
-                    curva e dos números sobravam 110px, e "Remada curvada com
-                    barra" virava "Remada curvada com…" — justamente a parte
-                    que distingue um exercício do outro. */}
-                <span className="text-[16.5px] leading-[1.3] text-texto">
-                  {item.nome}
-                </span>
-
-                <span className="flex items-center justify-between gap-3">
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-[16.5px] leading-[1.3] text-texto">
+                    {item.nome}
+                  </span>
                   <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
                     {item.treinos} {item.treinos === 1 ? "treino" : "treinos"}
-                  </span>
-                  <span className="flex shrink-0 items-center gap-3">
-                    <Tracinho
-                      valores={item.curva}
-                      descricao={`${item.nome}: de ${kg(item.primeira)} a ${kg(item.ultima)} kg em ${item.treinos} treinos.`}
-                    />
-                    <span className="text-[16px] tabular-nums text-auxiliar">
-                      {item.treinos > 1 && (
-                        <>
-                          {kg(item.primeira)}{" "}
-                          <span className="text-auxiliar-fraco">→</span>{" "}
-                        </>
-                      )}
-                      <span className="text-texto">{kg(item.ultima)} kg</span>
-                    </span>
+                    {item.variacao !== null &&
+                      ` · ${escreverPercentual(item.variacao)}`}
                   </span>
                 </span>
+
+                <LinhaDoTempo
+                  pontos={item.pontos}
+                  omitidos={item.omitidos}
+                  descricao={`${item.nome}: de ${kg(item.primeira)} a ${kg(item.ultima)} kg em ${item.treinos} ${item.treinos === 1 ? "treino" : "treinos"}.`}
+                />
               </Link>
             ))}
           </div>

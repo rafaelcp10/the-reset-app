@@ -1,5 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { maiorCarga } from "./progresso";
+import {
+  maiorCarga,
+  mediaDasVariacoes,
+  primeiroEUltimos,
+  variacaoPercentual,
+  type PontoDeCarga,
+} from "./progresso";
 import {
   agoraNoFuso,
   dataRitual,
@@ -27,8 +33,12 @@ export type CargaEvoluida = {
   primeira: number;
   ultima: number;
   treinos: number;
-  /** A maior carga de cada treino, do mais antigo para o mais recente. */
-  curva: number[];
+  /** O primeiro treino e os três mais recentes, com a data de cada um. */
+  pontos: PontoDeCarga[];
+  /** Treinos entre o primeiro e os três últimos, que não aparecem. */
+  omitidos: number;
+  /** Da primeira carga à última, em por cento. Nula com um treino só. */
+  variacao: number | null;
 };
 
 /**
@@ -43,6 +53,8 @@ export type GrupoDeProgresso = {
   chave: string;
   titulo: string;
   itens: CargaEvoluida[];
+  /** A média da variação dos exercícios que têm mais de um treino. */
+  variacaoMedia: number | null;
 };
 
 export type Evolucao = {
@@ -214,7 +226,7 @@ async function montarProgressao(
   // A maior carga do treino, e não `carga_kg`: numa pirâmide `carga_kg` é a
   // primeira série, a mais leve, e uma pirâmide de 40 a 55 kg apareceria
   // aqui como 40.
-  const cargasPorMovimento = new Map<string, number[]>();
+  const cargasPorMovimento = new Map<string, PontoDeCarga[]>();
   for (const r of registros ?? []) {
     const carga = maiorCarga({
       data: r.data as string,
@@ -226,7 +238,10 @@ async function montarProgressao(
     });
     if (carga === null) continue;
     const id = r.movimento_id as string;
-    cargasPorMovimento.set(id, [...(cargasPorMovimento.get(id) ?? []), carga]);
+    cargasPorMovimento.set(id, [
+      ...(cargasPorMovimento.get(id) ?? []),
+      { data: r.data as string, valor: carga },
+    ]);
   }
 
   const nomes = new Map(
@@ -234,17 +249,31 @@ async function montarProgressao(
   );
 
   const item = (movimentoId: string): CargaEvoluida | null => {
-    const curva = cargasPorMovimento.get(movimentoId);
-    if (!curva?.length) return null;
+    const todos = cargasPorMovimento.get(movimentoId);
+    if (!todos?.length) return null;
+    const primeira = todos[0].valor;
+    const ultima = todos[todos.length - 1].valor;
     return {
       movimentoId,
       nome: nomes.get(movimentoId) ?? "Exercício",
-      primeira: curva[0],
-      ultima: curva[curva.length - 1],
-      treinos: curva.length,
-      curva,
+      primeira,
+      ultima,
+      treinos: todos.length,
+      ...primeiroEUltimos(todos),
+      variacao: todos.length > 1 ? variacaoPercentual(primeira, ultima) : null,
     };
   };
+
+  const grupo = (
+    chave: string,
+    titulo: string,
+    itens: CargaEvoluida[],
+  ): GrupoDeProgresso => ({
+    chave,
+    titulo,
+    itens,
+    variacaoMedia: mediaDasVariacoes(itens.map((i) => i.variacao)),
+  });
 
   const grupos: GrupoDeProgresso[] = [];
   const naSerieAtual = new Set<string>();
@@ -262,7 +291,7 @@ async function montarProgressao(
       if (pronto) itens.push(pronto);
     }
     if (itens.length > 0) {
-      grupos.push({ chave: treino.id as string, titulo: treino.nome as string, itens });
+      grupos.push(grupo(treino.id as string, treino.nome as string, itens));
     }
   }
 
@@ -273,7 +302,7 @@ async function montarProgressao(
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
   if (fora.length > 0) {
-    grupos.push({ chave: "fora", titulo: "Fora da série atual", itens: fora });
+    grupos.push(grupo("fora", "Fora da série atual", fora));
   }
 
   return grupos;

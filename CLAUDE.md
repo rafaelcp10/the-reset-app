@@ -343,8 +343,24 @@ de agora.
   curvada com…" — justamente a parte que distingue um exercício do outro.
 - A caixa é o treino de **hoje**, mas o que vai dentro é o histórico inteiro
   do movimento. Trocar a série muda as caixas, não apaga o que está dentro.
-- Com um treino só, o exercício aparece sem curva e sem seta: numa caixa de
-  treino, faltar exercício pareceria defeito.
+- Com um treino só, o exercício aparece com um ponto e sem porcentagem:
+  numa caixa de treino, faltar exercício pareceria defeito.
+- **Aberto, cada exercício mostra o primeiro treino e os três mais
+  recentes, datados** (`components/saude/LinhaDoTempo.tsx`). O primeiro é
+  fixo porque a pergunta é "de onde eu saí"; os três últimos mostram o
+  formato do agora — subindo, subiu e voltou, subiu e parou. **O trecho
+  entre o primeiro e o segundo é tracejado quando há treinos no meio que
+  não aparecem**: sem isso, julho e setembro pareceriam vizinhos, e a subida
+  entre eles pareceria de uma semana para a outra.
+- **A caixa fechada mostra a variação da carga em porcentagem** — pedido do
+  Rafael em 2026-09-30, que **revisa a regra antiga de "sem percentual"
+  nesta tela**. É a média da variação de cada exercício, da primeira carga
+  à última, e não a soma dos quilos: na soma, um leg press de 200 kg pesaria
+  vinte vezes um martelo de 9. O que continua valendo: sem cor pela direção,
+  sem seta, inteiro ("+19%", nunca "+18,7%"), o menos de verdade (−), e
+  queda escrita com o mesmo peso da subida. Só entram exercícios com mais
+  de um treino. A regra de "sem percentual" continua valendo no
+  `PainelSerie` e no resto da Evolução.
 
 ## Evolução (aba de Saúde, 2026-09-18)
 

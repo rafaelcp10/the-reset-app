@@ -88,3 +88,55 @@ export function montarProgresso(registros: Registro[]): Progresso {
 
   return { carga, volume, repeticoes, metricas };
 }
+
+export type PontoDeCarga = { data: string; valor: number };
+
+/**
+ * O primeiro treino, sempre, e os três mais recentes.
+ *
+ * O primeiro é fixo porque a pergunta é "de onde eu saí"; os três últimos
+ * mostram o formato do agora — subindo, subiu e voltou, subiu e parou.
+ * Todos os treinos do meio ficam na curva da tela do exercício.
+ */
+export function primeiroEUltimos(
+  pontos: PontoDeCarga[],
+  recentes = 3,
+): { pontos: PontoDeCarga[]; omitidos: number } {
+  if (pontos.length <= recentes + 1) return { pontos, omitidos: 0 };
+  return {
+    pontos: [pontos[0], ...pontos.slice(-recentes)],
+    omitidos: pontos.length - recentes - 1,
+  };
+}
+
+/** De quanto a quanto, em por cento. Nula sem ponto de partida. */
+export function variacaoPercentual(inicial: number, atual: number): number | null {
+  if (!(inicial > 0)) return null;
+  return ((atual - inicial) / inicial) * 100;
+}
+
+/**
+ * A variação de um treino: a média das variações dos exercícios dele.
+ *
+ * Média, e não soma de quilos: na soma, o exercício mais pesado engoliria
+ * os outros — um leg press de 200 kg pesaria vinte vezes um martelo de 9,
+ * e o treino "subiria" só porque o leg press subiu.
+ */
+export function mediaDasVariacoes(variacoes: (number | null)[]): number | null {
+  const validas = variacoes.filter((v): v is number => v !== null);
+  if (validas.length === 0) return null;
+  return validas.reduce((soma, v) => soma + v, 0) / validas.length;
+}
+
+/**
+ * "+19%", "−4%", "0%".
+ *
+ * Inteiro: "+18,7%" teria precisão que uma média de quatro exercícios não
+ * tem. O menos é o sinal de verdade (−), como no resto da Evolução, e a
+ * queda se escreve com o mesmo peso da subida.
+ */
+export function escreverPercentual(v: number): string {
+  const r = Math.round(v);
+  if (r === 0) return "0%";
+  return `${r > 0 ? "+" : "−"}${Math.abs(r)}%`;
+}
