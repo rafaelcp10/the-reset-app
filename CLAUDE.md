@@ -288,6 +288,64 @@ Agora a aba abre, e o treino em curso ocupa o lugar do botão de começar
 (`saude/TreinoEmAndamento.tsx`), com o tempo e "Voltar ao treino" em âmbar.
 Começar outro não aparece: uma sessão por vez continua sendo regra.
 
+### O histórico mora no exercício, e não no treino (2026-09-30)
+
+**A série muda a cada três meses, e o histórico não pode ir junto.** Até
+esta data o registro de carga apontava para a vaga do exercício com `on
+delete cascade`, e a vaga apontava para o treino também em cascata: apagar
+o "Pull" para montar a série nova apagava todo o histórico de carga dele,
+e as sessões — que são a contagem de semanas com treino. Ninguém tinha
+apagado nada ainda; foi achado antes.
+
+- **`movimentos` é a biblioteca de exercícios da pessoa.** "Supino reto com
+  barra" é um movimento só, em quantos treinos estiver, hoje ou daqui a
+  seis meses. `exercicios` virou a **vaga** do movimento num treino.
+- **O registro aponta para o movimento.** A vaga pode sumir — o registro
+  perde a vaga (`on delete set null`) e fica com o movimento. "Um registro
+  por dia" passou a valer por movimento: o supino no Push e no Full body do
+  mesmo dia é o mesmo supino.
+- **O movimento guarda o último plano** (degrau, séries, repetições). A
+  vaga some com a série velha; o supino que volta daqui a seis meses volta
+  com o degrau que a pessoa usava, e não com o padrão.
+- **A sessão sobrevive ao treino apagado** (`sessoes_treino.treino_id` com
+  `on delete set null`). A exceção é a sessão aberta do treino apagado, que
+  é apagada junto — sem treino, seria um cronômetro para lugar nenhum.
+- **O mesmo movimento é o mesmo nome**, sem diferença de maiúscula, acento
+  ou espaço sobrando. A chave existe em dois lugares que precisam andar
+  juntos: `chave_movimento` no banco e `chaveDoMovimento` em
+  `lib/saude/movimento.ts`. Se divergirem, o mesmo supino vira dois e o
+  histórico se parte ao meio.
+- **Ao adicionar exercício, os da pessoa vêm antes do catálogo**, com o
+  número de treinos ao lado. É o que liga a série nova à antiga: escolher
+  ali continua a progressão, escrever outro nome à mão começa outra. O
+  número ao lado é o aviso da diferença antes de ela acontecer.
+- A rota `/saude/exercicios/[id]` recebe o **id do movimento**, e o voltar
+  dela é `router.back()`: ela se abre da sessão e da Evolução, e o link fixo
+  apontava para a sessão de um treino que pode nem existir mais.
+
+### A progressão é uma caixa por treino, sempre fechada (2026-09-30)
+
+Na Evolução, "Cargas" virou **Progressão** (`components/saude/Progressao.tsx`):
+uma caixa por treino da série atual — Push, Pull, Legs, Full — e uma última,
+"Fora da série atual", para o que tem histórico e não está em treino nenhum
+de agora.
+
+- **Tudo começa fechado, sempre**, e não lembra o que ficou aberto. Aberta,
+  eram vinte e quatro linhas empilhadas lendo como texto corrido; fechada,
+  são quatro caixas, e a pessoa abre a que veio conferir. `<details>` do
+  navegador, e não estado em React: abre sem JavaScript, e teclado e leitor
+  de tela já sabem usar.
+- Dentro, cada exercício é um bloco próprio, **na ordem do treino** e não
+  por quem mudou mais — dentro da caixa do Pull a pessoa procura o
+  exercício onde ele fica no treino.
+- O nome vai na linha de cima, com a largura inteira. Ao lado da curva e dos
+  números sobravam 110px, e "Remada curvada com barra" virava "Remada
+  curvada com…" — justamente a parte que distingue um exercício do outro.
+- A caixa é o treino de **hoje**, mas o que vai dentro é o histórico inteiro
+  do movimento. Trocar a série muda as caixas, não apaga o que está dentro.
+- Com um treino só, o exercício aparece sem curva e sem seta: numa caixa de
+  treino, faltar exercício pareceria defeito.
+
 ## Evolução (aba de Saúde, 2026-09-18)
 
 Registro do que aconteceu, não placar. É o que a faz caber na regra de

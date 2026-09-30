@@ -154,7 +154,7 @@ function LinhaSessao({
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[18px] leading-[1.4] text-texto">{exercicio.nome}</p>
         <Link
-          href={`/saude/exercicios/${exercicio.id}`}
+          href={`/saude/exercicios/${exercicio.movimento_id}`}
           aria-label={`Histórico de ${exercicio.nome}`}
           className="-m-2 inline-flex shrink-0 p-2 text-auxiliar-fraco"
         >

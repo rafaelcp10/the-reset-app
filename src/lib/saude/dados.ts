@@ -56,6 +56,8 @@ export type ExercicioRow = {
   id: string;
   usuario_id: string;
   treino_id: string;
+  /** O exercício da pessoa, fora de qualquer treino — dono do histórico. */
+  movimento_id: string;
   nome: string;
   grupo: GrupoMuscular | null;
   series: number;

@@ -12,6 +12,7 @@ import {
 } from "@/lib/saude/acoes";
 import { ROTULO_GRUPO, sugerir, type ExercicioCatalogo } from "@/lib/saude/catalogo";
 import type { ExercicioRow, TreinoRow } from "@/lib/saude/dados";
+import { chaveDoMovimento, type ItemDaBiblioteca } from "@/lib/saude/movimento";
 import {
   ajustarAoTamanho,
   ehVariavel,
@@ -25,9 +26,11 @@ import IndicadorSalvo from "@/components/IndicadorSalvo";
 export default function DetalheTreino({
   treino,
   exercicios,
+  biblioteca,
 }: {
   treino: TreinoRow;
   exercicios: ExercicioRow[];
+  biblioteca: ItemDaBiblioteca[];
 }) {
   const nomeRef = useRef<HTMLInputElement>(null);
   const [dias, setDias] = useState<number[]>(treino.dias_semana ?? []);
@@ -124,7 +127,11 @@ export default function DetalheTreino({
           </div>
         )}
 
-        <CampoExercicio treinoId={treino.id} aoExecutar={executar} />
+        <CampoExercicio
+          treinoId={treino.id}
+          biblioteca={biblioteca}
+          aoExecutar={executar}
+        />
       </section>
 
       <form action={excluirTreino.bind(null, treino.id)}>
@@ -384,24 +391,83 @@ function LinhaExercicio({
  * a lista se abrisse antes de a pessoa escrever, viraria menu de opções — e
  * aí o app estaria sugerindo treino, que é exatamente o que ele não faz.
  */
+/** Uma sugestão: um exercício da pessoa, ou um do catálogo. */
+type Sugestao =
+  | { tipo: "meu"; nome: string; grupo: string | null; treinos: number }
+  | { tipo: "catalogo"; item: ExercicioCatalogo };
+
+/**
+ * Os exercícios da pessoa que batem com o que foi digitado, antes do
+ * catálogo.
+ *
+ * É o que liga a série nova à antiga. O histórico mora no movimento, e o
+ * movimento é o nome: escolher "Supino reto com barra · 8 treinos" aqui
+ * continua a progressão; escrever "Supino reto" à mão começa outra. Por
+ * isso os dela vêm primeiro e com o número de treinos ao lado — é o aviso
+ * da diferença antes de ela acontecer.
+ *
+ * O catálogo não repete o que ela já tem com o mesmo nome.
+ */
+function sugestoesPara(
+  texto: string,
+  biblioteca: ItemDaBiblioteca[],
+  limite = 6,
+): Sugestao[] {
+  const busca = chaveDoMovimento(texto);
+  if (busca.length < 2) return [];
+
+  const comeca: ItemDaBiblioteca[] = [];
+  const contem: ItemDaBiblioteca[] = [];
+  for (const m of biblioteca) {
+    const chave = chaveDoMovimento(m.nome);
+    if (chave.startsWith(busca)) comeca.push(m);
+    else if (chave.includes(busca)) contem.push(m);
+  }
+  // Com histórico antes de sem: é o que custa perder.
+  const porTreinos = (a: ItemDaBiblioteca, b: ItemDaBiblioteca) =>
+    b.treinos - a.treinos;
+  const meus = [...comeca.sort(porTreinos), ...contem.sort(porTreinos)];
+
+  const jaTenho = new Set(biblioteca.map((m) => chaveDoMovimento(m.nome)));
+  const doCatalogo = sugerir(texto, limite).filter(
+    (item) => !jaTenho.has(chaveDoMovimento(item.nome)),
+  );
+
+  return [
+    ...meus.map((m): Sugestao => ({ tipo: "meu", ...m })),
+    ...doCatalogo.map((item): Sugestao => ({ tipo: "catalogo", item })),
+  ].slice(0, limite);
+}
+
 function CampoExercicio({
   treinoId,
+  biblioteca,
   aoExecutar,
 }: {
   treinoId: string;
+  biblioteca: ItemDaBiblioteca[];
   aoExecutar: (p: Promise<unknown>) => void;
 }) {
   const [texto, setTexto] = useState("");
-  const sugestoes = sugerir(texto);
+  const sugestoes = sugestoesPara(texto, biblioteca);
 
-  function adicionar(item?: ExercicioCatalogo) {
-    const nome = (item?.nome ?? texto).trim();
+  function adicionar(escolha?: Sugestao) {
+    const nome = (
+      escolha?.tipo === "meu"
+        ? escolha.nome
+        : escolha?.tipo === "catalogo"
+          ? escolha.item.nome
+          : texto
+    ).trim();
     if (!nome) return;
     const fd = new FormData();
     fd.set("nome", nome);
-    if (item) {
-      fd.set("grupo", item.grupo);
-      fd.set("degrau", String(item.degrau));
+    if (escolha?.tipo === "catalogo") {
+      fd.set("grupo", escolha.item.grupo);
+      fd.set("degrau", String(escolha.item.degrau));
+    } else if (escolha?.tipo === "meu" && escolha.grupo) {
+      // Sem degrau: o movimento já tem o dele, e é esse que volta.
+      fd.set("grupo", escolha.grupo);
     }
     setTexto("");
     aoExecutar(adicionarExercicio(treinoId, fd));
@@ -438,16 +504,22 @@ function CampoExercicio({
 
       {sugestoes.length > 0 && (
         <div className="flex flex-col pt-1">
-          {sugestoes.map((item) => (
+          {sugestoes.map((s) => (
             <button
-              key={item.nome}
+              key={`${s.tipo}-${s.tipo === "meu" ? s.nome : s.item.nome}`}
               type="button"
-              onClick={() => adicionar(item)}
+              onClick={() => adicionar(s)}
               className="flex min-h-11 items-center justify-between gap-3 text-left"
             >
-              <span className="text-[16.5px] text-texto">{item.nome}</span>
-              <span className="tipo-rotulo shrink-0 text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
-                {ROTULO_GRUPO[item.grupo]}
+              <span className="text-[16.5px] text-texto">
+                {s.tipo === "meu" ? s.nome : s.item.nome}
+              </span>
+              <span className="tipo-rotulo shrink-0 text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
+                {s.tipo === "meu"
+                  ? s.treinos > 0
+                    ? `${s.treinos} ${s.treinos === 1 ? "treino" : "treinos"}`
+                    : "seu"
+                  : ROTULO_GRUPO[s.item.grupo]}
               </span>
             </button>
           ))}

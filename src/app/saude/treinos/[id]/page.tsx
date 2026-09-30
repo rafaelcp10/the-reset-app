@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarTreino } from "@/lib/saude/dados";
+import { buscarBiblioteca } from "@/lib/saude/movimento";
 import DetalheTreino from "./DetalheTreino";
 
 export default async function TreinoPage({
@@ -17,7 +18,10 @@ export default async function TreinoPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const dados = await buscarTreino(supabase, user.id, id);
+  const [dados, biblioteca] = await Promise.all([
+    buscarTreino(supabase, user.id, id),
+    buscarBiblioteca(supabase, user.id),
+  ]);
   if (!dados) notFound();
 
   return (
@@ -31,7 +35,11 @@ export default async function TreinoPage({
           <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
         </Link>
       </div>
-      <DetalheTreino treino={dados.treino} exercicios={dados.exercicios} />
+      <DetalheTreino
+        treino={dados.treino}
+        exercicios={dados.exercicios}
+        biblioteca={biblioteca}
+      />
     </>
   );
 }

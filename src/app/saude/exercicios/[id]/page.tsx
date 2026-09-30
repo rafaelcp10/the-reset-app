@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarHistorico } from "@/lib/saude/sessao";
 import { ROTULO_GRUPO } from "@/lib/saude/catalogo";
@@ -10,6 +8,7 @@ import {
   resumoDeReps,
 } from "@/lib/saude/serie";
 import Revelar from "@/components/movimento/Revelar";
+import Voltar from "@/components/Voltar";
 import { montarProgresso } from "@/lib/saude/progresso";
 import ProgressoExercicio from "./ProgressoExercicio";
 
@@ -40,25 +39,19 @@ export default async function HistoricoExercicioPage({
   const historico = await buscarHistorico(supabase, user.id, id);
   if (!historico) notFound();
 
-  const { exercicio, registros } = historico;
+  const { movimento, plano, registros } = historico;
 
   return (
     <div className="flex grow flex-col gap-9 px-6 pb-10 pt-6">
-      <Link
-        href={`/saude/treinos/${exercicio.treino_id}/sessao`}
-        aria-label="Voltar"
-        className="-m-3 inline-flex self-start p-3 text-auxiliar"
-      >
-        <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
-      </Link>
+      <Voltar reserva="/saude/evolucao" />
 
       <Revelar imediato y={14} className="flex flex-col gap-1">
         <h1 className="text-[21px] leading-[1.3] text-texto">
-          {exercicio.nome}
+          {movimento.nome}
         </h1>
-        {exercicio.grupo && (
+        {movimento.grupo && (
           <span className="tipo-rotulo text-[13.5px] tracking-[.12em] text-auxiliar-fraco">
-            {ROTULO_GRUPO[exercicio.grupo]}
+            {ROTULO_GRUPO[movimento.grupo]}
           </span>
         )}
       </Revelar>
@@ -98,7 +91,7 @@ export default async function HistoricoExercicioPage({
                   <span className="flex-1 text-[16.5px] text-auxiliar">
                     {registro.repeticoes_serie?.length
                       ? resumoDeReps(registro.repeticoes_serie.map(Number))
-                      : `${registro.series ?? exercicio.series}×${registro.repeticoes ?? exercicio.repeticoes}`}
+                      : `${registro.series ?? plano?.series ?? 1}×${registro.repeticoes ?? plano?.repeticoes ?? "—"}`}
                   </span>
                   <span className="shrink-0 text-[16px] text-texto">
                     {registro.repeticoes_serie?.length

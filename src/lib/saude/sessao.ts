@@ -1,11 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ExercicioRow, TreinoRow } from "./dados";
+import type { GrupoMuscular } from "./catalogo";
 import { hojeDaPessoa } from "./dados";
 import { cargasDoRegistro, ehVariavel, planoDeReps, quantasSeries } from "./serie";
 
 export type RegistroRow = {
   id: string;
-  exercicio_id: string;
+  /** A vaga em que foi feito. Nula quando ela foi apagada depois. */
+  exercicio_id: string | null;
+  movimento_id: string;
   data: string;
   carga_kg: number | null;
   repeticoes: number | null;
@@ -17,7 +20,7 @@ export type RegistroRow = {
 
 /** As colunas de `registros_exercicio`, num lugar só. */
 const COLUNAS_REGISTRO =
-  "id, exercicio_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie";
+  "id, exercicio_id, movimento_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie";
 
 export type ItemSessao = {
   exercicio: ExercicioRow;
@@ -141,21 +144,25 @@ export async function buscarSessao(
   const lista = (exercicios ?? []) as ExercicioRow[];
   const hoje = diaDaPessoa.data;
 
-  const ids = lista.map((e) => e.id);
+  // Pelo movimento, e não pela vaga: o supino deste treino continua a
+  // progressão do supino da série anterior, que já pode nem existir mais.
+  const ids = [...new Set(lista.map((e) => e.movimento_id))];
   let registros: RegistroRow[] = [];
   if (ids.length > 0) {
     const { data } = await supabase
       .from("registros_exercicio")
       .select(COLUNAS_REGISTRO)
       .eq("usuario_id", usuarioId)
-      .in("exercicio_id", ids)
+      .in("movimento_id", ids)
       .order("data", { ascending: false })
       .limit(JANELA_REGISTROS);
     registros = (data ?? []) as RegistroRow[];
   }
 
   const itens: ItemSessao[] = lista.map((exercicio) => {
-    const doExercicio = registros.filter((r) => r.exercicio_id === exercicio.id);
+    const doExercicio = registros.filter(
+      (r) => r.movimento_id === exercicio.movimento_id,
+    );
     const deHoje = doExercicio.find((r) => r.data === hoje) ?? null;
     // O "último" é o anterior a hoje: registrar de novo no mesmo dia é
     // corrigir o de hoje, não empilhar um segundo.
@@ -178,41 +185,60 @@ export async function buscarSessao(
 }
 
 export type Historico = {
-  exercicio: ExercicioRow;
+  movimento: { id: string; nome: string; grupo: GrupoMuscular | null };
+  /** A vaga mais recente, para ler o plano (séries × repetições). */
+  plano: { series: number; repeticoes: number } | null;
   registros: RegistroRow[];
-  primeiro: RegistroRow | null;
-  ultimo: RegistroRow | null;
 };
 
-/** Todo o histórico de um exercício — é onde mora "o peso que eu comecei". */
+/**
+ * Todo o histórico de um movimento — é onde mora "o peso que eu comecei".
+ *
+ * Por movimento, e não por vaga: inclui o que foi feito em treinos que já
+ * foram apagados, porque a série mudou. É o ponto inteiro de o histórico
+ * morar no exercício.
+ */
 export async function buscarHistorico(
   supabase: SupabaseClient,
   usuarioId: string,
-  exercicioId: string,
+  movimentoId: string,
 ): Promise<Historico | null> {
-  const [{ data: exercicio }, { data: registros }] = await Promise.all([
-    supabase
-      .from("exercicios")
-      .select("*")
-      .eq("usuario_id", usuarioId)
-      .eq("id", exercicioId)
-      .maybeSingle(),
-    supabase
-      .from("registros_exercicio")
-      .select(COLUNAS_REGISTRO)
-      .eq("usuario_id", usuarioId)
-      .eq("exercicio_id", exercicioId)
-      .order("data", { ascending: false }),
-  ]);
+  const [{ data: movimento }, { data: registros }, { data: vagas }] =
+    await Promise.all([
+      supabase
+        .from("movimentos")
+        .select("id, nome, grupo")
+        .eq("usuario_id", usuarioId)
+        .eq("id", movimentoId)
+        .maybeSingle(),
+      supabase
+        .from("registros_exercicio")
+        .select(COLUNAS_REGISTRO)
+        .eq("usuario_id", usuarioId)
+        .eq("movimento_id", movimentoId)
+        .order("data", { ascending: false }),
+      supabase
+        .from("exercicios")
+        .select("series, repeticoes")
+        .eq("usuario_id", usuarioId)
+        .eq("movimento_id", movimentoId)
+        .order("criado_em", { ascending: false })
+        .limit(1),
+    ]);
 
-  if (!exercicio) return null;
+  if (!movimento) return null;
 
-  const linhas = (registros ?? []) as RegistroRow[];
+  const vaga = vagas?.[0];
   return {
-    exercicio: exercicio as ExercicioRow,
-    registros: linhas,
-    primeiro: linhas.length ? linhas[linhas.length - 1] : null,
-    ultimo: linhas[0] ?? null,
+    movimento: {
+      id: movimento.id as string,
+      nome: movimento.nome as string,
+      grupo: (movimento.grupo as GrupoMuscular | null) ?? null,
+    },
+    plano: vaga
+      ? { series: Number(vaga.series), repeticoes: Number(vaga.repeticoes) }
+      : null,
+    registros: (registros ?? []) as RegistroRow[],
   };
 }
 

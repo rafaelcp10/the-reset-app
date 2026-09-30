@@ -11,14 +11,7 @@ import Painel, { ParValor } from "@/components/saude/Painel";
 import PainelSerie from "@/components/saude/PainelSerie";
 import type { Ponto } from "@/components/saude/Grafico";
 import Revelar from "@/components/movimento/Revelar";
-import Tracinho from "@/components/saude/Tracinho";
-
-/** 60, não 60,00. */
-function kg(valor: number | null): string {
-  if (valor === null) return "—";
-  const n = Number(valor);
-  return n % 1 === 0 ? String(n) : n.toFixed(1).replace(".", ",");
-}
+import Progressao from "@/components/saude/Progressao";
 
 /**
  * O "+" que abre a tela de medir.
@@ -138,44 +131,9 @@ export default async function EvolucaoPage() {
         <FotosEvolucao data={evo.hoje} fotos={fotos} />
       </Revelar>
 
-      {evo.cargas.length > 0 && (
-        <Revelar atraso={60} className="flex flex-col gap-3 pt-3">
-          <h2 className="tipo-rotulo px-1 text-[13.5px] tracking-[.1em] text-auxiliar">
-            Cargas
-          </h2>
-          <div className="bloco flex flex-col px-4">
-            {evo.cargas.map((c) => (
-              <Link
-                key={c.exercicioId}
-                href={`/saude/exercicios/${c.exercicioId}`}
-                className="flex min-h-[60px] items-center justify-between gap-4 py-2"
-              >
-                <span className="flex flex-col gap-0.5">
-                  <span className="text-[16.5px] leading-[1.3] text-texto">
-                    {c.nome}
-                  </span>
-                  <span className="tipo-rotulo text-[13.5px] tracking-[.1em] text-auxiliar-fraco">
-                    {c.treinos} {c.treinos === 1 ? "treino" : "treinos"}
-                  </span>
-                </span>
-                {/* A curva diz a direção antes de qualquer número; o par
-                    ao lado diz de onde para onde. */}
-                <span className="flex shrink-0 items-center gap-3">
-                  <Tracinho
-                    valores={c.curva}
-                    descricao={`${c.nome}: de ${kg(c.primeira)} a ${kg(c.ultima)} kg em ${c.treinos} treinos.`}
-                  />
-                  <span className="text-[16.5px] tabular-nums text-auxiliar">
-                    {kg(c.primeira)}{" "}
-                    <span className="text-auxiliar-fraco">→</span>{" "}
-                    <span className="text-texto">{kg(c.ultima)} kg</span>
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </Revelar>
-      )}
+      <Revelar atraso={60} className="pt-3">
+        <Progressao grupos={evo.progressao} />
+      </Revelar>
 
       {evo.semanasComTreino > 0 && (
         <Revelar atraso={100}>

@@ -22,13 +22,27 @@ export type Medida = {
 export type MedidaComposta = Medida & { composicao: Composicao | null };
 
 export type CargaEvoluida = {
-  exercicioId: string;
+  movimentoId: string;
   nome: string;
   primeira: number;
   ultima: number;
   treinos: number;
   /** A maior carga de cada treino, do mais antigo para o mais recente. */
   curva: number[];
+};
+
+/**
+ * Um treino da série atual e a progressão dos exercícios dele.
+ *
+ * O grupo é o treino de **hoje** — Push, Pull, Legs, Full — mas o que vai
+ * dentro é o histórico inteiro de cada movimento, inclusive o que foi feito
+ * em séries que já não existem. Trocar a série muda as caixas, não apaga o
+ * que está dentro delas.
+ */
+export type GrupoDeProgresso = {
+  chave: string;
+  titulo: string;
+  itens: CargaEvoluida[];
 };
 
 export type Evolucao = {
@@ -45,7 +59,8 @@ export type Evolucao = {
   composicaoAtual: MedidaComposta | null;
   /** Dias desde a última vez que passou a fita. `null` se nunca passou. */
   diasDesdeAMedida: number | null;
-  cargas: CargaEvoluida[];
+  /** Um grupo por treino da série atual, e um no fim para o que saiu dela. */
+  progressao: GrupoDeProgresso[];
   /** Semanas distintas em que houve pelo menos um treino registrado. */
   semanasComTreino: number;
   /** Semanas desde o primeiro treino, para dar tamanho ao número acima. */
@@ -69,13 +84,14 @@ export async function buscarEvolucao(
 ): Promise<Evolucao> {
   const { data: usuario } = await supabase
     .from("usuarios")
-    .select("fuso, sexo, altura_cm")
+    // `*`: coluna que ainda não existe não pode derrubar a Evolução inteira.
+    .select("*")
     .eq("id", usuarioId)
     .maybeSingle();
 
   const hoje = dataRitual(agoraNoFuso(usuario?.fuso || "UTC"));
 
-  const [{ data: medidas }, { data: exercicios }, { data: sessoes }] =
+  const [{ data: medidas }, progressao, { data: sessoes }] =
     await Promise.all([
       supabase
         .from("medidas")
@@ -85,10 +101,7 @@ export async function buscarEvolucao(
         .eq("usuario_id", usuarioId)
         .order("data", { ascending: false })
         .limit(60),
-      supabase
-        .from("exercicios")
-        .select("id, nome")
-        .eq("usuario_id", usuarioId),
+      montarProgressao(supabase, usuarioId),
       supabase
         .from("sessoes_treino")
         .select("data")
@@ -135,8 +148,6 @@ export async function buscarEvolucao(
     ? diferencaDias(hoje, ultimaComFita.data)
     : null;
 
-  const cargas = await montarCargas(supabase, usuarioId, exercicios ?? []);
-
   const datasSessoes = (sessoes ?? []).map((s) => s.data as string);
   const semanas = new Set(datasSessoes.map((d) => domingoDaSemana(d)));
   const semanasDesdeOComeco = datasSessoes.length
@@ -153,33 +164,57 @@ export async function buscarEvolucao(
     composicaoInicial,
     composicaoAtual,
     diasDesdeAMedida,
-    cargas,
+    progressao,
     semanasComTreino: semanas.size,
     semanasDesdeOComeco,
   };
 }
 
-/** Primeira e última carga de cada exercício que tem mais de um registro. */
-async function montarCargas(
+/**
+ * A progressão de cada movimento, agrupada pelos treinos da série atual.
+ *
+ * Um movimento que está em dois treinos aparece nos dois, com o mesmo
+ * histórico. O que tem histórico e não está em nenhum treino de agora vai
+ * para "Fora da série atual" — é o supino que saiu nesta série e volta na
+ * próxima, e até lá o histórico dele não pode sumir da tela.
+ *
+ * Aparece quem tem pelo menos um registro com carga. Com um só, não há
+ * curva nem "de onde para onde", mas o exercício está lá: numa caixa de
+ * treino, faltar exercício pareceria defeito.
+ */
+async function montarProgressao(
   supabase: SupabaseClient,
   usuarioId: string,
-  exercicios: { id: string; nome: string }[],
-): Promise<CargaEvoluida[]> {
-  if (exercicios.length === 0) return [];
-
-  const { data: registros } = await supabase
-    .from("registros_exercicio")
-    .select(
-      "exercicio_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie",
-    )
-    .eq("usuario_id", usuarioId)
-    .not("carga_kg", "is", null)
-    .order("data", { ascending: true });
+): Promise<GrupoDeProgresso[]> {
+  const [{ data: treinos }, { data: vagas }, { data: movimentos }, { data: registros }] =
+    await Promise.all([
+      supabase
+        .from("treinos")
+        .select("id, nome, ordem")
+        .eq("usuario_id", usuarioId)
+        .order("ordem", { ascending: true })
+        .order("criado_em", { ascending: true }),
+      supabase
+        .from("exercicios")
+        .select("treino_id, movimento_id, ordem, criado_em")
+        .eq("usuario_id", usuarioId)
+        .order("ordem", { ascending: true })
+        .order("criado_em", { ascending: true }),
+      supabase.from("movimentos").select("id, nome").eq("usuario_id", usuarioId),
+      supabase
+        .from("registros_exercicio")
+        .select(
+          "movimento_id, data, carga_kg, repeticoes, series, repeticoes_serie, cargas_serie",
+        )
+        .eq("usuario_id", usuarioId)
+        .not("carga_kg", "is", null)
+        .order("data", { ascending: true }),
+    ]);
 
   // A maior carga do treino, e não `carga_kg`: numa pirâmide `carga_kg` é a
   // primeira série, a mais leve, e uma pirâmide de 40 a 55 kg apareceria
   // aqui como 40.
-  const porExercicio = new Map<string, { carga: number }[]>();
+  const cargasPorMovimento = new Map<string, number[]>();
   for (const r of registros ?? []) {
     const carga = maiorCarga({
       data: r.data as string,
@@ -190,34 +225,58 @@ async function montarCargas(
       cargas_serie: r.cargas_serie as number[] | null,
     });
     if (carga === null) continue;
-    const lista = porExercicio.get(r.exercicio_id as string) ?? [];
-    lista.push({ carga });
-    porExercicio.set(r.exercicio_id as string, lista);
+    const id = r.movimento_id as string;
+    cargasPorMovimento.set(id, [...(cargasPorMovimento.get(id) ?? []), carga]);
   }
 
-  const nomes = new Map(exercicios.map((e) => [e.id, e.nome]));
-  const cargas: CargaEvoluida[] = [];
-
-  for (const [id, lista] of porExercicio) {
-    // Com um registro só não há "de onde para onde": isso é o primeiro dia,
-    // não evolução. Aparece quando houver o segundo.
-    if (lista.length < 2) continue;
-    cargas.push({
-      exercicioId: id,
-      nome: nomes.get(id) ?? "Exercício",
-      primeira: lista[0].carga,
-      ultima: lista[lista.length - 1].carga,
-      treinos: lista.length,
-      curva: lista.map((x) => x.carga),
-    });
-  }
-
-  // Maior variação primeiro, em módulo: o que mais mudou é o que conta a
-  // história, tenha subido ou descido.
-  return cargas.sort(
-    (a, b) =>
-      Math.abs(b.ultima - b.primeira) - Math.abs(a.ultima - a.primeira),
+  const nomes = new Map(
+    (movimentos ?? []).map((m) => [m.id as string, m.nome as string]),
   );
+
+  const item = (movimentoId: string): CargaEvoluida | null => {
+    const curva = cargasPorMovimento.get(movimentoId);
+    if (!curva?.length) return null;
+    return {
+      movimentoId,
+      nome: nomes.get(movimentoId) ?? "Exercício",
+      primeira: curva[0],
+      ultima: curva[curva.length - 1],
+      treinos: curva.length,
+      curva,
+    };
+  };
+
+  const grupos: GrupoDeProgresso[] = [];
+  const naSerieAtual = new Set<string>();
+
+  // Na ordem do treino, e não por quem mudou mais: dentro da caixa do Pull
+  // a pessoa procura o exercício onde ele fica no treino.
+  for (const treino of treinos ?? []) {
+    const itens: CargaEvoluida[] = [];
+    for (const vaga of vagas ?? []) {
+      if (vaga.treino_id !== treino.id) continue;
+      const id = vaga.movimento_id as string;
+      naSerieAtual.add(id);
+      if (itens.some((i) => i.movimentoId === id)) continue;
+      const pronto = item(id);
+      if (pronto) itens.push(pronto);
+    }
+    if (itens.length > 0) {
+      grupos.push({ chave: treino.id as string, titulo: treino.nome as string, itens });
+    }
+  }
+
+  const fora = [...cargasPorMovimento.keys()]
+    .filter((id) => !naSerieAtual.has(id))
+    .map(item)
+    .filter((i): i is CargaEvoluida => i !== null)
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+
+  if (fora.length > 0) {
+    grupos.push({ chave: "fora", titulo: "Fora da série atual", itens: fora });
+  }
+
+  return grupos;
 }
 
 /** Quantos domingos separam duas semanas, contando as duas pontas. */

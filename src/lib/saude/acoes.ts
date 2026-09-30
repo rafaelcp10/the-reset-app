@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
+import { garantirMovimento, guardarPlano } from "./movimento";
 import {
   BIOTIPOS,
   COLUNA_CALORIAS,
@@ -143,8 +144,39 @@ export async function salvarDiasTreino(treinoId: string, dias: number[]) {
   revalidatePath(CAMINHO);
 }
 
+/** O movimento de uma vaga — é ele, e não a vaga, que é dono do histórico. */
+async function movimentoDaVaga(
+  supabase: Awaited<ReturnType<typeof usuarioAtual>>["supabase"],
+  usuarioId: string,
+  exercicioId: string,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("exercicios")
+    .select("movimento_id")
+    .eq("usuario_id", usuarioId)
+    .eq("id", exercicioId)
+    .maybeSingle();
+  return (data?.movimento_id as string | undefined) ?? null;
+}
+
+/**
+ * Apaga o treino — e só o treino.
+ *
+ * O histórico de carga mora no movimento e as sessões sobrevivem sem
+ * treino, então trocar a série inteira não apaga nada do que foi feito.
+ * A exceção é a sessão **aberta** deste treino: sem treino, ela seria um
+ * cronômetro correndo para lugar nenhum, e trancaria o botão de começar.
+ */
 export async function excluirTreino(treinoId: string) {
   const { supabase, user } = await usuarioAtual();
+
+  await supabase
+    .from("sessoes_treino")
+    .delete()
+    .eq("usuario_id", user.id)
+    .eq("treino_id", treinoId)
+    .is("fim", null);
+
   await supabase
     .from("treinos")
     .delete()
@@ -159,6 +191,11 @@ export async function excluirTreino(treinoId: string) {
  * Adiciona o exercício. `grupo` e `degrau` chegam preenchidos quando o nome
  * veio do catálogo, e vazios quando a pessoa escreveu o dela — nesse caso o
  * app não adivinha: fica sem grupo, e o degrau é o padrão de barra.
+ *
+ * **Se o movimento já existe, ele volta com o que tinha.** O supino que
+ * sai da série de agora e reaparece na de daqui a seis meses é o mesmo
+ * supino: mesmo histórico, e o mesmo degrau, séries e repetições da última
+ * vaga que ocupou. Montar a série nova não é recomeçar.
  */
 export async function adicionarExercicio(treinoId: string, formData: FormData) {
   const nome = ((formData.get("nome") as string) ?? "").trim();
@@ -182,20 +219,48 @@ export async function adicionarExercicio(treinoId: string, formData: FormData) {
     Number.isFinite(degrauNumero) && degrauNumero >= 0 ? degrauNumero : 2.5;
 
   const { supabase, user } = await usuarioAtual();
+
+  const movimento = await garantirMovimento(supabase, user.id, nome, grupo);
+  if (!movimento) return;
+
   const { count } = await supabase
     .from("exercicios")
     .select("id", { count: "exact", head: true })
     .eq("usuario_id", user.id)
     .eq("treino_id", treinoId);
 
+  // O plano vem do movimento, e não de uma vaga antiga: as vagas somem com
+  // a série velha, e o movimento é o que atravessa as séries.
+  const anterior =
+    movimento.plano.incremento_kg !== null ? movimento.plano : null;
+
   await supabase.from("exercicios").insert({
     usuario_id: user.id,
     treino_id: treinoId,
+    movimento_id: movimento.id,
     nome,
-    grupo,
-    incremento_kg: degrau,
+    grupo: grupo ?? (movimento.grupo as GrupoMuscular | null),
+    // O que a pessoa já usava nesse movimento ganha do padrão; o catálogo
+    // só decide o degrau de quem nunca fez o exercício.
+    ...(anterior
+      ? {
+          series: anterior.series ?? 3,
+          repeticoes: anterior.repeticoes ?? 10,
+          repeticoes_serie: anterior.repeticoes_serie,
+          incremento_kg: anterior.incremento_kg,
+        }
+      : { incremento_kg: degrau }),
     ordem: count ?? 0,
   });
+
+  if (!anterior) {
+    await guardarPlano(supabase, user.id, movimento.id, {
+      incremento_kg: degrau,
+      series: 3,
+      repeticoes: 10,
+      repeticoes_serie: null,
+    });
+  }
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}`);
 }
@@ -232,16 +297,21 @@ export async function salvarExercicio(
     : null;
 
   const { supabase, user } = await usuarioAtual();
+  const plano = {
+    series: lista ? lista.length : series,
+    repeticoes,
+    incremento_kg: incremento,
+    repeticoes_serie: lista,
+  };
+
   await supabase
     .from("exercicios")
-    .update({
-      series: lista ? lista.length : series,
-      repeticoes,
-      incremento_kg: incremento,
-      repeticoes_serie: lista,
-    })
+    .update(plano)
     .eq("usuario_id", user.id)
     .eq("id", exercicioId);
+
+  const movimentoId = await movimentoDaVaga(supabase, user.id, exercicioId);
+  if (movimentoId) await guardarPlano(supabase, user.id, movimentoId, plano);
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}`);
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
@@ -297,10 +367,14 @@ export async function registrarSerie(
     ? valores.cargasSerie.slice(0, 20).map(peso)
     : null;
 
+  const movimentoId = await movimentoDaVaga(supabase, user.id, exercicioId);
+  if (!movimentoId) return;
+
   await supabase.from("registros_exercicio").upsert(
     {
       usuario_id: user.id,
       exercicio_id: exercicioId,
+      movimento_id: movimentoId,
       data,
       // `carga_kg` e `repeticoes` continuam preenchidos mesmo no variável:
       // são eles que o histórico e a Home leem de relance, e um registro
@@ -313,11 +387,14 @@ export async function registrarSerie(
       repeticoes_serie: repsSerie,
       cargas_serie: cargasSerie,
     },
-    { onConflict: "exercicio_id,data" },
+    // Um registro por movimento por dia: o mesmo supino no Push e no Full
+    // body do mesmo dia é o mesmo supino, e corrigir não empilha.
+    { onConflict: "movimento_id,data" },
   );
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
-  revalidatePath(`${CAMINHO}/exercicios/${exercicioId}`);
+  revalidatePath(`${CAMINHO}/exercicios/${movimentoId}`);
+  revalidatePath(`${CAMINHO}/evolucao`);
 }
 
 /** Desfaz o registro de hoje. Erro de dedo acontece. */
@@ -327,15 +404,19 @@ export async function apagarRegistro(
   data: string,
 ) {
   const { supabase, user } = await usuarioAtual();
+  const movimentoId = await movimentoDaVaga(supabase, user.id, exercicioId);
+  if (!movimentoId) return;
+
   await supabase
     .from("registros_exercicio")
     .delete()
     .eq("usuario_id", user.id)
-    .eq("exercicio_id", exercicioId)
+    .eq("movimento_id", movimentoId)
     .eq("data", data);
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
-  revalidatePath(`${CAMINHO}/exercicios/${exercicioId}`);
+  revalidatePath(`${CAMINHO}/exercicios/${movimentoId}`);
+  revalidatePath(`${CAMINHO}/evolucao`);
 }
 
 /**
