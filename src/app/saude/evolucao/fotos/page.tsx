@@ -40,11 +40,7 @@ export default async function FotosPage() {
       <Revelar imediato y={14} desfoque={4} className="flex flex-col gap-2 px-1">
         <h1 className="text-[26px] leading-tight text-texto">Suas fotos</h1>
         <p className="text-[16.5px] leading-[1.6] text-auxiliar">
-          {total === 0
-            ? "Nenhuma ainda."
-            : `${total} ${total === 1 ? "foto" : "fotos"}, em ${dias.length} ${
-                dias.length === 1 ? "dia" : "dias"
-              }.`}
+          {resumo(total, dias.map((d) => d.data))}
         </p>
       </Revelar>
 
@@ -61,4 +57,35 @@ export default async function FotosPage() {
       </div>
     </div>
   );
+}
+
+/** "21 de setembro", e com o ano quando as duas pontas não são do mesmo ano. */
+function quando(iso: string, comAno: boolean): string {
+  const [ano, mes, dia] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC",
+    day: "numeric",
+    month: "long",
+    ...(comAno ? { year: "numeric" } : {}),
+  }).format(new Date(Date.UTC(ano, mes - 1, dia, 12)));
+}
+
+/**
+ * "8 fotos em 2 sessões, de 21 de setembro a 21 de outubro."
+ *
+ * Era "8 fotos, em 2 dias", que queria dizer duas sessões e se lia como
+ * "ao longo de dois dias" — para quem fotografou com um mês de intervalo,
+ * parecia errado. A pergunta de quem abre a galeria é "desde quando", e o
+ * intervalo responde; "sessão" é o nome do que acontece num dia de fotos.
+ *
+ * `datas` vem do mais novo para o mais antigo, como a galeria.
+ */
+function resumo(total: number, datas: string[]): string {
+  if (total === 0) return "Nenhuma ainda.";
+  const fotos = `${total} ${total === 1 ? "foto" : "fotos"}`;
+  const maisNova = datas[0];
+  const maisAntiga = datas[datas.length - 1];
+  if (datas.length === 1) return `${fotos}, em ${quando(maisNova, true)}.`;
+  const comAno = maisNova.slice(0, 4) !== maisAntiga.slice(0, 4);
+  return `${fotos} em ${datas.length} sessões, de ${quando(maisAntiga, comAno)} a ${quando(maisNova, comAno)}.`;
 }
