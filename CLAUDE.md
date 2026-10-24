@@ -615,6 +615,25 @@ O que mudou:
 caindo de 2 em 5 horas, ainda dá para perder um dia. A correção completa é
 tirar o disparo do GitHub Actions e pôr num agendador que cumpra horário.
 
+### 36 dias sem notificação nenhuma (2026-09-18 a 2026-10-24)
+
+Quando o comando saiu do YAML para `.github/scripts/chamar-cron.sh`, o
+passo de `actions/checkout` não entrou junto. O runner começa com a pasta
+vazia, o script não existia lá, e o bash respondia **127** ("não
+encontrado"). **191 disparos seguidos falharam**, e nesse tempo nenhuma
+notificação agendada saiu — check-in da noite, água, fita, foto. Quem
+achou foi o Rafael, pelo painel do GitHub.
+
+O teste daquele dia chamou as rotas direto, com `curl`, e elas
+respondiam 200: **testar a rota não testa o workflow.** Mudança no
+workflow se confere numa execução de verdade dele (o painel do Actions, ou
+"Run workflow"), e não só no YAML válido e na rota que responde.
+
+Duas coisas ficaram no arquivo por causa disso: o checkout (só da pasta
+dos scripts) e `if: !cancelled()` no passo dos lembretes — antes, o
+check-in falhando pulava os lembretes também, e uma rota fora do ar
+calava a outra.
+
 ## Música (2026-09-19)
 
 O app **não integra com o Spotify**, e isso é decisão fechada, não falta de
