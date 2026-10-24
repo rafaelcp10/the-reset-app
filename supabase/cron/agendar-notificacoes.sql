@@ -19,10 +19,30 @@ create extension if not exists pg_net;
 -- 2. Os segredos, no cofre. **Troque os dois valores entre aspas** antes de
 --    rodar: o endereço do app em produção, sem barra no fim, e o mesmo
 --    CRON_SECRET que está nas variáveis de ambiente da Vercel.
---    Rodou de novo e deu erro de nome repetido? Os segredos já existem;
---    para trocar um valor, use vault.update_secret.
-select vault.create_secret('https://SEU-APP.vercel.app', 'app_url');
-select vault.create_secret('COLE-AQUI-O-CRON-SECRET', 'cron_secret');
+--
+--    Cria se não existir e atualiza se já existir: rodar o arquivo de novo
+--    não dá erro, e é assim que se corrige um valor gravado errado. A
+--    primeira versão usava só `create_secret`, que falha com "duplicate
+--    key" na segunda vez — e deixava o resto do arquivo sem rodar.
+do $$
+declare
+  segredos constant text[][] := array[
+    ['app_url',     'https://SEU-APP.vercel.app'],
+    ['cron_secret', 'COLE-AQUI-O-CRON-SECRET']
+  ];
+  i int;
+  existente uuid;
+begin
+  for i in 1 .. array_length(segredos, 1) loop
+    select id into existente from vault.secrets where name = segredos[i][1];
+    if existente is null then
+      perform vault.create_secret(segredos[i][2], segredos[i][1]);
+    else
+      perform vault.update_secret(existente, segredos[i][2]);
+    end if;
+  end loop;
+end
+$$;
 
 -- 3. A chamada de uma rota, lendo os segredos do cofre na hora — o comando
 --    agendado fica sem segredo nenhum escrito nele, e `cron.job` é legível.
