@@ -13,6 +13,18 @@ jobs:
   disparar:
     runs-on: ubuntu-latest
     steps:
+      # Sem este passo o runner começa com a pasta vazia, e o script abaixo
+      # não existe: o bash responde 127 ("não encontrado"). Foi o que
+      # aconteceu de 2026-09-18 a 2026-10-24 — o script saiu do YAML, este
+      # passo nunca entrou, e 191 disparos seguidos falharam sem que nenhuma
+      # notificação agendada saísse. Só a pasta dos scripts: o resto do
+      # repositório não é usado aqui.
+      - name: Baixar o script
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       # As duas rotas usam o mesmo script. Nada de continuação de linha com
       # barra invertida aqui: uma barra perdida na hora de editar o arquivo
       # transforma o comando em duas linhas, o YAML inteiro fica inválido e
@@ -28,7 +40,11 @@ jobs:
       # mesmo cron de meia em meia hora, e a própria rota decide de quem é
       # a vez no fuso de cada pessoa. Um workflow separado só duplicaria o
       # segredo e a chance de um dos dois ficar para trás.
+      #
+      # `!cancelled()`: roda mesmo se o check-in falhou. São avisos
+      # independentes, e uma rota fora do ar não pode calar a outra.
       - name: Chamar a rota dos lembretes da Saúde
+        if: ${{ !cancelled() }}
         env:
           ROTA: lembretes
         run: bash .github/scripts/chamar-cron.sh "$ROTA"
