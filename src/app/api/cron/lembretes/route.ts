@@ -1,4 +1,5 @@
 import { executarCron, type Reivindicador } from "@/lib/push/despacho";
+import { fraseAgua, fraseEvolucao } from "@/lib/push/frases";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -46,12 +47,7 @@ const evolucao: Reivindicador = async (supabase, lote) => {
     ttlSegundos: TETO_MANHA * 60,
     carga: {
       titulo: "The Reset",
-      corpo:
-        l.medir && l.fotografar
-          ? "Fita métrica e uma foto. Cinco minutos."
-          : l.fotografar
-            ? "Faz um mês desde a última foto."
-            : "Domingo de fita métrica. Três minutos.",
+      corpo: fraseEvolucao(l.usuario_id, l.data, l.medir, l.fotografar),
       url: "/saude/evolucao",
       comAcoes: false,
       tag: "evolucao",
@@ -75,10 +71,7 @@ const agua: Reivindicador = async (supabase, lote) => {
     ttlSegundos: TETO_AGUA * 60,
     carga: {
       titulo: "The Reset",
-      corpo:
-        l.faltam_garrafas === 1
-          ? "Falta uma garrafa de água hoje."
-          : `Faltam ${l.faltam_garrafas} garrafas de água hoje.`,
+      corpo: fraseAgua(l.usuario_id, l.data, l.tipo, l.faltam_garrafas),
       url: "/saude/nutricao",
       comAcoes: false,
       // Tag por assunto: uma água nova substitui a anterior que não foi

@@ -694,6 +694,31 @@ Testado em Postgres de verdade (PGlite, o Postgres compilado para Node),
 com 29 cenários de horário, fuso, teto, lote e acesso, e 101 mil usuários
 para o tempo. O despachante, com banco e push simulados, em 11.
 
+### O lembrete de domingo e as frases que variam (2026-10-24)
+
+- **Domingo às 10h, lembrete de planejar a semana**
+  (`reivindicar_planejamento`, na rota do check-in, que virou a rota dos
+  avisos do ritual). Abre direto em `/ritual/domingo`. **Quem já fechou a
+  semana não é lembrado**: fechar grava em `revisoes_semanais` a semana
+  *passada*, e é por ela que a função pergunta. 10h porque a fita sai às
+  9h, também no domingo. A hora vem da rota (`HORA_DO_PLANEJAMENTO`), para
+  mudar sem migration.
+- **As frases das notificações variam** (`lib/push/frases.ts`). Mesmo aviso
+  com a mesma frase todo dia vira paisagem. A escolha é **rotação, não
+  sorteio**: a rodada sobe de um em um (dia, horário de água, semana), então
+  a mesma frase nunca vem duas vezes seguidas, e cada pessoa começa num
+  ponto diferente da roda.
+- **Todas as frases estão escritas à mão no código; o app escolhe, não
+  escreve.** A regra "o app nunca gera, sugere ou adiciona frases" é sobre
+  as cinco frases do ritual, que são da pessoa — texto de notificação é
+  interface. Mesmo assim, nada é gerado na hora, e a voz é a do resto do
+  app: sem culpa, sem parabéns, sem placar, sem justificativa científica.
+  No check-in, algumas frases dizem em voz alta que "fiz" e "não fiz"
+  contam igual.
+- A linha da pessoa, quando abre a frase, ganha maiúscula só na primeira
+  letra: "treinar perna" escrito por ela, "Treinar perna. Fez ou não fez?"
+  na notificação.
+
 **A Vercel no plano grátis (Hobby) não permite uso comercial.** Quando o
 app começar a ser vendido, o plano Pro passa a ser obrigatório pelos termos
 da Vercel, independente das notificações.
