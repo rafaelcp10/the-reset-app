@@ -598,9 +598,10 @@ existia.
 O que mudou:
 
 - A pergunta deixou de ser "estou na janela?" e passou a ser **"o horário
-  já passou e eu ainda não avisei?"**. `lib/push/janela.ts` faz a conta no
-  dia da pessoa, que vira às 3h — sem isso, um check-in de 21h30 com o cron
-  rodando à 1h daria "faltam 20 horas" em vez de "passaram 3h30".
+  já passou e eu ainda não avisei?"**, com a conta feita no dia da pessoa,
+  que vira às 3h — sem isso, um check-in de 21h30 com o cron rodando à 1h
+  daria "faltam 20 horas" em vez de "passaram 3h30". (Desde 2026-10-24 essa
+  conta mora no banco — ver "Notificações que escalam".)
 - **Teto de atraso**: 3h para o check-in e a manhã, 2h para a água. Sem
   teto, um check-in de 21h30 viraria notificação às 2h da manhã.
 - **`lembretes_enviados`** é a memória. Sem ela, um cron que roda três
@@ -633,6 +634,69 @@ Duas coisas ficaram no arquivo por causa disso: o checkout (só da pasta
 dos scripts) e `if: !cancelled()` no passo dos lembretes — antes, o
 check-in falhando pulava os lembretes também, e uma rota fora do ar
 calava a outra.
+
+## Notificações que escalam (2026-10-24)
+
+O app vai ser vendido, e o desenho de antes funcionava para uma pessoa.
+Cada disparo carregava **todos** os usuários para o JavaScript e filtrava
+ali quem estava no horário; mandava a lista de ids na URL das consultas
+seguintes, que **estoura com algumas centenas de pessoas no mesmo
+horário**; lia o histórico inteiro de dias e avisos de cada um, sem filtro
+de data; e disparava todos os envios ao mesmo tempo numa função só, que
+marcava "avisado" no fim — cortada no meio, reenviava tudo no disparo
+seguinte.
+
+O desenho novo, em três partes:
+
+- **O banco decide quem recebe e reserva o aviso na mesma operação**
+  (`reivindicar_checkin`, `reivindicar_evolucao`, `reivindicar_agua`, na
+  migration `20261024000000_notificacoes_escalaveis.sql`). A reserva é a
+  linha em `lembretes_enviados`, com `on conflict do nothing` como trava:
+  duas execuções simultâneas não conseguem reservar a mesma pessoa, então
+  **duplicata é impossível por construção**. Reservar antes de enviar
+  troca "pode chegar duas vezes" por "pode não chegar" se a função morrer
+  no meio — para lembrete, a troca certa.
+- **A rota só envia, em lotes de 500, com no máximo 25 envios
+  simultâneos e 40 segundos de orçamento** (`lib/push/despacho.ts`). O
+  resto fica para o minuto seguinte, e várias execuções dividem uma fila
+  grande sem repetir ninguém. Falha passageira do serviço de push devolve a
+  reserva; aparelho morto (404/410) é apagado.
+- **O gatilho é o `pg_cron` do Supabase, de minuto em minuto**
+  (`supabase/cron/agendar-notificacoes.sql`), com o endereço e o segredo no
+  cofre do banco, e não escritos no comando agendado. O workflow do GitHub
+  pode ficar como reserva: a trava garante que os dois juntos não duplicam.
+
+Decisões que custaram um teste para descobrir:
+
+- **O relógio é calculado uma vez por fuso, não por pessoa.** Cem mil
+  pessoas dividem algumas dezenas de fusos, e a conversão de fuso é a
+  parte cara: por pessoa, a água levava 5,3 s com 100 mil usuários; por
+  fuso, 175 ms. Pelo mesmo motivo, cada função descarta os fusos fora de
+  hora antes de olhar qualquer pessoa.
+- **Mais atrasado primeiro.** Com fila maior que o lote, ordem arbitrária
+  podia deixar a mesma pessoa para trás minuto após minuto até passar do
+  teto — e aí ela não recebia nada.
+- **O TTL do push é o teto de atraso do aviso**, e não o padrão da
+  biblioteca, que é quatro semanas: um check-in de terça com o celular
+  desligado chegaria no sábado.
+- **Fuso inválido vira UTC** em vez de derrubar a consulta inteira.
+- **As funções só executam com a chave de serviço.** O Supabase dá
+  execução de função nova para `anon` e `authenticated` por padrão, e estas
+  devolvem dados de outras pessoas.
+- **`execucoes_cron` é o batimento cardíaco**: uma linha por execução,
+  inclusive as vazias. Os 36 dias sem notificação passaram sem ninguém ver
+  porque não existia isto.
+- **`lembretes_enviados` guarda duas semanas**, apagadas todo dia: só o dia
+  de hoje é consultado, e com cem mil pessoas seriam 200 milhões de linhas
+  por ano.
+
+Testado em Postgres de verdade (PGlite, o Postgres compilado para Node),
+com 29 cenários de horário, fuso, teto, lote e acesso, e 101 mil usuários
+para o tempo. O despachante, com banco e push simulados, em 11.
+
+**A Vercel no plano grátis (Hobby) não permite uso comercial.** Quando o
+app começar a ser vendido, o plano Pro passa a ser obrigatório pelos termos
+da Vercel, independente das notificações.
 
 ## Música (2026-09-19)
 
