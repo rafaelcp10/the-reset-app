@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import Grafico, { type Ponto } from "./Grafico";
 
 /**
@@ -54,6 +56,7 @@ export default function PainelSerie({
   descricao,
   acao,
   rodape,
+  corrigirEm,
 }: {
   rotulo: string;
   unidade: string;
@@ -66,6 +69,12 @@ export default function PainelSerie({
   acao?: ReactNode;
   /** O que vem depois da curva — números irmãos do principal. */
   rodape?: ReactNode;
+  /**
+   * Onde se corrige a medida do ponto escolhido: o endereço, terminado em
+   * `data=`, ao qual a data do ponto é acrescentada. Sem ele, não há link.
+   * Texto e não função, porque função não atravessa do servidor para cá.
+   */
+  corrigirEm?: string;
 }) {
   const diasDaSerie = useMemo(() => {
     if (pontos.length < 2) return 0;
@@ -125,6 +134,20 @@ export default function PainelSerie({
         <span className="text-[15.5px] leading-[1.5] text-auxiliar">
           {nota}
         </span>
+
+        {/* Acompanha o ponto escolhido: arrastar até o 19 de outubro e
+            tocar aqui abre a medida daquele dia. Antes, uma medida antiga
+            digitada errado não tinha conserto pelo app — e um peso errado
+            mexe na água e nas calorias também. */}
+        {corrigirEm && (
+          <Link
+            href={`${corrigirEm}${atual.data}`}
+            className="-ml-1 inline-flex min-h-11 items-center gap-1.5 self-start px-1 text-[15.5px] text-auxiliar"
+          >
+            <Pencil className="h-[18px] w-[18px]" strokeWidth={1.5} aria-hidden />
+            Corrigir a medida de {semAno(atual.data)}
+          </Link>
+        )}
       </div>
 
       {mostrarJanelas && (
@@ -193,6 +216,16 @@ function variacao(
   const numero = escrever(Math.abs(delta), formato);
   const medida = unidade === "%" ? "p.p." : unidade;
   return `${delta > 0 ? "+" : "−"}${numero} ${medida} desde ${quando}`;
+}
+
+/** "19 de outubro". */
+function semAno(iso: string): string {
+  const [ano, mes, dia] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC",
+    day: "numeric",
+    month: "long",
+  }).format(new Date(Date.UTC(ano, mes - 1, dia, 12)));
 }
 
 function porExtenso(iso: string): string {

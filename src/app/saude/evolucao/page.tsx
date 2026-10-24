@@ -96,6 +96,7 @@ export default async function EvolucaoPage() {
             formato="uma-casa"
             descricao={`Percentual de gordura, ${curvaGordura.length} ${curvaGordura.length === 1 ? "medida" : "medidas"}. Arraste para ver cada uma.`}
             acao={<BotaoMedir />}
+            corrigirEm="/saude/evolucao/nova-medida?data="
             rodape={
               composicao.massaMagra !== null && composicao.massaGorda !== null ? (
                 <div className="flex flex-wrap gap-x-6 gap-y-1 pt-1">
@@ -123,6 +124,7 @@ export default async function EvolucaoPage() {
             formato="enxuto"
             descricao={`Peso, ${curvaPeso.length} ${curvaPeso.length === 1 ? "registro" : "registros"}. Arraste para ver cada um.`}
             acao={temComposicao ? undefined : <BotaoMedir />}
+            corrigirEm="/saude/evolucao/nova-medida?data="
           />
         </Revelar>
       )}

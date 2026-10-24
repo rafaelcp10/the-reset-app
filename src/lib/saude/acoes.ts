@@ -500,6 +500,13 @@ export async function salvarMedida(
   bruto: string,
 ) {
   if (!(campo in LIMITES)) return;
+  // A data agora pode ser antiga — é o "Corrigir" das curvas da Evolução.
+  // Antiga sim; malformada ou no futuro, não. Um dia de folga cobre quem
+  // está num fuso à frente do servidor.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return;
+  const amanha = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  if (data > amanha) return;
+
   const { supabase, user } = await usuarioAtual();
   const limpo = bruto.replace(",", ".").trim();
 

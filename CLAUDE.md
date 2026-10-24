@@ -403,6 +403,29 @@ visual de carga que subiu.
   ajudaria, e mesmo assim não entra: a exceção de imagem vale para foto do
   usuário, não para ilustração.
 
+### Número fora do comum e medida antiga (2026-10-24)
+
+Um 77,6 kg digitado errado em 19/10/2026 — a medida anterior era 86,7 —
+mudou a água de 5 para 4 garrafas e as calorias e a proteína de todos os
+dias seguintes, e passou uma semana sem ninguém ver. O app só deixava
+registrar medida na data de hoje, então não havia como consertar.
+
+- **Número longe do registro mais próximo pede confirmação antes de
+  gravar** (`CampoMedidas.tsx`): mais de 5% no peso, mais de 10% na fita,
+  que varia mais com a posição e a respiração. "77,6 kg? Da última vez
+  foram 86,7 kg, em 6 de outubro", com "Está certo" e "Corrigir". **Só
+  pergunta, nunca recusa**: perder 5 kg num mês acontece, e quem emagreceu
+  de verdade não pode ser tratado como quem errou a tecla. Sem vermelho e
+  sem ícone de alerta — é pergunta, não erro. Apagar um número não pede
+  confirmação.
+- **As curvas de Peso e de Composição têm "Corrigir a medida de 19 de
+  outubro"** embaixo do número, acompanhando o ponto escolhido
+  (`corrigirEm` no `PainelSerie`). Abre a mesma tela de medir naquela data
+  (`nova-medida?data=`), com os valores dela e a mesma confirmação.
+- A tela só abre datas que **já têm medida**: corrigir é sobre o que
+  existe, e uma data qualquer na URL não pode virar registro novo no
+  passado. A ação do servidor recusa data malformada ou no futuro.
+
 ### A exceção de imagem (2026-09-18)
 
 A regra era "nenhuma imagem em nenhuma tela". Ela continua valendo em todo
