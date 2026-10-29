@@ -86,6 +86,19 @@ valendo é a lista acima, que não mudou. O que passou a ser permitido:
 - Fundo vivo (`components/movimento/Atmosfera.tsx`): luz âmbar, bruma que
   deriva devagar, vinheta e grão. **Continua sem nenhuma imagem** — é tudo
   gradiente e turbulência SVG, para não pesar no PWA offline.
+- **Entrada de bloco em 420 ms, sem desfoque** (2026-10-29, pedido do
+  Rafael). Eram 760 ms com desfoque em todos os painéis: a tela levava
+  quase um segundo para assentar, e isso se sente como lentidão mesmo com
+  os dados já na mão. O desfoque ficou só nos títulos (`desfoque={4}`), que
+  são pequenos; animar `filter` em vários painéis grandes pesa em celular
+  simples. As telas manifesto (abertura, recomeço) mantêm o próprio ritmo
+  lento — ali a demora é o texto sendo dito, não a tela carregando.
+- **O grão não usa `mix-blend-mode`** (2026-10-29). Uma camada da tela
+  inteira misturada por cima de brumas que nunca param obriga o celular a
+  refazer a mistura a cada quadro, gastando bateria o tempo todo. Mistura
+  normal com opacidade menor dá o mesmo grão. Regra geral: **nada de
+  `mix-blend-mode` ou `backdrop-filter` em camada de tela inteira que fique
+  sobre algo animado.**
 
 ### Blocos (revisado em 2026-09-16)
 

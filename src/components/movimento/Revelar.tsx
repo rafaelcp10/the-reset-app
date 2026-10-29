@@ -4,15 +4,21 @@ import type { CSSProperties, ReactNode } from "react";
 import { useRevelar } from "@/lib/ui/useRevelar";
 
 /**
- * Revela o bloco quando ele entra na área visível — sobe, ganha foco e
- * clareia. A animação está em `.revelar` (globals.css).
+ * Revela o bloco quando ele entra na área visível — sobe e clareia. A
+ * animação está em `.revelar` (globals.css).
+ *
+ * **Bloco entra sem desfoque, e em 420 ms** (2026-10-29). Eram 760 ms com
+ * desfoque em todos: cada tela levava quase um segundo para assentar, e
+ * isso se sente como lentidão mesmo com os dados já na mão. E animar
+ * `filter` em vários painéis grandes de uma vez pesa em celular simples.
+ * O desfoque ficou só onde é pedido — os títulos, que são pequenos.
  */
 export default function Revelar({
   children,
   atraso = 0,
-  y = 22,
+  y = 16,
   escala = 1,
-  desfoque = 6,
+  desfoque = 0,
   imediato = false,
   className = "",
 }: {
@@ -35,13 +41,13 @@ export default function Revelar({
   return (
     <div
       ref={imediato ? undefined : ref}
-      className={`${imediato ? "revelar-imediato" : "revelar"} ${className}`}
+      className={`${imediato ? "revelar-imediato" : "revelar"}${desfoque > 0 ? " revelar-desfoque" : ""} ${className}`}
       style={
         {
           "--revelar-atraso": `${atraso}ms`,
           "--revelar-y": `${y}px`,
           "--revelar-escala": escala,
-          "--revelar-desfoque": `${desfoque}px`,
+          ...(desfoque > 0 ? { "--revelar-desfoque": `${desfoque}px` } : {}),
         } as CSSProperties
       }
     >

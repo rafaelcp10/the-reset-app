@@ -282,12 +282,17 @@ body {
   );
 }
 
-/* Plano 3 — grão. É o que tira o "digital limpo demais" da tela escura. */
+/* Plano 3 — grão. É o que tira o "digital limpo demais" da tela escura.
+   Sem `mix-blend-mode` desde 2026-10-29: misturar uma camada da tela
+   inteira por cima de brumas que nunca param obrigava o celular a refazer
+   a mistura a cada quadro, o tempo todo, gastando bateria. Mistura normal
+   com opacidade menor dá o mesmo grão — o `overlay` sobre fundo quase preto
+   já mexia pouquíssimo. E do tamanho da tela, não do dobro: ele não se
+   mexe, e a sobra era só memória de vídeo. */
 .atmosfera-grao {
   position: absolute;
-  inset: -50%;
-  opacity: 0.045;
-  mix-blend-mode: overlay;
+  inset: 0;
+  opacity: 0.02;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
 }
 
@@ -437,22 +442,36 @@ body {
    IntersectionObserver (ver components/movimento/Revelar.tsx).
    --------------------------------------------------------------------- */
 
+/* 420 ms e sem desfoque nos blocos (2026-10-29): eram 760 ms com desfoque
+   em tudo, e a tela levava quase um segundo para assentar. O desfoque só
+   entra com `.revelar-desfoque`, que o componente põe nos títulos — animar
+   `filter` em vários painéis grandes de uma vez pesa em celular simples. */
 .revelar {
   opacity: 0;
-  transform: translate3d(0, var(--revelar-y, 22px), 0)
+  transform: translate3d(0, var(--revelar-y, 16px), 0)
     scale(var(--revelar-escala, 1));
-  filter: blur(var(--revelar-desfoque, 6px));
   transition:
-    opacity 760ms var(--curva-entrada),
-    transform 760ms var(--curva-entrada),
-    filter 760ms var(--curva-entrada);
+    opacity 420ms var(--curva-entrada),
+    transform 420ms var(--curva-entrada);
   transition-delay: var(--revelar-atraso, 0ms);
   will-change: opacity, transform;
+}
+
+.revelar.revelar-desfoque {
+  filter: blur(var(--revelar-desfoque));
+  transition:
+    opacity 420ms var(--curva-entrada),
+    transform 420ms var(--curva-entrada),
+    filter 420ms var(--curva-entrada);
+  transition-delay: var(--revelar-atraso, 0ms);
 }
 
 .revelar.visivel {
   opacity: 1;
   transform: translate3d(0, 0, 0) scale(1);
+}
+
+.revelar.revelar-desfoque.visivel {
   filter: blur(0);
 }
 
@@ -462,9 +481,21 @@ body {
 @keyframes revelar-entrada {
   from {
     opacity: 0;
-    transform: translate3d(0, var(--revelar-y, 22px), 0)
+    transform: translate3d(0, var(--revelar-y, 16px), 0)
       scale(var(--revelar-escala, 1));
-    filter: blur(var(--revelar-desfoque, 6px));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes revelar-entrada-desfoque {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--revelar-y, 16px), 0)
+      scale(var(--revelar-escala, 1));
+    filter: blur(var(--revelar-desfoque));
   }
   to {
     opacity: 1;
@@ -474,8 +505,12 @@ body {
 }
 
 .revelar-imediato {
-  animation: revelar-entrada 760ms var(--curva-entrada) both;
+  animation: revelar-entrada 420ms var(--curva-entrada) both;
   animation-delay: var(--revelar-atraso, 0ms);
+}
+
+.revelar-imediato.revelar-desfoque {
+  animation-name: revelar-entrada-desfoque;
 }
 
 /* Palavra a palavra — reservado às telas manifesto (abertura, Home e
