@@ -269,11 +269,30 @@ Fora, e não deve entrar por analogia:
 
 ### O relatório do mês, e as dicas de treinador (2026-10-29)
 
-Na Evolução, abaixo da Progressão, **"Relatório do mês"**
-(`/saude/evolucao/relatorio`): o mês em números, comparado com o mês
-anterior da própria pessoa (treinos, semanas com treino, tempo, séries,
-volume); dicas; progressão por treino; séries por grupo muscular; e um PDF.
+**"Relatório do mês"** (`/saude/evolucao/relatorio`), no **topo da
+Evolução**, logo abaixo das abas. Nasceu depois da Progressão, no fim da
+tela, e o Rafael não achou: é o que se vem buscar uma vez por mês, e o
+que se busca de propósito fica onde se olha primeiro.
+
 Abre no mês em curso ("outubro, até agora"), e as setas andam para trás.
+Na ordem:
+
+- **Os treinos**: treinos, semanas com treino, tempo, séries e volume,
+  comparados com o mês anterior da própria pessoa.
+- **O corpo**: gordura, peso, cintura — "a medida da barriga" —, pescoço e
+  quadril. O último valor do mês, quanto mudou **no mês** (contra a última
+  medida antes dele) e quanto mudou **desde a primeira medida**. Gordura
+  em **pontos percentuais** ("−1,5 p.p."): de 21% para 19,5% não são
+  "−1,5%". Sem cor e sem seta, como no resto da Evolução. Só entra o que
+  teve medida no mês.
+- **Antes e depois**: por ângulo, **a primeira foto de todas, fixa**, ao
+  lado **da mais recente do mês**. Pedido do Rafael. Ângulo cuja primeira
+  foto é deste mês aparece sozinho, com "é o começo". Só aparece com foto
+  no mês.
+- Dicas, progressão por treino, séries por grupo muscular, e o PDF.
+
+Mês sem treino mas com medida ou foto continua tendo relatório: as seções
+aparecem cada uma pelo próprio dado.
 
 Olhei Hevy (o relatório mensal mais completo, sem dica nenhuma), Fitbod
 (relatório semanal e mensal, recomendação por IA), Alpha Progression
@@ -310,9 +329,17 @@ Outras decisões:
   em app instalado no iPhone**, que é como o app é usado. Dois toques —
   "Gerar PDF", depois "Salvar ou enviar" — porque o iPhone só abre o menu
   de compartilhar em resposta direta a um toque, e esperar o servidor
-  faria o toque expirar. Fundo claro, Helvetica (sem embutir fonte), e
-  **sem as fotos do corpo**: o PDF sai do app. Sem número de página: o
-  texto calculado por página não sai nesta versão da biblioteca.
+  faria o toque expirar. Fundo claro, Helvetica (sem embutir fonte). Sem
+  número de página: o texto calculado por página não sai nesta versão da
+  biblioteca.
+- **As fotos só vão no PDF se a pessoa marcar "Incluir as fotos"**, e a
+  marca começa desligada **toda vez** — não é lembrada de propósito. O PDF
+  sai do app e vai para onde ela mandar; o relatório que vai para o
+  professor não pode levar o corpo dela só porque o do mês passado, que foi
+  para ela mesma, levou. Marcado, o servidor baixa as fotos do bucket
+  privado **com a sessão da própria pessoa** (`?fotos=1`) e as embute no
+  arquivo: nenhum link vai dentro do PDF. Foto que falha some do PDF em vez
+  de derrubá-lo.
 - **A duração dos treinos é corrigida na leitura** pela mesma regra do
   encerramento (`fimDeVerdade`): treino esquecido aberto conta até a última
   série. Sem isso, a sessão de 118 horas dominaria o mês — e os dados
@@ -360,6 +387,19 @@ Nutrição, e entraria em qualquer relatório.
   fim é a última série registrada mais 5 minutos; sem série nenhuma, o
   tempo de treino do perfil. Vale para o "Encerrar" e para o fechamento
   automático de quando outro treino começa. Antes, os dois usavam "agora".
+- **Com 2h30 aberto, ele se encerra sozinho** — regra do Rafael
+  (`encerrar_treinos_esquecidos`, no banco, chamada pela rota dos
+  lembretes antes de qualquer aviso). O fim gravado é o mesmo do
+  `fimDeVerdade`: a última série mais 5 minutos, ou o tempo do perfil sem
+  série nenhuma, nunca depois de agora.
+- **A exceção: série registrada nos últimos 30 minutos.** Quem ainda está
+  registrando série está treinando, e um treino longo de perna não pode ser
+  fechado no meio. Ele fecha no primeiro minuto em que passar meia hora sem
+  série nova.
+- **O encerramento falhar não cala os lembretes.** Ele roda primeiro, e o
+  erro vai para `execucoes_cron` e para a resposta (503), mas água, fita,
+  foto e o aviso de 1h40 saem do mesmo jeito — a lição dos 36 dias é que
+  uma peça fora do ar não pode levar as outras junto.
 
 ### O histórico mora no exercício, e não no treino (2026-09-30)
 

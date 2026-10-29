@@ -17,6 +17,14 @@
 --
 -- Mesmo desenho dos outros avisos: o banco escolhe e reserva na mesma
 -- operação, e só a chave de serviço executa.
+--
+-- **E com 2h30 aberto, o treino se encerra sozinho** (regra do Rafael,
+-- 2026-10-29; os minutos vêm da rota): `encerrar_treinos_esquecidos`, mais
+-- abaixo. Fecha no fim de verdade — a última série mais 5 minutos, ou o
+-- tempo de treino do perfil se não houve série —, e não às 2h30. E não
+-- fecha quem registrou série nos últimos 30 minutos: aí a pessoa ainda
+-- está treinando, num treino longo, e encerrar no meio seria pior que
+-- esperar.
 
 create or replace function reivindicar_treino_aberto(
   p_lote int default 500,
@@ -75,4 +83,59 @@ create index if not exists sessoes_treino_abertas_inicio_idx
 revoke execute on function reivindicar_treino_aberto(int, int, int, timestamptz)
   from public, anon, authenticated;
 grant execute on function reivindicar_treino_aberto(int, int, int, timestamptz)
+  to service_role;
+
+-- ------------------------------------------- encerramento automático
+
+create or replace function encerrar_treinos_esquecidos(
+  p_minutos int default 150,
+  p_quieto int default 30,
+  p_agora timestamptz default now()
+)
+returns int
+language sql volatile
+as $$
+  with candidatas as (
+    select
+      s.id,
+      s.inicio,
+      (select max(r.criado_em)
+         from registros_exercicio r
+        where r.usuario_id = s.usuario_id
+          and r.criado_em >= s.inicio
+          and r.criado_em <= p_agora) as ultima_serie,
+      coalesce(u.treino_minutos, 60) as minutos_do_perfil
+    from sessoes_treino s
+    join usuarios u on u.id = s.usuario_id
+    where s.fim is null
+      and p_agora - s.inicio >= make_interval(mins => p_minutos)
+  ),
+  quietas as (
+    select * from candidatas c
+    where c.ultima_serie is null
+       or c.ultima_serie <= p_agora - make_interval(mins => p_quieto)
+  ),
+  fechadas as (
+    update sessoes_treino s
+       set fim = least(
+             p_agora,
+             greatest(
+               q.inicio,
+               coalesce(
+                 q.ultima_serie + interval '5 minutes',
+                 q.inicio + make_interval(mins => q.minutos_do_perfil)
+               )
+             )
+           )
+      from quietas q
+     where s.id = q.id
+       and s.fim is null
+    returning 1
+  )
+  select count(*)::int from fechadas
+$$;
+
+revoke execute on function encerrar_treinos_esquecidos(int, int, timestamptz)
+  from public, anon, authenticated;
+grant execute on function encerrar_treinos_esquecidos(int, int, timestamptz)
   to service_role;

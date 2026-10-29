@@ -1,9 +1,17 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Dumbbell, Lightbulb, Layers, CalendarRange } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Dumbbell, Lightbulb, Layers, CalendarRange, Ruler } from "lucide-react";
 import { mesAnterior, type Relatorio } from "@/lib/saude/relatorio";
 import { escreverPercentual } from "@/lib/saude/progresso";
 import { kg } from "@/lib/saude/serie";
-import { horas, milhar, nomeDoMes, proximoMes } from "@/lib/saude/relatorioTexto";
+import {
+  dataCurta,
+  diferencaDoCorpo,
+  horas,
+  milhar,
+  nomeDoMes,
+  proximoMes,
+  valorDoCorpo,
+} from "@/lib/saude/relatorioTexto";
 import Painel from "@/components/saude/Painel";
 import Revelar from "@/components/movimento/Revelar";
 import BaixarPdf from "./BaixarPdf";
@@ -11,7 +19,9 @@ import BaixarPdf from "./BaixarPdf";
 /** O relatório pronto na tela — separado da busca para poder ser visto sem login nos testes. */
 export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: string }) {
   const mes = r.mes;
-  const vazio = r.resumo.treinos === 0 && r.porTreino.length === 0;
+  const temTreino = r.resumo.treinos > 0 || r.porTreino.length > 0;
+  // Mês sem treino mas com medida ou foto ainda tem o que mostrar.
+  const vazio = !temTreino && r.corpo.length === 0 && r.fotos.length === 0;
   const nomeAnterior = nomeDoMes(mesAnterior(mes), false);
   const maiorGrupo = Math.max(1, ...r.grupos.map((g) => g.series));
 
@@ -54,12 +64,13 @@ export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: s
 
       {vazio ? (
         <p className="px-1 text-[16.5px] leading-[1.6] text-auxiliar">
-          Nenhum treino registrado neste mês.
+          Nada registrado neste mês: nem treino, nem medida, nem foto.
         </p>
       ) : (
         <>
+          {temTreino && (
           <Revelar imediato atraso={60}>
-            <Painel icone={CalendarRange} rotulo="O mês">
+            <Painel icone={CalendarRange} rotulo="Os treinos">
               <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                 <Numero valor={String(r.resumo.treinos)} rotulo={r.resumo.treinos === 1 ? "treino" : "treinos"} antes={r.anterior && String(r.anterior.treinos)} mesAntes={nomeAnterior} />
                 <Numero valor={String(r.resumo.semanas)} rotulo={r.resumo.semanas === 1 ? "semana com treino" : "semanas com treino"} antes={r.anterior && String(r.anterior.semanas)} mesAntes={nomeAnterior} />
@@ -69,6 +80,83 @@ export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: s
               </div>
             </Painel>
           </Revelar>
+          )}
+
+          {r.corpo.length > 0 && (
+            <Revelar imediato atraso={90}>
+              <Painel icone={Ruler} rotulo="O corpo">
+                {/* O último valor do mês, quanto mudou dentro dele, e quanto
+                    desde a primeira medida. Sem cor e sem seta: subir ou
+                    descer não é vitória nem derrota, e o app não sabe o que
+                    a pessoa quer. */}
+                <div className="flex flex-col gap-2">
+                  {r.corpo.map((c) => (
+                    <div
+                      key={c.chave}
+                      className="flex items-center justify-between gap-3 rounded-[10px] bg-superficie3 px-3.5 py-3"
+                    >
+                      <span className="flex flex-col">
+                        <span className="text-[15.5px] text-auxiliar">{c.rotulo}</span>
+                        <span className="text-[22px] leading-tight tabular-nums text-texto">
+                          {valorDoCorpo(c.valor, c.unidade)}
+                        </span>
+                      </span>
+                      <span className="flex flex-col items-end text-right text-[14.5px] tabular-nums text-auxiliar">
+                        {c.noMes !== null && <span>{diferencaDoCorpo(c.noMes, c.unidade)} no mês</span>}
+                        {c.desdeOComeco !== null && c.dataDoComeco && (
+                          <span className="text-auxiliar-fraco">
+                            {diferencaDoCorpo(c.desdeOComeco, c.unidade)} desde {dataCurta(c.dataDoComeco)}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Painel>
+            </Revelar>
+          )}
+
+          {r.fotos.length > 0 && (
+            <Revelar imediato atraso={120}>
+              <Painel icone={Camera} rotulo="Antes e depois">
+                {/* A primeira foto de cada ângulo, fixa, ao lado da mais
+                    recente deste mês. `<img>` comum, e nunca o otimizador
+                    do Next: ele guardaria foto de corpo num cache que não é
+                    da pessoa. */}
+                <div className="flex flex-col gap-4">
+                  {r.fotos.map((par) => (
+                    <div key={par.angulo} className="flex flex-col gap-2">
+                      <span className="text-[15.5px] text-texto">{par.rotulo}</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[par.antes, par.depois].map((foto, i) =>
+                          foto ? (
+                            <figure key={i} className="flex flex-col gap-1">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={foto.url ?? undefined}
+                                alt={`${par.rotulo}, ${dataCurta(foto.data)}`}
+                                className="aspect-[3/4] w-full rounded-[10px] bg-superficie3 object-cover"
+                              />
+                              <figcaption className="text-[13.5px] text-auxiliar-fraco">
+                                {i === 0 ? "Primeira" : "Este mês"} · {dataCurta(foto.data)}
+                              </figcaption>
+                            </figure>
+                          ) : (
+                            <div
+                              key={i}
+                              className="flex aspect-[3/4] items-center justify-center rounded-[10px] bg-superficie3 px-3 text-center text-[14px] text-auxiliar-fraco"
+                            >
+                              A primeira foto é deste mês: é o começo.
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Painel>
+            </Revelar>
+          )}
 
           {r.dicas.length > 0 && (
             <Revelar imediato atraso={120}>
@@ -93,6 +181,7 @@ export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: s
             </Revelar>
           )}
 
+          {r.porTreino.length > 0 && (
           <Revelar atraso={40}>
             <Painel icone={Dumbbell} rotulo="Por treino">
               <div className="flex flex-col gap-4">
@@ -128,6 +217,7 @@ export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: s
               </div>
             </Painel>
           </Revelar>
+          )}
 
           {r.grupos.length > 0 && (
             <Revelar atraso={60}>
@@ -153,7 +243,7 @@ export default function ConteudoRelatorio({ r, atual }: { r: Relatorio; atual: s
           )}
 
           <Revelar atraso={80}>
-            <BaixarPdf mes={mes} />
+            <BaixarPdf mes={mes} temFotos={r.fotos.length > 0} />
           </Revelar>
         </>
       )}

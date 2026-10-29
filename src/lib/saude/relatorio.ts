@@ -11,6 +11,8 @@ import {
 import { cargasDoRegistro, kg, planoDeReps, resumoDeReps } from "./serie";
 import { fimDeVerdade } from "./sessao";
 import { domingoDaSemana, somarMesesISO } from "@/lib/ritual/tempo";
+import { calcularComposicao, type Sexo } from "./composicao";
+import { buscarFotosDoMes, type ParDoMes } from "./fotos";
 
 /**
  * O relatório do mês: o que aconteceu, e o que fazer a partir daí.
@@ -49,6 +51,35 @@ export type MovimentoDoRelatorio = {
   repeticoes_serie: number[] | null;
 };
 
+/** Uma medida, já com o percentual de gordura calculado quando a fita fecha. */
+export type MedidaDoRelatorio = {
+  data: string;
+  peso_kg: number | null;
+  cintura_cm: number | null;
+  pescoco_cm: number | null;
+  quadril_cm: number | null;
+  gordura: number | null;
+};
+
+export type ChaveDoCorpo = "gordura" | "peso" | "cintura" | "pescoco" | "quadril";
+
+/**
+ * Uma linha do corpo no mês: o último valor do mês, quanto mudou dentro
+ * dele e quanto mudou desde a primeira medida.
+ */
+export type LinhaDoCorpo = {
+  chave: ChaveDoCorpo;
+  rotulo: string;
+  unidade: "%" | "kg" | "cm";
+  valor: number;
+  data: string;
+  /** Contra a última medida antes do mês. Nula sem medida antes. */
+  noMes: number | null;
+  /** Contra a primeira medida de todas. Nula quando a primeira é esta. */
+  desdeOComeco: number | null;
+  dataDoComeco: string | null;
+};
+
 export type DadosDoRelatorio = {
   /** "2026-10" */
   mes: string;
@@ -58,6 +89,8 @@ export type DadosDoRelatorio = {
   /** Todo o histórico até o fim do mês: as dicas olham as últimas sessões. */
   registros: Registro[];
   movimentos: MovimentoDoRelatorio[];
+  /** Todas as medidas até o fim do mês, da mais antiga para a mais nova. */
+  medidas: MedidaDoRelatorio[];
   treinos: { id: string; nome: string }[];
   vagas: { treino_id: string; movimento_id: string }[];
   minutosDoPerfil: number | null;
@@ -102,6 +135,10 @@ export type Relatorio = {
   dicas: Dica[];
   porTreino: { titulo: string; variacaoMedia: number | null; itens: ExercicioNoMes[] }[];
   grupos: { rotulo: string; series: number }[];
+  /** Peso, gordura e fita: só o que teve medida no mês. */
+  corpo: LinhaDoCorpo[];
+  /** Antes e depois do mês, por ângulo. Vazio quando não houve foto no mês. */
+  fotos: ParDoMes[];
 };
 
 /** Quantas sessões iguais seguidas contam como "travou". Convenção de academia. */
@@ -299,6 +336,43 @@ function dicasDe(
 
 const ORDEM_DAS_DICAS: TipoDeDica[] = ["travado", "desceu", "sem_degrau", "repeticoes_subindo"];
 
+/**
+ * A ordem é a da Evolução: a composição primeiro, porque é o que a fita
+ * produz; o peso logo depois; a cintura — "a medida da barriga" — antes
+ * das outras medidas da fita.
+ */
+const LINHAS_DO_CORPO: { chave: ChaveDoCorpo; rotulo: string; unidade: LinhaDoCorpo["unidade"]; ler: (m: MedidaDoRelatorio) => number | null }[] = [
+  { chave: "gordura", rotulo: "Gordura", unidade: "%", ler: (m) => m.gordura },
+  { chave: "peso", rotulo: "Peso", unidade: "kg", ler: (m) => (m.peso_kg === null ? null : Number(m.peso_kg)) },
+  { chave: "cintura", rotulo: "Cintura", unidade: "cm", ler: (m) => (m.cintura_cm === null ? null : Number(m.cintura_cm)) },
+  { chave: "pescoco", rotulo: "Pescoço", unidade: "cm", ler: (m) => (m.pescoco_cm === null ? null : Number(m.pescoco_cm)) },
+  { chave: "quadril", rotulo: "Quadril", unidade: "cm", ler: (m) => (m.quadril_cm === null ? null : Number(m.quadril_cm)) },
+];
+
+function montarCorpo(medidas: MedidaDoRelatorio[], inicio: string, fim: string): LinhaDoCorpo[] {
+  const ordenadas = [...medidas].sort((a, b) => (a.data < b.data ? -1 : a.data > b.data ? 1 : 0));
+  return LINHAS_DO_CORPO.flatMap(({ chave, rotulo, unidade, ler }) => {
+    const com = ordenadas
+      .map((m) => ({ data: m.data, valor: ler(m) }))
+      .filter((x): x is { data: string; valor: number } => x.valor !== null && x.data <= fim);
+    const doMes = com.filter((x) => x.data >= inicio);
+    if (doMes.length === 0) return [];
+    const ultima = doMes[doMes.length - 1];
+    const antesDoMes = com.filter((x) => x.data < inicio).pop() ?? null;
+    const primeira = com[0];
+    return [{
+      chave,
+      rotulo,
+      unidade,
+      valor: ultima.valor,
+      data: ultima.data,
+      noMes: antesDoMes ? ultima.valor - antesDoMes.valor : null,
+      desdeOComeco: primeira.data !== ultima.data ? ultima.valor - primeira.valor : null,
+      dataDoComeco: primeira.data !== ultima.data ? primeira.data : null,
+    }];
+  });
+}
+
 export function montarRelatorio(d: DadosDoRelatorio): Relatorio {
   const { inicio, fim } = limitesDoMes(d.mes);
   const anteriorLim = limitesDoMes(mesAnterior(d.mes));
@@ -410,6 +484,9 @@ export function montarRelatorio(d: DadosDoRelatorio): Relatorio {
     dicas,
     porTreino,
     grupos,
+    corpo: montarCorpo(d.medidas, inicio, fim),
+    // As fotos não são conta: vêm do armazenamento, em `buscarRelatorio`.
+    fotos: [],
   };
 }
 
@@ -420,10 +497,10 @@ export async function buscarRelatorio(
   mes: string,
   hoje: string,
 ): Promise<Relatorio> {
-  const { fim } = limitesDoMes(mes);
+  const { inicio, fim } = limitesDoMes(mes);
   const inicioAnterior = limitesDoMes(mesAnterior(mes)).inicio;
 
-  const [sessoes, registros, movimentos, treinos, vagas, perfil] = await Promise.all([
+  const [sessoes, registros, movimentos, treinos, vagas, perfil, medidas, fotos] = await Promise.all([
     supabase
       .from("sessoes_treino")
       .select("data, inicio, fim")
@@ -451,9 +528,43 @@ export async function buscarRelatorio(
       .eq("usuario_id", usuarioId)
       .order("ordem", { ascending: true }),
     supabase.from("usuarios").select("*").eq("id", usuarioId).maybeSingle(),
+    supabase
+      .from("medidas")
+      .select("data, peso_kg, altura_cm, pescoco_cm, cintura_cm, quadril_cm")
+      .eq("usuario_id", usuarioId)
+      .lte("data", fim)
+      .order("data", { ascending: true }),
+    buscarFotosDoMes(supabase, usuarioId, inicio, fim),
   ]);
 
-  return montarRelatorio({
+  // O percentual de gordura de cada medida, pela mesma conta da Evolução,
+  // com a altura guardada na própria medida — editar o perfil depois não
+  // reescreve o passado.
+  const sexo = (perfil.data?.sexo as Sexo | null) ?? null;
+  const alturaPerfil = (perfil.data?.altura_cm as number | null) ?? null;
+  type LinhaMedida = { data: string; peso_kg: number | null; altura_cm: number | null; pescoco_cm: number | null; cintura_cm: number | null; quadril_cm: number | null };
+  const comGordura: MedidaDoRelatorio[] = ((medidas.data ?? []) as LinhaMedida[]).map((m) => ({
+    data: m.data,
+    peso_kg: m.peso_kg,
+    cintura_cm: m.cintura_cm,
+    pescoco_cm: m.pescoco_cm,
+    quadril_cm: m.quadril_cm,
+    gordura:
+      sexo && m.cintura_cm !== null && m.pescoco_cm !== null
+        ? (calcularComposicao(
+            {
+              sexo,
+              alturaCm: Number(m.altura_cm ?? alturaPerfil ?? 0),
+              pescocoCm: Number(m.pescoco_cm),
+              cinturaCm: Number(m.cintura_cm),
+              quadrilCm: m.quadril_cm !== null ? Number(m.quadril_cm) : null,
+            },
+            m.peso_kg !== null ? Number(m.peso_kg) : null,
+          )?.gordura ?? null)
+        : null,
+  }));
+
+  const relatorio = montarRelatorio({
     mes,
     hoje,
     sessoes: (sessoes.data ?? []) as Sessao[],
@@ -462,5 +573,7 @@ export async function buscarRelatorio(
     treinos: (treinos.data ?? []) as { id: string; nome: string }[],
     vagas: (vagas.data ?? []) as { treino_id: string; movimento_id: string }[],
     minutosDoPerfil: (perfil.data?.treino_minutos as number | null) ?? null,
+    medidas: comGordura,
   });
+  return { ...relatorio, fotos };
 }

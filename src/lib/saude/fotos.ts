@@ -218,3 +218,69 @@ function montarFoto(
     url: urlPor.get(linha.caminho) ?? null,
   };
 }
+
+export type FotoDoRelatorio = {
+  data: string;
+  /** Assinada por 15 minutos, para a tela. */
+  url: string | null;
+  /** O caminho no bucket, para o PDF baixar a imagem no servidor. */
+  caminho: string;
+};
+
+export type ParDoMes = {
+  angulo: Angulo;
+  rotulo: string;
+  /** A primeira foto deste ângulo — fixa, sempre a mesma. */
+  antes: FotoDoRelatorio;
+  /** A mais recente deste ângulo dentro do mês. Nula quando é a própria primeira. */
+  depois: FotoDoRelatorio | null;
+};
+
+/**
+ * O antes e depois de um mês, para o relatório.
+ *
+ * O "antes" é o mesmo da Evolução: a primeira foto de cada ângulo, fixa.
+ * O "depois" é a mais recente **daquele mês**, e não a mais recente de
+ * todas — o relatório de setembro mostra o corpo de setembro. Ângulo sem
+ * foto no mês não aparece. No primeiro mês, a foto do mês é a própria
+ * primeira, e o par vira uma foto só: é o começo, não uma comparação.
+ */
+export async function buscarFotosDoMes(
+  supabase: SupabaseClient,
+  usuarioId: string,
+  inicioDoMes: string,
+  fimDoMes: string,
+): Promise<ParDoMes[]> {
+  const { data } = await supabase
+    .from("fotos_evolucao")
+    .select("id, data, angulo, caminho")
+    .eq("usuario_id", usuarioId)
+    .lte("data", fimDoMes)
+    .order("data", { ascending: true });
+
+  const primeiras = vazio<Linha | null>(null);
+  const doMes = vazio<Linha | null>(null);
+  for (const linha of (data ?? []) as Linha[]) {
+    if (!ehAngulo(linha.angulo)) continue;
+    if (!primeiras[linha.angulo]) primeiras[linha.angulo] = linha;
+    if (linha.data >= inicioDoMes) doMes[linha.angulo] = linha;
+  }
+
+  const angulos = ANGULOS.filter((a) => doMes[a] && primeiras[a]);
+  const urlPor = await assinar(
+    supabase,
+    angulos.flatMap((a) => [primeiras[a]!.caminho, doMes[a]!.caminho]),
+  );
+  const foto = (l: Linha): FotoDoRelatorio => ({
+    data: l.data,
+    url: urlPor.get(l.caminho) ?? null,
+    caminho: l.caminho,
+  });
+
+  return angulos.map((a) => ({
+    angulo: a,
+    rotulo: ROTULO_ANGULO[a],
+    antes: foto(primeiras[a]!),
+    depois: doMes[a]!.id === primeiras[a]!.id ? null : foto(doMes[a]!),
+  }));
+}

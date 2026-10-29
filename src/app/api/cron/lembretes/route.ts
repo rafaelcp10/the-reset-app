@@ -22,6 +22,14 @@ const TETO_AGUA = 120;
 const MINUTOS_ATE_LEMBRAR_DO_TREINO = 100;
 
 /**
+ * Com 2h30 aberto, o treino se encerra sozinho — regra do Rafael. Fecha na
+ * última série mais 5 minutos, e não fecha quem registrou série nos
+ * últimos 30: aí ainda é treino, e não esquecimento.
+ */
+const MINUTOS_ATE_ENCERRAR_O_TREINO = 150;
+const MINUTOS_SEM_SERIE_PARA_ENCERRAR = 30;
+
+/**
  * Os lembretes da Saúde, no fuso de cada pessoa. Quem recebe o quê é
  * decidido no banco (`reivindicar_evolucao`, `reivindicar_agua`); aqui só
  * se escrevem os avisos.
@@ -126,6 +134,20 @@ const treinoAberto: Reivindicador = async (supabase, lote) => {
   }));
 };
 
+async function encerrarEsquecidos(supabase: Parameters<Reivindicador>[0]) {
+  const { error } = await supabase.rpc("encerrar_treinos_esquecidos", {
+    p_minutos: MINUTOS_ATE_ENCERRAR_O_TREINO,
+    p_quieto: MINUTOS_SEM_SERIE_PARA_ENCERRAR,
+  });
+  if (error) throw new Error(`encerrar_treinos_esquecidos: ${error.message}`);
+}
+
 export function GET(request: Request) {
-  return executarCron(request, "lembretes", [evolucao, agua, treinoAberto]);
+  return executarCron(
+    request,
+    "lembretes",
+    [evolucao, agua, treinoAberto],
+    undefined,
+    encerrarEsquecidos,
+  );
 }

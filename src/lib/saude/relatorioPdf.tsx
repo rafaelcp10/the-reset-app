@@ -1,8 +1,15 @@
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Relatorio } from "./relatorio";
 import { escreverPercentual } from "./progresso";
 import { kg } from "./serie";
-import { horas, milhar, nomeDoMes } from "./relatorioTexto";
+import {
+  dataCurta,
+  diferencaDoCorpo,
+  horas,
+  milhar,
+  nomeDoMes,
+  valorDoCorpo,
+} from "./relatorioTexto";
 import { mesAnterior } from "./relatorio";
 
 /**
@@ -13,8 +20,13 @@ import { mesAnterior } from "./relatorio";
  * O arquivo sai pelo menu de compartilhar: Arquivos, WhatsApp, AirDrop.
  *
  * Fundo claro, ao contrário do app: PDF é lido em papel, em computador, por
- * outra pessoa às vezes — o professor, o nutricionista. **Sem as fotos do
- * corpo**: são o dado mais sensível que o app guarda, e o PDF sai dele.
+ * outra pessoa às vezes — o professor, o nutricionista.
+ *
+ * **As fotos do corpo só entram quando quem gera escolhe**, na hora: são o
+ * dado mais sensível que o app guarda, e o PDF sai dele — vai para o
+ * WhatsApp, para o e-mail, para a pasta de outra pessoa. Elas chegam aqui
+ * já baixadas pelo servidor com a sessão da própria pessoa, e são
+ * embutidas no arquivo, sem link nenhum.
  *
  * Helvetica, que todo leitor de PDF já tem, em vez de embutir fonte. Ela
  * não tem o menos tipográfico nem a seta, então os dois são trocados aqui
@@ -25,6 +37,9 @@ const TEXTO = "#101114";
 const AUXILIAR = "#55575c";
 const FILETE = "#e3e3e0";
 const ACENTO = "#C97B3A";
+
+export type FotoDoPdf = { data: string; imagem: Buffer };
+export type ParDoPdf = { rotulo: string; antes: FotoDoPdf; depois: FotoDoPdf | null };
 
 function limpo(texto: string): string {
   return texto.replace(/−/g, "–").replace(/→/g, "a");
@@ -58,9 +73,28 @@ const e = StyleSheet.create({
   grupoBarra: { height: 6, backgroundColor: AUXILIAR, borderRadius: 3 },
   grupoNumero: { width: 36, textAlign: "right", color: AUXILIAR },
   rodape: { position: "absolute", bottom: 22, left: 40, fontSize: 8.5, color: AUXILIAR },
+  corpoLinha: { flexDirection: "row", alignItems: "baseline", paddingVertical: 5, borderBottomWidth: 0.5, borderBottomColor: FILETE },
+  corpoNome: { width: 80, color: AUXILIAR },
+  corpoValor: { width: 80, fontFamily: "Helvetica-Bold", fontSize: 12 },
+  corpoDif: { flex: 1, textAlign: "right", color: AUXILIAR },
+  fotoAngulo: { marginBottom: 14 },
+  fotoPar: { flexDirection: "row", justifyContent: "space-between" },
+  fotoCelula: { width: "48.5%" },
+  foto: { width: "100%", height: 300, objectFit: "cover", borderRadius: 4 },
+  fotoLegenda: { fontSize: 9, color: AUXILIAR, marginTop: 3 },
 });
 
-export function DocumentoRelatorio({ r, geradoEm }: { r: Relatorio; geradoEm: string }) {
+export function DocumentoRelatorio({
+  r,
+  geradoEm,
+  fotos = [],
+}: {
+  r: Relatorio;
+  geradoEm: string;
+  /** Só quando quem gera escolheu incluir. */
+  fotos?: ParDoPdf[];
+}) {
+  const temTreino = r.resumo.treinos > 0 || r.porTreino.length > 0;
   const titulo = r.parcial ? `${nomeDoMes(r.mes, false)}, até ${geradoEm}` : nomeDoMes(r.mes);
   const antes = nomeDoMes(mesAnterior(r.mes), false);
   const maiorGrupo = Math.max(1, ...r.grupos.map((g) => g.series));
@@ -80,8 +114,9 @@ export function DocumentoRelatorio({ r, geradoEm }: { r: Relatorio; geradoEm: st
         <Text style={e.titulo}>{titulo}</Text>
         <View style={e.regua} />
 
+        {temTreino && (
         <View style={e.secao}>
-          <Text style={e.rotulo}>O mês</Text>
+          <Text style={e.rotulo}>Os treinos</Text>
           <View style={e.numeros}>
             {numeros.map(([valor, rotulo, anterior]) => (
               <View key={rotulo} style={e.numero}>
@@ -96,6 +131,31 @@ export function DocumentoRelatorio({ r, geradoEm }: { r: Relatorio; geradoEm: st
             ))}
           </View>
         </View>
+        )}
+
+        {r.corpo.length > 0 && (
+          <View style={e.secao} wrap={false}>
+            <Text style={e.rotulo}>O corpo</Text>
+            {r.corpo.map((c) => (
+              <View key={c.chave} style={e.corpoLinha}>
+                <Text style={e.corpoNome}>{c.rotulo}</Text>
+                <Text style={e.corpoValor}>{valorDoCorpo(c.valor, c.unidade)}</Text>
+                <Text style={e.corpoDif}>
+                  {limpo(
+                    [
+                      c.noMes !== null ? `${diferencaDoCorpo(c.noMes, c.unidade)} no mês` : null,
+                      c.desdeOComeco !== null && c.dataDoComeco
+                        ? `${diferencaDoCorpo(c.desdeOComeco, c.unidade)} desde ${dataCurta(c.dataDoComeco)}`
+                        : null,
+                    ]
+                      .filter(Boolean)
+                      .join("   ·   "),
+                  )}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {r.dicas.length > 0 && (
           <View style={e.secao}>
@@ -150,6 +210,35 @@ export function DocumentoRelatorio({ r, geradoEm }: { r: Relatorio; geradoEm: st
                   <View style={[e.grupoBarra, { width: `${(g.series / maiorGrupo) * 100}%` }]} />
                 </View>
                 <Text style={e.grupoNumero}>{g.series}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {fotos.length > 0 && (
+          <View break>
+            <Text style={e.rotulo}>Antes e depois</Text>
+            {fotos.map((par) => (
+              <View key={par.rotulo} style={e.fotoAngulo} wrap={false}>
+                <Text style={{ fontFamily: "Helvetica-Bold", marginBottom: 5 }}>{par.rotulo}</Text>
+                <View style={e.fotoPar}>
+                  {[par.antes, par.depois].map((f, i) =>
+                    f ? (
+                      <View key={i} style={e.fotoCelula}>
+                        {/* O Image do PDF não tem texto alternativo; a legenda logo abaixo faz esse papel. */}
+                        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                        <Image style={e.foto} src={{ data: f.imagem, format: "jpg" }} />
+                        <Text style={e.fotoLegenda}>
+                          {i === 0 ? "Primeira" : "Este mês"} · {dataCurta(f.data)}
+                        </Text>
+                      </View>
+                    ) : (
+                      <View key={i} style={e.fotoCelula}>
+                        <Text style={e.fotoLegenda}>A primeira foto é deste mês: é o começo.</Text>
+                      </View>
+                    ),
+                  )}
+                </View>
               </View>
             ))}
           </View>

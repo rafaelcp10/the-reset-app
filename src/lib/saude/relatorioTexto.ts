@@ -26,3 +26,31 @@ export function horas(minutos: number): string {
 export function milhar(n: number): string {
   return n.toLocaleString("pt-BR");
 }
+
+/** "19,5%", "86,6 kg", "92 cm". */
+export function valorDoCorpo(valor: number, unidade: "%" | "kg" | "cm"): string {
+  const r = Math.round(valor * 10) / 10;
+  const n = r % 1 === 0 && unidade !== "%" ? String(r) : r.toFixed(1).replace(".", ",");
+  return unidade === "%" ? `${n}%` : `${n} ${unidade}`;
+}
+
+/**
+ * "−1,8 kg", "+0,5 cm", "−1,5 p.p.", ou "igual".
+ *
+ * A diferença de percentual é em pontos percentuais: de 21% para 19,5% não
+ * são "−1,5%", são −1,5 p.p. Sem cor e sem seta, com o menos de verdade.
+ */
+export function diferencaDoCorpo(dif: number, unidade: "%" | "kg" | "cm"): string {
+  // Arredonda antes de decidir: subtração de decimais dá 1,7999999, e
+  // "2,0000001 cm" sairia "2,0 cm" em vez de "2 cm".
+  const r = Math.round(Math.abs(dif) * 10) / 10;
+  if (r === 0) return "igual";
+  const n = r % 1 === 0 ? String(r) : r.toFixed(1).replace(".", ",");
+  return `${dif > 0 ? "+" : "−"}${n} ${unidade === "%" ? "p.p." : unidade}`;
+}
+
+/** "18/09". */
+export function dataCurta(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${d}/${m}`;
+}

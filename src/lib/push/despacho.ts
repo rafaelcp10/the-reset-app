@@ -173,6 +173,12 @@ export async function executarCron(
   reivindicadores: Reivindicador[],
   /** Só os testes passam outro: o padrão é o cliente com a chave de serviço. */
   cliente?: SupabaseClient,
+  /**
+   * Arrumação que roda antes dos avisos — hoje, encerrar treino esquecido.
+   * Antes, e não depois: quem acabou de ser encerrado não deve receber o
+   * aviso de "treino aberto" no mesmo minuto.
+   */
+  antes?: (supabase: SupabaseClient) => Promise<void>,
 ): Promise<NextResponse> {
   const segredo = process.env.CRON_SECRET;
   if (!segredo || request.headers.get("authorization") !== `Bearer ${segredo}`) {
@@ -200,6 +206,17 @@ export async function executarCron(
   const total: Resultado = { reservados: 0, enviados: 0, falhas: 0, removidas: 0 };
   let erro: string | null = null;
 
+  // A arrumação falhando não pode calar os avisos: o erro fica registrado
+  // e os lembretes seguem. Senão, uma função que ainda não existe no banco
+  // pararia a água e a fita junto com ela.
+  if (antes) {
+    try {
+      await antes(supabase);
+    } catch (e) {
+      erro = e instanceof Error ? e.message : String(e);
+    }
+  }
+
   try {
     for (const reivindicar of reivindicadores) {
       while (Date.now() < limite) {
@@ -224,7 +241,8 @@ export async function executarCron(
       }
     }
   } catch (e) {
-    erro = e instanceof Error ? e.message : String(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    erro = erro ? `${erro}; ${msg}` : msg;
   }
 
   // O batimento cardíaco: uma linha por execução, inclusive as vazias. Os

@@ -66,6 +66,28 @@ export default async function EvolucaoPage() {
         <CabecalhoSaude aba="evolucao" />
       </Revelar>
 
+      {/* O relatório fica no topo, logo abaixo das abas: é o que se vem
+          buscar uma vez por mês, e lá embaixo, depois da Progressão,
+          ninguém achava. Junta treino, corpo e fotos do mês, por isso
+          aparece com qualquer um dos três. */}
+      {(temPeso || temComposicao || evo.progressao.length > 0) && (
+        <Revelar imediato atraso={40}>
+          <Link
+            href="/saude/evolucao/relatorio"
+            className="bloco flex min-h-14 items-center justify-between gap-3 px-4 py-3"
+          >
+            <span className="flex items-center gap-3">
+              <FileText className="h-5 w-5 text-auxiliar" strokeWidth={1.75} aria-hidden />
+              <span className="flex flex-col">
+                <span className="text-[17px] text-texto">Relatório do mês</span>
+                <span className="text-[14.5px] text-auxiliar">Treinos, corpo e fotos, em PDF</span>
+              </span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.75} aria-hidden />
+          </Link>
+        </Revelar>
+      )}
+
       {/* Nada medido ainda: o "+" sozinho não explicaria nada, então aqui
           o convite é escrito. */}
       {!temPeso && !temComposicao && (
@@ -135,24 +157,6 @@ export default async function EvolucaoPage() {
 
       <Revelar atraso={60} className="pt-3">
         <Progressao grupos={evo.progressao} />
-        {/* O relatório mora logo depois da Progressão porque é o mesmo
-            assunto contado por mês, com as dicas e o PDF. Só aparece
-            quando há treino para relatar. */}
-        {evo.progressao.length > 0 && (
-          <Link
-            href="/saude/evolucao/relatorio"
-            className="bloco mt-3 flex min-h-14 items-center justify-between gap-3 px-4 py-3"
-          >
-            <span className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-auxiliar" strokeWidth={1.75} aria-hidden />
-              <span className="flex flex-col">
-                <span className="text-[17px] text-texto">Relatório do mês</span>
-                <span className="text-[14.5px] text-auxiliar">Com dicas, e em PDF</span>
-              </span>
-            </span>
-            <ChevronRight className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.75} aria-hidden />
-          </Link>
-        )}
       </Revelar>
 
       {evo.semanasComTreino > 0 && (
