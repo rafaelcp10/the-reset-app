@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarHistorico } from "@/lib/saude/sessao";
 import { ROTULO_GRUPO } from "@/lib/saude/catalogo";
 import {
@@ -31,9 +32,7 @@ export default async function HistoricoExercicioPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const historico = await buscarHistorico(supabase, user.id, id);

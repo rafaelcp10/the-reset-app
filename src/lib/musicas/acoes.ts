@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 
 /**
  * Normaliza o que a pessoa colou.
@@ -76,9 +77,7 @@ export async function salvarFaixaSlot(
   if (!url) return;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const nome = await buscarNome(url);
@@ -95,9 +94,7 @@ export async function salvarFaixaSlot(
 /** Remove a faixa de um slot, liberando-o. */
 export async function removerFaixaSlot(caminhoAtual: string, ordem: number) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase

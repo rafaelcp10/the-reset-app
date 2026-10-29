@@ -3,15 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { PERIODOS, type PeriodoTarefa, type TipoTarefa } from "./dados";
 
 const TIPOS: TipoTarefa[] = ["recorrente", "semana", "data"];
 
 async function usuarioAtual() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
   return { supabase, user };
 }
@@ -90,21 +89,6 @@ export async function puxarParaHoje(
   await supabase
     .from("tarefas")
     .update({ puxado_para: dataISO })
-    .eq("usuario_id", user.id)
-    .eq("id", tarefaId);
-
-  revalidatePath(caminhoAtual);
-}
-
-/** Devolve o item para "Esta semana". */
-export async function devolverParaSemana(
-  caminhoAtual: string,
-  tarefaId: string,
-) {
-  const { supabase, user } = await usuarioAtual();
-  await supabase
-    .from("tarefas")
-    .update({ puxado_para: null })
     .eq("usuario_id", user.id)
     .eq("id", tarefaId);
 

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
@@ -14,14 +15,13 @@ import ModoEspelho from "./ModoEspelho";
 
 export default async function EspelhoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
-  await garantirUsuarioEFrasesPadrao(supabase, user);
-
-  const [estado, gravacoes, todo] = await Promise.all([
+  // A garantia corre junto com as buscas: no caso comum ela só confere
+  // que as frases existem, e quem é novo cai no onboarding de qualquer jeito.
+  const [, estado, gravacoes, todo] = await Promise.all([
+    garantirUsuarioEFrasesPadrao(supabase, user),
     buscarEstadoRitual(supabase, user.id),
     buscarGravacoes(supabase, user.id),
     buscarEstadoTodo(supabase, user.id),

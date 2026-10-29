@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Flame, UtensilsCrossed } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarNutricao } from "@/lib/saude/nutricaoDados";
 import {
   ROTULO_DIA,
@@ -39,9 +40,7 @@ function g(valor: number): string {
 
 export default async function NutricaoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const n = await buscarNutricao(supabase, user.id);

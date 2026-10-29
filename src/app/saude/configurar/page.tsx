@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarConfig } from "@/lib/saude/dados";
 import ConfigForm from "./ConfigForm";
 import {
@@ -11,9 +12,7 @@ import {
 
 export default async function ConfigurarAcademiaPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const [config, { data: usuario }] = await Promise.all([

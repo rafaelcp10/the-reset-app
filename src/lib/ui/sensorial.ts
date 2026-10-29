@@ -312,11 +312,6 @@ export class GuiaRespiracao {
   }
 }
 
-/** O som está destravado neste aparelho, agora? */
-export function audioLiberado(): boolean {
-  return audioDestravado && contextoCompartilhado?.state === "running";
-}
-
 export type ResultadoAmostra = "tocou" | "sem-audio";
 
 /**

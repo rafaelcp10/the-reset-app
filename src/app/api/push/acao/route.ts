@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +12,7 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(request: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) {
     return NextResponse.json({ erro: "sem sessão" }, { status: 401 });
   }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarGradeMensal, diaDaSemana } from "@/lib/todo/dados";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import Revelar from "@/components/movimento/Revelar";
@@ -17,9 +18,7 @@ export default async function GradePage({
   const { ano: anoParam, mes: mesParam } = await searchParams;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const { data: usuario } = await supabase

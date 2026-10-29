@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import { buscarRelatorio } from "@/lib/saude/relatorio";
 import ConteudoRelatorio from "./ConteudoRelatorio";
@@ -21,9 +22,7 @@ export default async function RelatorioPage({
   searchParams: Promise<{ mes?: string }>;
 }) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const [{ mes: pedido }, { data: usuario }] = await Promise.all([

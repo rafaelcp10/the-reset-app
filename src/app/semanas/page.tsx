@@ -2,14 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarEstadoHome } from "@/lib/home/dados";
 import Revelar from "@/components/movimento/Revelar";
 
 export default async function SemanasPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const estado = await buscarEstadoHome(supabase, user.id);

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoRitual } from "@/lib/ritual/dados";
 import { buscarGravacoes } from "@/lib/gravacoes/dados";
@@ -20,17 +21,16 @@ export default async function RitualPage({
 }) {
   const { foco, editarIdentidade } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   // Cobre quem chega direto no Ritual sem passar pelo onboarding — o
   // acesso por e-mail está desligado por enquanto, então essa é a única
   // garantia de que a linha em `usuarios` e as 5 frases padrão existem.
-  await garantirUsuarioEFrasesPadrao(supabase, user);
-
-  const [estado, gravacoes] = await Promise.all([
+  // A garantia corre junto com as buscas: no caso comum ela só confere
+  // que as frases existem, e quem é novo cai no onboarding de qualquer jeito.
+  const [, estado, gravacoes] = await Promise.all([
+    garantirUsuarioEFrasesPadrao(supabase, user),
     buscarEstadoRitual(supabase, user.id),
     buscarGravacoes(supabase, user.id),
   ]);

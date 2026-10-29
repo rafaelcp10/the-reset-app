@@ -128,9 +128,10 @@ conferir, não para ler, e ler frase cansa mais que ler número.
 
 O que substituiu:
 
-- **`components/saude/Metrica.tsx`**: rótulo pequeno, número grande,
-  uma linha de nota, e a curva sangrando até a borda do bloco. A curva é
-  fundo do número, não elemento ao lado dele.
+- **Rótulo pequeno, número grande, uma linha de nota, e a curva sangrando
+  até a borda do bloco.** A curva é fundo do número, não elemento ao lado
+  dele. Nasceu como `Metrica.tsx`; o `PainelSerie` absorveu o desenho e o
+  arquivo saiu em 2026-10-29, sem uso.
 - **`components/saude/Grafico.tsx`**: SVG escrito à mão, sem biblioteca —
   o PWA precisa abrir offline, e uma lib de gráfico pesa mais que cem
   linhas. Sem eixo, sem grade, sem zero forçado na base, sem cor que muda
@@ -164,7 +165,7 @@ passe a falar por elas:
   barra cheia comemorando.
 - `ParValor` — "6 EXERCÍCIOS": número forte, rótulo apagado, lado a lado.
   Cabe mais numa linha do que em frase, e a vista pega o número primeiro.
-- `Metrica` e `PainelSerie`, descritos acima.
+- `PainelSerie`, descrito acima.
 
 As abas viraram pílulas, como no Zepp.
 
@@ -900,6 +901,63 @@ Por isso é preferência, e não automatismo: o navegador não enxerga o áudio
 de outro app, e quem liga isso está dizendo "eu ponho música antes" — quem
 põe música não está no silencioso. A opção só aparece para quem tem música
 salva, e a tela avisa do preço quando ela é ligada.
+
+## Velocidade (revisão de 2026-10-29)
+
+Pedido do Rafael: revisar o app inteiro por lixo e por lentidão. O banco
+(sa-east-1) e as funções da Vercel (gru1) estão os dois em São Paulo, então
+o tempo de uma tela é, quase todo, **quantas idas ao banco ela faz uma
+depois da outra**. A Home fazia nove.
+
+- **O login é conferido aqui, não no servidor de autenticação**
+  (`usuarioDaSessao`, em `lib/supabase/auth.ts`, e o proxy). `getUser()` é
+  uma ida pela rede, e eram duas por navegação — proxy e tela — antes de
+  qualquer dado. O projeto assina com ES256, e `getClaims()` confere com a
+  chave pública, em memória. Quem enxerga o quê não muda: o RLS confere o
+  mesmo token. **As telas e ações da própria conta continuam com
+  `getUser()`** (Ajustes, criação de conta, senha, e-mail, apagar a conta):
+  são raras, e ali vale saber na hora que a sessão foi encerrada em outro
+  aparelho.
+- **`garantirUsuarioEFrasesPadrao` lê antes de escrever, e corre junto com
+  as buscas.** Ela gravava a linha de `usuarios` a cada abertura de Home,
+  Ritual, To-do e Saúde, reescrevendo um e-mail que nada lê. Frase
+  existente garante a linha (chave estrangeira), então uma leitura resolve
+  o caso comum.
+- **O To-do busca tudo numa leva.** Eram quatro em fila, e uma delas
+  mandava na URL os ids de todas as tarefas com data já criadas — lista que
+  só cresce. O filtro pelo tipo foi para a junção, no banco
+  (`tarefas!inner(tipo)`). **Não volte a mandar lista de ids que cresce com
+  o uso**: é o mesmo defeito que derrubava as notificações com algumas
+  centenas de pessoas.
+- **Na Home, o resumo não espera saber que dia é** para começar To-do,
+  treinos e medidas; na Evolução, as fotos não esperam a Evolução.
+- **Toque que muda estado responde no toque** (`useOptimistic`, ou estado local): água,
+  tarefa, check-in (Fiz / Não fiz) e inegociáveis. Antes, o check-in e os
+  inegociáveis esperavam a gravação **e** a tela inteira recarregar — meio
+  segundo de botão parado, justamente no gesto que tem de caber em cinco
+  segundos. Ação rara (apagar, fechar a semana) pode esperar o servidor.
+- **RLS com `(select auth.uid())`**, e não `auth.uid()` solto
+  (`20261029100000_desempenho_rls.sql`): avaliado uma vez por consulta, e
+  não por linha. Política nova segue o mesmo formato.
+
+### A conta anônima nasce só no onboarding (2026-10-29)
+
+O proxy criava conta anônima em **qualquer** visita sem sessão fora de uma
+lista de exceções, e a lista nunca fechava: robô na `/`, pré-visualização
+de link, o `/apple-icon` que o iPhone pede. Eram **88 contas órfãs**. E o
+Supabase limita a criação de conta anônima por IP (30 por hora, no
+padrão): o lixo dividia a cota com quem estava chegando de verdade, e numa
+rede de academia ou atrás do NAT da operadora a pessoa nova podia não
+conseguir começar.
+
+- Sessão anônima nasce **só em `/onboarding/*`, depois da abertura** —
+  quando alguém tocou em "Começar".
+- **A `/` sem conta vai para a abertura**, que é a porta de entrada e tem
+  "já tenho conta". As outras telas sem conta vão para o login.
+- **A abertura funciona sem sessão.** O layout do onboarding mandava para o
+  login quem não tinha sessão — e a abertura não cria sessão. Quem estava
+  no login e tocava em começar voltava para o login, num círculo. Os passos
+  que guardam alguma coisa conferem a sessão eles mesmos.
 
 ## Ler a linha de `usuarios` com `*`, nunca com lista de colunas
 

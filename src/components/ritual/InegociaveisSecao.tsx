@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { Check } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
-import { marcarCompromissoDia } from "@/lib/ritual/acoes";
+import LinhaInegociavel from "@/components/ritual/LinhaInegociavel";
 
 export default function InegociaveisSecao({
   inegociaveis,
@@ -34,6 +33,7 @@ export default function InegociaveisSecao({
       <div className={definidos.length > 0 ? "bloco flex flex-col px-4" : "hidden"}>
         {definidos.map((slot) => (
           <LinhaInegociavel
+            variante="ritual"
             key={slot.ordem}
             slot={slot}
             dataHoje={dataHoje}
@@ -42,53 +42,5 @@ export default function InegociaveisSecao({
         ))}
       </div>
     </section>
-  );
-}
-
-function LinhaInegociavel({
-  slot,
-  dataHoje,
-  caminhoAtual,
-}: {
-  slot: InegociavelSlot;
-  dataHoje: string;
-  caminhoAtual: string;
-}) {
-  const { compromisso, feitoHoje } = slot;
-  if (!compromisso) return null;
-  const marcado = feitoHoje === true;
-
-  return (
-    <form
-      action={marcarCompromissoDia.bind(
-        null,
-        caminhoAtual,
-        compromisso.id,
-        dataHoje,
-        !marcado,
-      )}
-    >
-      <button
-        type="submit"
-        aria-label={`${compromisso.texto} — ${marcado ? "feito hoje" : "não marcado"}`}
-        className="flex min-h-12 w-full items-center gap-3 text-left"
-      >
-        <span
-          className={`flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-[4px] border transition-colors duration-[220ms] ${
-            marcado ? "border-acento bg-acento-escuro" : "border-filete-forte"
-          }`}
-        >
-          {marcado && (
-            <Check
-              className="entrada-check h-3.5 w-3.5 text-texto"
-              strokeWidth={2}
-            />
-          )}
-        </span>
-        <span className="text-[16.5px] leading-[1.5] text-texto">
-          {compromisso.texto}
-        </span>
-      </button>
-    </form>
   );
 }

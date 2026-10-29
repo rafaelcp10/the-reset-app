@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CalendarDays, ListChecks } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarConfig, buscarTreinos, hojeDaPessoa } from "@/lib/saude/dados";
 import { buscarSessaoAberta } from "@/lib/saude/sessao";
@@ -15,14 +16,13 @@ import Revelar from "@/components/movimento/Revelar";
 
 export default async function AcademiaPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
-  await garantirUsuarioEFrasesPadrao(supabase, user);
-
-  const [config, treinos, hoje, aberta] = await Promise.all([
+  // A garantia corre junto com as buscas: no caso comum ela só confere
+  // que as frases existem, e quem é novo cai no onboarding de qualquer jeito.
+  const [, config, treinos, hoje, aberta] = await Promise.all([
+    garantirUsuarioEFrasesPadrao(supabase, user),
     buscarConfig(supabase, user.id),
     buscarTreinos(supabase, user.id),
     hojeDaPessoa(supabase, user.id),

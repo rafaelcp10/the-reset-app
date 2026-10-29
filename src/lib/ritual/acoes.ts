@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 
 /** Salva/atualiza a linha do dia — nunca mexe em `feito`. */
 export async function salvarLinhaHoje(
@@ -13,9 +14,7 @@ export async function salvarLinhaHoje(
   const linha = ((formData.get("linha") as string) ?? "").trim();
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase
@@ -38,9 +37,7 @@ export async function confirmarDia(
   feito: boolean,
 ) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("dias").upsert(
@@ -64,9 +61,7 @@ export async function marcarCompromissoDia(
   proximoFeito: boolean,
 ) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("compromissos_dia").upsert(
@@ -96,9 +91,7 @@ export async function salvarCompromissoSlot(
   const texto = ((formData.get("texto") as string) ?? "").trim();
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   if (!texto) {
@@ -127,9 +120,7 @@ export async function salvarPreferenciasRitual(
   misturarComMusica?: boolean,
 ) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase
@@ -151,9 +142,7 @@ export async function salvarPreferenciasRitual(
  */
 export async function concluirEspelho(data: string) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase
@@ -179,9 +168,7 @@ export async function salvarIntencaoAmanha(
   const texto = ((formData.get("amanha") as string) ?? "").trim();
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("dias").upsert(
@@ -202,9 +189,7 @@ export async function concluirEspelhoComLinha(data: string, linha: string) {
   if (!texto) redirect("/ritual?foco=linha");
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("dias").upsert(

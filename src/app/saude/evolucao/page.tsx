@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarCheck, ChevronRight, FileText, Plus, Ruler } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
+import { hojeDaPessoa } from "@/lib/saude/dados";
 import { buscarConjuntoDeFotos } from "@/lib/saude/fotos";
 import { umaCasa } from "@/lib/saude/composicao";
 import CabecalhoSaude from "../CabecalhoSaude";
@@ -34,13 +36,15 @@ function BotaoMedir() {
 
 export default async function EvolucaoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
-  const evo = await buscarEvolucao(supabase, user.id);
-  const fotos = await buscarConjuntoDeFotos(supabase, user.id, evo.hoje);
+  // As fotos não esperam a Evolução: só precisam saber que dia é, e as
+  // URLs assinadas são a parte mais lenta da tela.
+  const [evo, fotos] = await Promise.all([
+    buscarEvolucao(supabase, user.id),
+    hojeDaPessoa(supabase, user.id).then((h) => buscarConjuntoDeFotos(supabase, user.id, h.data)),
+  ]);
 
   // As buscas devolvem da mais recente para a mais antiga; a curva anda
   // para a frente no tempo, então aqui inverte.

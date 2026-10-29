@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarTarefa } from "@/lib/todo/dados";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import Revelar from "@/components/movimento/Revelar";
@@ -15,9 +16,7 @@ export default async function TarefaPage({
   const { id } = await params;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const [tarefa, { data: usuario }] = await Promise.all([

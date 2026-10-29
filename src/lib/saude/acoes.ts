@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
@@ -19,9 +20,7 @@ const CAMINHO = "/saude";
 
 async function usuarioAtual() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
   return { supabase, user };
 }

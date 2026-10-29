@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarFotosPorDia } from "@/lib/saude/fotos";
 import Revelar from "@/components/movimento/Revelar";
 import DiaDeFotos from "./DiaDeFotos";
@@ -19,9 +20,7 @@ import DiaDeFotos from "./DiaDeFotos";
  */
 export default async function FotosPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const dias = await buscarFotosPorDia(supabase, user.id);

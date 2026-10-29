@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { inserirNovaVersaoFrase } from "@/lib/frases/dados";
 import { FRASES_PADRAO } from "@/lib/frases/modelo";
 
@@ -18,9 +19,7 @@ export async function salvarIdentidade(
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await inserirNovaVersaoFrase(

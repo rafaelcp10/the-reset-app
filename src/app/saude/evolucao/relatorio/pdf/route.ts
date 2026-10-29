@@ -1,6 +1,7 @@
 import { createElement, type ReactElement } from "react";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { agoraNoFuso, dataRitual } from "@/lib/ritual/tempo";
 import { buscarRelatorio } from "@/lib/saude/relatorio";
 import { BUCKET_FOTOS, type FotoDoRelatorio } from "@/lib/saude/fotos";
@@ -23,9 +24,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(request: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) return new Response("não autorizado", { status: 401 });
 
   const { data: usuario } = await supabase.from("usuarios").select("*").eq("id", user.id).maybeSingle();

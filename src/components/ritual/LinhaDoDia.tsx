@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useOptimistic, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import {
   confirmarDia,
@@ -55,6 +55,18 @@ export default function LinhaDoDia({
   const temLinha = Boolean(linhaHoje?.trim());
   // Sem linha escrita, o campo é o único caminho e já nasce aberto.
   const [editando, setEditando] = useState(!temLinha || focoInicial);
+  // O botão acende no toque, e não quando o servidor responde e a tela
+  // inteira recarrega: o check-in tem de caber em cinco segundos, e meio
+  // segundo de botão parado parece toque que não pegou. Se a gravação
+  // falhar, o valor volta ao que o servidor tem.
+  const [feito, marcarFeito] = useOptimistic(feitoHoje);
+
+  function confirmar(valor: boolean) {
+    return async () => {
+      marcarFeito(valor);
+      await confirmarDia(caminhoAtual, dataHoje, valor);
+    };
+  }
 
   function salvarLinha() {
     const fd = new FormData();
@@ -103,25 +115,25 @@ export default function LinhaDoDia({
       {temLinha && !editando && (
         <div className="flex gap-3">
           <form
-            action={confirmarDia.bind(null, caminhoAtual, dataHoje, true)}
+            action={confirmar(true)}
             className="flex-1"
           >
             <button
               type="submit"
               className={`tipo-rotulo flex w-full items-center justify-center gap-2 rounded-[10px] py-3.5 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
-                feitoHoje === true
+                feito === true
                   ? "bg-acento text-fundo"
                   : "bg-superficie2 text-texto"
               }`}
             >
-              {feitoHoje === true && (
+              {feito === true && (
                 <Check className="h-[18px] w-[18px]" strokeWidth={2.5} />
               )}
               Fiz
             </button>
           </form>
           <form
-            action={confirmarDia.bind(null, caminhoAtual, dataHoje, false)}
+            action={confirmar(false)}
             className="flex-1"
           >
             {/* "Não fiz" não é erro: mesma forma, mesmo peso, sem vermelho
@@ -129,7 +141,7 @@ export default function LinhaDoDia({
             <button
               type="submit"
               className={`tipo-rotulo w-full rounded-[10px] py-3.5 text-center text-[16px] tracking-[.09em] transition-colors duration-[250ms] ${
-                feitoHoje === false
+                feito === false
                   ? "bg-superficie3 text-texto"
                   : "bg-superficie2 text-texto"
               }`}

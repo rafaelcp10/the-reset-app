@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 
 export type InscricaoPush = {
   endpoint: string;
@@ -16,9 +17,7 @@ export async function salvarInscricaoPush(inscricao: InscricaoPush) {
   if (!inscricao?.endpoint || !inscricao.chaves?.auth) return;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("inscricoes_push").upsert(
@@ -35,9 +34,7 @@ export async function removerInscricaoPush(endpoint: string) {
   if (!endpoint) return;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase

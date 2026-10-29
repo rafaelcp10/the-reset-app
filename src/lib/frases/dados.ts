@@ -1,28 +1,36 @@
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { FRASES_PADRAO, FUNCOES, type Funcao, type FraseRow } from "./modelo";
 
 /**
  * Garante que exista uma linha em `usuarios` e uma versão 1 de cada uma das
  * 5 frases para o usuário autenticado. Idempotente — chamada toda vez que o
- * onboarding é aberto.
+ * onboarding é aberto, e nas telas principais.
+ *
+ * **Lê antes de escrever.** Até 2026-10-29 ela gravava a linha de `usuarios`
+ * em toda abertura de Home, Ritual, To-do e Saúde — um `upsert` que
+ * reescrevia o e-mail, que nada no app lê. Agora uma consulta só resolve o
+ * caso comum: frase existente garante a linha de `usuarios` (a chave
+ * estrangeira não deixa uma existir sem a outra), e as cinco presentes
+ * querem dizer que não há nada a fazer. Escrever fica para quem é novo.
  */
 export async function garantirUsuarioEFrasesPadrao(
   supabase: SupabaseClient,
-  user: User,
+  user: { id: string; email?: string | null },
 ) {
-  // As duas não dependem uma da outra, e cada ida ao banco custa uma
-  // travessia de rede inteira numa função que roda a cada abertura de tela.
-  const [, { data: existentes }] = await Promise.all([
-    supabase
-      .from("usuarios")
-      .upsert({ id: user.id, email: user.email ?? "" }, { onConflict: "id" }),
-    supabase.from("frases").select("funcao").eq("usuario_id", user.id),
-  ]);
+  const { data: existentes } = await supabase
+    .from("frases")
+    .select("funcao")
+    .eq("usuario_id", user.id);
 
   const funcoesExistentes = new Set((existentes ?? []).map((f) => f.funcao));
   const faltando = FUNCOES.filter((funcao) => !funcoesExistentes.has(funcao));
 
   if (faltando.length === 0) return;
+
+  // A linha de `usuarios` antes das frases: elas apontam para ela.
+  await supabase
+    .from("usuarios")
+    .upsert({ id: user.id, email: user.email ?? "" }, { onConflict: "id", ignoreDuplicates: true });
 
   await supabase.from("frases").insert(
     faltando.map((funcao) => ({

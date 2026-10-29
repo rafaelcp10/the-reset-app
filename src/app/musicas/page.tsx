@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import type { MusicaRow } from "@/lib/ritual/dados";
 import ListaMusicas from "./ListaMusicas";
 
@@ -8,9 +9,7 @@ const MAX_FAIXAS = 5;
 
 export default async function MusicasPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const { data: musicas } = await supabase

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarCheck, Dumbbell, Sparkles, Sun, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoHome } from "@/lib/home/dados";
 import { buscarResumoDoDia } from "@/lib/home/resumo";
@@ -26,18 +27,19 @@ function kg(valor: number): string {
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const user = await usuarioDaSessao(supabase);
+  // Sem conta, a `/` é a porta de entrada: a abertura do onboarding, que
+  // tem "Já tenho conta" para quem só trocou de aparelho.
+  if (!user) redirect("/onboarding/abertura");
 
-  await garantirUsuarioEFrasesPadrao(supabase, user);
-
-  // As duas em paralelo, e não o resumo depois dos desvios: quem é mandado
+  // Tudo em paralelo, e não o resumo depois dos desvios: quem é mandado
   // para o onboarding ou para o recomeço é raro, e fazer todo mundo esperar
   // uma segunda ida ao banco para poupar trabalho nesses dois casos sai
-  // caro na tela mais visitada do app.
-  const [estado, resumo] = await Promise.all([
+  // caro na tela mais visitada do app. A garantia vai junto: no caso comum
+  // ela só confere que as frases existem, e quem é novo cai no onboarding
+  // de qualquer jeito.
+  const [, estado, resumo] = await Promise.all([
+    garantirUsuarioEFrasesPadrao(supabase, user),
     buscarEstadoHome(supabase, user.id),
     buscarResumoDoDia(supabase, user.id),
   ]);

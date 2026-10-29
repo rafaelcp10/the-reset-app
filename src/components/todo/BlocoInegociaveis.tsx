@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Anchor, Check } from "lucide-react";
+import { Anchor } from "lucide-react";
 import type { InegociavelSlot } from "@/lib/ritual/dados";
-import { marcarCompromissoDia } from "@/lib/ritual/acoes";
+import LinhaInegociavel from "@/components/ritual/LinhaInegociavel";
 import Painel from "@/components/saude/Painel";
 
 /**
@@ -40,6 +40,7 @@ export default function BlocoInegociaveis({
           <div className="flex flex-col rounded-[10px] bg-superficie3 px-3 py-1">
             {definidos.map((slot) => (
               <LinhaInegociavel
+                variante="todo"
                 key={slot.ordem}
                 slot={slot}
                 dataHoje={dataHoje}
@@ -57,57 +58,5 @@ export default function BlocoInegociaveis({
         </>
       )}
     </Painel>
-  );
-}
-
-function LinhaInegociavel({
-  slot,
-  dataHoje,
-  caminhoAtual,
-}: {
-  slot: InegociavelSlot;
-  dataHoje: string;
-  caminhoAtual: string;
-}) {
-  const { compromisso, feitoHoje } = slot;
-  if (!compromisso) return null;
-  const marcado = feitoHoje === true;
-
-  return (
-    <form
-      action={marcarCompromissoDia.bind(
-        null,
-        caminhoAtual,
-        compromisso.id,
-        dataHoje,
-        !marcado,
-      )}
-    >
-      <button
-        type="submit"
-        aria-label={`${compromisso.texto} — ${marcado ? "feito hoje" : "não marcado"}`}
-        className="flex min-h-14 w-full items-center gap-4 text-left"
-      >
-        <span
-          className={`flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-[250ms] ${
-            marcado ? "border-acento bg-acento-escuro" : "border-filete-forte"
-          }`}
-        >
-          {marcado && (
-            <Check
-              className="entrada-check h-5 w-5 text-texto"
-              strokeWidth={2}
-            />
-          )}
-        </span>
-        <span
-          className={`font-frase text-[18px] leading-[1.5] ${
-            marcado ? "text-auxiliar" : "text-texto"
-          }`}
-        >
-          {compromisso.texto}
-        </span>
-      </button>
-    </form>
   );
 }

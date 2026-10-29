@@ -26,50 +26,41 @@ export async function proxy(request: NextRequest) {
   );
 
   // Necessário para manter a sessão válida — dispara o refresh do token.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // `getClaims` e não `getUser`: confere o token com a chave pública, sem ir
+  // ao servidor de autenticação a cada navegação (ver lib/supabase/auth.ts).
+  // O token vencido continua sendo renovado aqui, pelo `getSession` de
+  // dentro dele.
+  const { data: sessao } = await supabase.auth.getClaims();
+  const user = sessao?.claims?.sub ?? null;
 
-  // Sem login por e-mail por enquanto: todo visitante ganha uma sessão
-  // anônima na hora, sem precisar digitar e-mail nem esperar link. RLS
-  // continua funcionando normalmente (auth.uid() existe também pra
-  // usuários anônimos) — os dados de cada visitante continuam isolados.
+  // A conta começa anônima no onboarding: a pessoa escreve as frases antes
+  // de ter e-mail e senha, e no fim a conta anônima vira a dela, com tudo
+  // dentro. RLS funciona igual (auth.uid() existe também para anônimos).
   //
-  // Só que isso vale para quem está navegando. Numa rota de API, criar
-  // sessão na marra faria cada batida de robô virar um usuário novo no
-  // banco — e ainda faria o endpoint responder como se houvesse alguém
-  // logado. Lá a ausência de sessão precisa continuar sendo ausência.
-  // Criar sessão em qualquer rota enchia o banco de contas órfãs: cada
-  // batida em /login, na abertura do onboarding ou numa página pública
-  // virava um usuário no auth que nunca chegava a existir no app.
+  // **Só no onboarding, e depois da abertura.** Até 2026-10-29 a sessão
+  // nascia em qualquer GET fora de uma lista de exceções, e a lista nunca
+  // fechava: robô passando pela `/`, pré-visualização de link, o
+  // `/apple-icon` que o iPhone pede, cada um virava uma conta no auth que
+  // nunca chegava a existir no app. Eram 88. Pior: o Supabase limita a
+  // criação de conta anônima por IP (30 por hora, no padrão), e esse lixo
+  // dividia a cota com quem estava de fato chegando — numa rede de academia
+  // ou atrás do NAT da operadora, a pessoa nova podia não conseguir começar.
   //
-  // A sessão nasce só onde ela é realmente necessária — nas telas que
-  // guardam o que a pessoa escreve. Entrar, recuperar senha e ler os
-  // documentos públicos não precisam de conta nenhuma.
+  // A abertura fica sem sessão porque é a porta de entrada: é para onde vai
+  // a `/` sem conta, e o que robô e pré-visualização alcançam. A conta nasce
+  // no primeiro passo depois dela, quando alguém tocou em começar.
   const caminho = request.nextUrl.pathname;
-  const SEM_SESSAO = [
-    "/api/",
-    "/login",
-    "/recuperar",
-    "/auth",
-    "/offline",
-    "/privacidade",
-    "/termos",
-    "/onboarding/abertura",
-  ];
-  const dispensaSessao = SEM_SESSAO.some((prefixo) =>
-    caminho.startsWith(prefixo),
-  );
+  const criaSessao =
+    caminho.startsWith("/onboarding/") && caminho !== "/onboarding/abertura";
 
   // E só uma navegação de verdade abre sessão. Um HEAD de monitoramento ou
-  // um prefetch do menu não são alguém chegando — o prefetch busca só o
-  // esqueleto da tela, que não depende de conta. Sem esta porta, cada
-  // batida dessas virava um usuário novo no banco.
+  // um prefetch não são alguém chegando — o prefetch busca só o esqueleto
+  // da tela, que não depende de conta.
   const ehNavegacao =
     request.method === "GET" &&
     request.headers.get("next-router-prefetch") !== "1";
 
-  if (!user && !dispensaSessao && ehNavegacao) {
+  if (!user && criaSessao && ehNavegacao) {
     await supabase.auth.signInAnonymously();
   }
 

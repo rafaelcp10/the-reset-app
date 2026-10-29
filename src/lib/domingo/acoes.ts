@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 
 /** Salva "como eu estou hoje" e fecha a semana passada. */
 export async function fecharSemana(
@@ -11,9 +12,7 @@ export async function fecharSemana(
   const comoEstou = ((formData.get("comoEstou") as string) ?? "").trim();
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await supabase.from("revisoes_semanais").upsert(

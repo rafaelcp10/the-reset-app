@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarEvolucao, type Medida } from "@/lib/saude/evolucao";
 import CampoMedidas, { type Referencia } from "../CampoMedidas";
 import Revelar from "@/components/movimento/Revelar";
@@ -63,9 +64,7 @@ export default async function MedidaPage({
   searchParams: Promise<{ data?: string }>;
 }) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const [{ data: pedida }, evo] = await Promise.all([

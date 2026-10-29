@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarTreino } from "@/lib/saude/dados";
 import { buscarBiblioteca } from "@/lib/saude/movimento";
 import DetalheTreino from "./DetalheTreino";
@@ -13,9 +14,7 @@ export default async function TreinoPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const [dados, biblioteca] = await Promise.all([

@@ -133,7 +133,19 @@ export async function buscarEstadoTodo(
   );
   const fimDaSemana = somarDiasISO(semanaInicio, 6);
 
-  const [{ data: tarefasBrutas }, { data: compromissos }] = await Promise.all([
+  // Uma leva só. Até 2026-10-29 eram quatro, uma esperando a outra: as
+  // marcações das tarefas com data esperavam a lista de tarefas para mandar
+  // os ids delas na URL — uma lista que só cresce, porque tarefa feita não
+  // some do banco —, e o "feito" dos inegociáveis esperava os ids dos
+  // inegociáveis. As duas tabelas têm `usuario_id`, e o filtro pelo tipo
+  // da tarefa vai pela junção, no banco.
+  const [
+    { data: tarefasBrutas },
+    { data: compromissos },
+    { data: marcacoesSemana },
+    { data: marcacoesData },
+    { data: compromissosDia },
+  ] = await Promise.all([
     supabase
       .from("tarefas")
       .select("*")
@@ -145,29 +157,30 @@ export async function buscarEstadoTodo(
       .eq("usuario_id", usuarioId)
       .eq("semana_inicio", semanaInicio)
       .order("ordem", { ascending: true }),
-  ]);
-
-  const tarefas = (tarefasBrutas ?? []) as TarefaRow[];
-  const idsComData = tarefas.filter((t) => t.tipo === "data").map((t) => t.id);
-
-  // Marcações da semana corrente cobrem recorrentes e itens "da semana".
-  // Os itens com data podem ter sido feitos antes disso, então buscamos o
-  // histórico deles à parte — é um conjunto pequeno.
-  const [{ data: marcacoesSemana }, { data: marcacoesData }] = await Promise.all([
+    // Marcações da semana corrente cobrem recorrentes e itens "da semana".
     supabase
       .from("tarefas_dia")
       .select("tarefa_id, data")
       .eq("usuario_id", usuarioId)
       .gte("data", semanaInicio)
       .lte("data", fimDaSemana),
-    idsComData.length > 0
-      ? supabase
-          .from("tarefas_dia")
-          .select("tarefa_id, data")
-          .eq("usuario_id", usuarioId)
-          .in("tarefa_id", idsComData)
-      : Promise.resolve({ data: [] as { tarefa_id: string; data: string }[] }),
+    // Os itens com data podem ter sido feitos antes da semana, então o
+    // histórico deles vem à parte.
+    supabase
+      .from("tarefas_dia")
+      .select("tarefa_id, data, tarefas!inner(tipo)")
+      .eq("usuario_id", usuarioId)
+      .eq("tarefas.tipo", "data"),
+    // O "feito" de hoje dos inegociáveis. Vem o do dia inteiro, e o mapa
+    // abaixo só consulta os desta semana.
+    supabase
+      .from("compromissos_dia")
+      .select("compromisso_id, feito")
+      .eq("usuario_id", usuarioId)
+      .eq("data", hoje),
   ]);
+
+  const tarefas = (tarefasBrutas ?? []) as TarefaRow[];
 
   const marcadoEm = new Set(
     [...(marcacoesSemana ?? []), ...(marcacoesData ?? [])].map(
@@ -234,21 +247,12 @@ export async function buscarEstadoTodo(
     ((compromissos ?? []) as CompromissoRow[]).map((c) => [c.ordem, c]),
   );
 
-  let compromissoDiaPorId = new Map<string, boolean | null>();
-  const idsCompromissos = [...compromissosPorOrdem.values()].map((c) => c.id);
-  if (idsCompromissos.length > 0) {
-    const { data: compromissosDia } = await supabase
-      .from("compromissos_dia")
-      .select("compromisso_id, feito")
-      .eq("data", hoje)
-      .in("compromisso_id", idsCompromissos);
-    compromissoDiaPorId = new Map(
-      (compromissosDia ?? []).map((cd) => [
-        cd.compromisso_id as string,
-        cd.feito as boolean | null,
-      ]),
-    );
-  }
+  const compromissoDiaPorId = new Map<string, boolean | null>(
+    (compromissosDia ?? []).map((cd) => [
+      cd.compromisso_id as string,
+      cd.feito as boolean | null,
+    ]),
+  );
 
   const inegociaveis: InegociavelSlot[] = SLOTS_INEGOCIAVEIS.map((ordem) => {
     const compromisso = compromissosPorOrdem.get(ordem) ?? null;

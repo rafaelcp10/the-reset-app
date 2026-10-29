@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CalendarDays, CalendarRange, Sun } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { garantirUsuarioEFrasesPadrao } from "@/lib/frases/dados";
 import { buscarEstadoTodo } from "@/lib/todo/dados";
 import BlocoInegociaveis from "@/components/todo/BlocoInegociaveis";
@@ -13,13 +14,15 @@ const CAMINHO = "/todo";
 
 export default async function TodoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
-  await garantirUsuarioEFrasesPadrao(supabase, user);
-  const estado = await buscarEstadoTodo(supabase, user.id);
+  // A garantia corre junto com as buscas: no caso comum ela só confere
+  // que as frases existem, e quem é novo cai no onboarding de qualquer jeito.
+  const [, estado] = await Promise.all([
+    garantirUsuarioEFrasesPadrao(supabase, user),
+    buscarEstadoTodo(supabase, user.id),
+  ]);
 
   const feitasHoje = estado.hoje.filter((i) => i.feito).length;
   const faltamHoje = estado.hoje.length - feitasHoje;

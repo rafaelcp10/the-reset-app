@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarFrasesAtuais } from "@/lib/frases/dados";
 import {
   FRASES_PADRAO,
@@ -22,9 +23,7 @@ export default async function TelaFraseLeitura({
   proximaRota: string;
 }) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const frases = await buscarFrasesAtuais(supabase, user.id);

@@ -47,6 +47,19 @@ export async function buscarResumoDoDia(
   supabase: SupabaseClient,
   usuarioId: string,
 ): Promise<ResumoDoDia> {
+  // O que não depende do dia da pessoa sai antes de saber que dia é: o
+  // To-do e os treinos acham o próprio dia sozinhos, e as medidas são as
+  // últimas, de qualquer data. Esperar a linha de `usuarios` para começar
+  // os três custava uma ida ao banco inteira na tela mais aberta do app.
+  const todoP = buscarEstadoTodo(supabase, usuarioId);
+  const treinosP = buscarTreinos(supabase, usuarioId);
+  const medidasP = supabase
+    .from("medidas")
+    .select("data, peso_kg, altura_cm, pescoco_cm, cintura_cm, quadril_cm")
+    .eq("usuario_id", usuarioId)
+    .order("data", { ascending: false })
+    .limit(PONTOS_NA_HOME);
+
   const { data: usuario } = await supabase
     .from("usuarios")
     // `*` pelo mesmo motivo de `lib/ritual/dados.ts` e da Nutrição: uma
@@ -70,14 +83,9 @@ export async function buscarResumoDoDia(
     { data: sessoes },
     { data: aguaDaSemana },
   ] = await Promise.all([
-    buscarEstadoTodo(supabase, usuarioId),
-    buscarTreinos(supabase, usuarioId),
-    supabase
-      .from("medidas")
-      .select("data, peso_kg, altura_cm, pescoco_cm, cintura_cm, quadril_cm")
-      .eq("usuario_id", usuarioId)
-      .order("data", { ascending: false })
-      .limit(PONTOS_NA_HOME),
+    todoP,
+    treinosP,
+    medidasP,
     supabase
       .from("dias")
       .select("data, espelho_feito_em")

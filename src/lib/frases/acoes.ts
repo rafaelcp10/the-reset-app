@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { inserirNovaVersaoFrase } from "@/lib/frases/dados";
 import { FRASES_PADRAO, type Funcao } from "@/lib/frases/modelo";
 
@@ -21,9 +22,7 @@ export async function salvarEdicaoFrase(
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await inserirNovaVersaoFrase(supabase, user.id, funcao, texto, null);
@@ -45,9 +44,7 @@ export async function salvarLacuna(
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   await inserirNovaVersaoFrase(

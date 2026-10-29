@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { buscarEstadoRevisao } from "@/lib/domingo/dados";
 import { FUNCOES, FRASES_PADRAO, ROTULOS_FUNCAO } from "@/lib/frases/modelo";
 import { salvarEdicaoFrase } from "@/lib/frases/acoes";
@@ -14,9 +15,7 @@ const CAMINHO = "/ritual/domingo";
 
 export default async function RevisaoDomingoPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const estado = await buscarEstadoRevisao(supabase, user.id);

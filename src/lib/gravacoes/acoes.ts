@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { usuarioDaSessao } from "@/lib/supabase/auth";
 import { FUNCOES, type Funcao } from "@/lib/frases/modelo";
 import { BUCKET_GRAVACOES } from "./dados";
 
@@ -34,9 +35,7 @@ export async function salvarGravacao(
   if (audio.size > TAMANHO_MAXIMO_BYTES) return;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const mime = audio.type || "audio/webm";
@@ -74,9 +73,7 @@ export async function apagarGravacao(funcao: Funcao, caminhoAtual: string) {
   if (!FUNCOES.includes(funcao)) return;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await usuarioDaSessao(supabase);
   if (!user) redirect("/login");
 
   const { data: atual } = await supabase
