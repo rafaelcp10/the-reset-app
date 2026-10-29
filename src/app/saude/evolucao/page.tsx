@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarCheck, Plus, Ruler } from "lucide-react";
+import { CalendarCheck, ChevronRight, FileText, Plus, Ruler } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { buscarEvolucao } from "@/lib/saude/evolucao";
 import { buscarConjuntoDeFotos } from "@/lib/saude/fotos";
@@ -135,6 +135,24 @@ export default async function EvolucaoPage() {
 
       <Revelar atraso={60} className="pt-3">
         <Progressao grupos={evo.progressao} />
+        {/* O relatório mora logo depois da Progressão porque é o mesmo
+            assunto contado por mês, com as dicas e o PDF. Só aparece
+            quando há treino para relatar. */}
+        {evo.progressao.length > 0 && (
+          <Link
+            href="/saude/evolucao/relatorio"
+            className="bloco mt-3 flex min-h-14 items-center justify-between gap-3 px-4 py-3"
+          >
+            <span className="flex items-center gap-3">
+              <FileText className="h-5 w-5 text-auxiliar" strokeWidth={1.75} aria-hidden />
+              <span className="flex flex-col">
+                <span className="text-[17px] text-texto">Relatório do mês</span>
+                <span className="text-[14.5px] text-auxiliar">Com dicas, e em PDF</span>
+              </span>
+            </span>
+            <ChevronRight className="h-5 w-5 shrink-0 text-auxiliar" strokeWidth={1.75} aria-hidden />
+          </Link>
+        )}
       </Revelar>
 
       {evo.semanasComTreino > 0 && (

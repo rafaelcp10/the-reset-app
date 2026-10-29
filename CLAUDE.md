@@ -267,6 +267,61 @@ Fora, e não deve entrar por analogia:
   entre usuários.
 - **Mapa do corpo com os músculos treinados** (Hevy, Fitbod) — ilustração.
 
+### O relatório do mês, e as dicas de treinador (2026-10-29)
+
+Na Evolução, abaixo da Progressão, **"Relatório do mês"**
+(`/saude/evolucao/relatorio`): o mês em números, comparado com o mês
+anterior da própria pessoa (treinos, semanas com treino, tempo, séries,
+volume); dicas; progressão por treino; séries por grupo muscular; e um PDF.
+Abre no mês em curso ("outubro, até agora"), e as setas andam para trás.
+
+Olhei Hevy (o relatório mensal mais completo, sem dica nenhuma), Fitbod
+(relatório semanal e mensal, recomendação por IA), Alpha Progression
+(recomendação por sessão, descarga programada). Ficaram fora, pelas regras:
+recorde com troféu, "semanas seguidas", nota de força, mapa do corpo,
+percentual de recuperação.
+
+**A exceção: dicas de treinador.** Decisão do Rafael em 2026-10-29, entre
+três caminhos (só descrever; descrever e apontar ajustes do app; dicas de
+treinador). Ela abre, **só nesta tela**, a regra de que o app não sugere
+treino. O que vem junto e não é negociável:
+
+- **Primeiro o que aconteceu, depois o que fazer.** Toda dica começa pelo
+  dado da própria pessoa ("Remada Baixa ficou em 50 kg nas últimas 3
+  sessões, e as repetições não subiram") e só depois sugere.
+- **Sem ciência.** A regra de "nenhuma justificativa científica" continua
+  inteira: nada de "estudos mostram", e a tela diz que são **convenções de
+  academia, não regras**. O "3 sessões" é convenção, e as fontes nem
+  concordam entre si.
+- **Sem elogio e sem cobrança.** Queda vem com "se foi escolha — técnica,
+  dor, cansaço —, siga assim".
+- **Poucas e explícitas**: no máximo cinco, e quatro regras escritas em
+  `lib/saude/relatorio.ts` — travado (mesma carga 3 sessões, repetições não
+  subiram: baixar 10% e reconstruir), repetições subindo na mesma carga
+  (é progressão; subir o degrau ao fechar o plano), desceu no mês, e
+  exercício sem degrau.
+- **Não se estende por analogia** a outras telas, a notificações, nem a
+  conselho de nutrição ou de saúde.
+
+Outras decisões:
+
+- **O PDF é gerado no servidor** (`@react-pdf/renderer`), como arquivo, e
+  sai pelo menu de compartilhar. O "imprimir" do navegador **não faz nada
+  em app instalado no iPhone**, que é como o app é usado. Dois toques —
+  "Gerar PDF", depois "Salvar ou enviar" — porque o iPhone só abre o menu
+  de compartilhar em resposta direta a um toque, e esperar o servidor
+  faria o toque expirar. Fundo claro, Helvetica (sem embutir fonte), e
+  **sem as fotos do corpo**: o PDF sai do app. Sem número de página: o
+  texto calculado por página não sai nesta versão da biblioteca.
+- **A duração dos treinos é corrigida na leitura** pela mesma regra do
+  encerramento (`fimDeVerdade`): treino esquecido aberto conta até a última
+  série. Sem isso, a sessão de 118 horas dominaria o mês — e os dados
+  antigos continuam intactos.
+- **Exercício sem grupo ganha grupo pelo nome** (`grupoPeloNome`): "remada"
+  é costas, "rosca" é braços. Os digitados à mão nascem sem grupo, e o
+  gráfico de outubro tinha "Sem grupo" em primeiro, com 101 de 303 séries.
+  O que não bater em nada continua sem grupo, em vez de ser chutado.
+
 ### A repetição não sobe sozinha quando há carga (2026-09-30)
 
 Degrau zero era lido como "peso do corpo", e a proposta subia a repetição
