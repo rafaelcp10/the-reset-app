@@ -7,6 +7,7 @@ import { GRUPOS, type GrupoMuscular } from "./catalogo";
 import { LIMITACOES, LOCAIS, type LocalTreino } from "./dados";
 import { BUCKET_FOTOS, ehAngulo, type Angulo } from "./fotos";
 import { garantirMovimento, guardarPlano } from "./movimento";
+import { fimDeVerdade, treinoEsquecido } from "./sessao";
 import {
   BIOTIPOS,
   COLUNA_CALORIAS,
@@ -23,6 +24,59 @@ async function usuarioAtual() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   return { supabase, user };
+}
+
+/** O fim de verdade de um treino — a regra mora em `fimDeVerdade`. */
+async function fimDoTreino(
+  supabase: Awaited<ReturnType<typeof usuarioAtual>>["supabase"],
+  usuarioId: string,
+  inicio: string,
+): Promise<string> {
+  const agora = Date.now();
+  // Recém-começado: fecha agora, sem consultar nada.
+  if (!treinoEsquecido(inicio, agora)) return new Date(agora).toISOString();
+
+  const [{ data: series }, { data: perfil }] = await Promise.all([
+    supabase
+      .from("registros_exercicio")
+      .select("criado_em")
+      .eq("usuario_id", usuarioId)
+      .gte("criado_em", inicio)
+      .lte("criado_em", new Date(agora).toISOString())
+      .order("criado_em", { ascending: false })
+      .limit(1),
+    supabase.from("usuarios").select("*").eq("id", usuarioId).maybeSingle(),
+  ]);
+
+  return fimDeVerdade({
+    inicio,
+    agora,
+    ultimaSerie: (series?.[0]?.criado_em as string | undefined) ?? null,
+    minutosDoPerfil: (perfil?.treino_minutos as number | null) ?? null,
+  });
+}
+
+/** Fecha as sessões abertas da pessoa, cada uma no fim de verdade dela. */
+async function fecharSessoesAbertas(
+  supabase: Awaited<ReturnType<typeof usuarioAtual>>["supabase"],
+  usuarioId: string,
+  sessaoId?: string,
+) {
+  let consulta = supabase
+    .from("sessoes_treino")
+    .select("id, inicio")
+    .eq("usuario_id", usuarioId)
+    .is("fim", null);
+  if (sessaoId) consulta = consulta.eq("id", sessaoId);
+  const { data: abertas } = await consulta;
+
+  for (const sessao of abertas ?? []) {
+    await supabase
+      .from("sessoes_treino")
+      .update({ fim: await fimDoTreino(supabase, usuarioId, sessao.inicio as string) })
+      .eq("usuario_id", usuarioId)
+      .eq("id", sessao.id);
+  }
 }
 
 export type EstadoConfig = { erro?: string };
@@ -429,11 +483,9 @@ export async function apagarRegistro(
 export async function iniciarSessao(treinoId: string, data: string) {
   const { supabase, user } = await usuarioAtual();
 
-  await supabase
-    .from("sessoes_treino")
-    .update({ fim: new Date().toISOString() })
-    .eq("usuario_id", user.id)
-    .is("fim", null);
+  // Um treino só aberto por vez: o anterior fecha — no fim de verdade dele,
+  // e não agora, se ficou esquecido.
+  await fecharSessoesAbertas(supabase, user.id);
 
   await supabase
     .from("sessoes_treino")
@@ -447,11 +499,7 @@ export async function iniciarSessao(treinoId: string, data: string) {
 export async function encerrarSessao(sessaoId: string, treinoId: string) {
   const { supabase, user } = await usuarioAtual();
 
-  await supabase
-    .from("sessoes_treino")
-    .update({ fim: new Date().toISOString() })
-    .eq("usuario_id", user.id)
-    .eq("id", sessaoId);
+  await fecharSessoesAbertas(supabase, user.id, sessaoId);
 
   revalidatePath(`${CAMINHO}/treinos/${treinoId}/sessao`);
   revalidatePath(CAMINHO);

@@ -312,3 +312,49 @@ export function formatarDuracao(segundos: number): string {
   if (m > 0) return `${m}min`;
   return `${s}s`;
 }
+
+/** Acima disto, um treino aberto não é treino: é treino esquecido. */
+const LONGO_DEMAIS_MS = 3 * 60 * 60 * 1000;
+
+/** Folga depois da última série: guardar a anilha, beber água, sair. */
+const DEPOIS_DA_ULTIMA_SERIE_MS = 5 * 60 * 1000;
+
+export function treinoEsquecido(inicio: string, agora: number): boolean {
+  return agora - Date.parse(inicio) > LONGO_DEMAIS_MS;
+}
+
+/**
+ * Quando um treino terminou de verdade.
+ *
+ * Fechar agora é o certo para quem acabou de treinar. Mas um treino
+ * esquecido aberto só era fechado no próximo treino, ou quando a pessoa
+ * lembrava — e a duração virava 23 horas, 72 horas, 118 horas. Medido em
+ * outubro de 2026: 8 de 23 sessões do Rafael tinham durações assim. E a
+ * duração entra na conta de calorias da Nutrição.
+ *
+ * Com mais de 3 horas aberto, o fim passa a ser **a última série
+ * registrada** mais 5 minutos. Sem série nenhuma, o tempo de treino
+ * declarado no perfil (ou uma hora). Nunca depois de agora, nunca antes
+ * do começo.
+ */
+export function fimDeVerdade({
+  inicio,
+  agora,
+  ultimaSerie,
+  minutosDoPerfil,
+}: {
+  inicio: string;
+  agora: number;
+  /** `criado_em` do último registro de série feito depois do começo. */
+  ultimaSerie: string | null;
+  minutosDoPerfil: number | null;
+}): string {
+  const comeco = Date.parse(inicio);
+  if (!treinoEsquecido(inicio, agora)) return new Date(agora).toISOString();
+
+  const minutos = minutosDoPerfil && minutosDoPerfil > 0 ? minutosDoPerfil : 60;
+  const fim = ultimaSerie
+    ? Date.parse(ultimaSerie) + DEPOIS_DA_ULTIMA_SERIE_MS
+    : comeco + minutos * 60 * 1000;
+  return new Date(Math.max(comeco, Math.min(agora, fim))).toISOString();
+}

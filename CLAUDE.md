@@ -288,6 +288,24 @@ Agora a aba abre, e o treino em curso ocupa o lugar do botão de começar
 (`saude/TreinoEmAndamento.tsx`), com o tempo e "Voltar ao treino" em âmbar.
 Começar outro não aparece: uma sessão por vez continua sendo regra.
 
+### Treino esquecido aberto (2026-10-29)
+
+Treino começado e não encerrado ficava aberto até o próximo treino, e a
+duração era contada até ali: **8 de 23 sessões do Rafael em outubro tinham
+19, 23, 72, até 118 horas**. A duração entra na conta de calorias da
+Nutrição, e entraria em qualquer relatório.
+
+- **Com 1h40 aberto, sai um aviso** perguntando se o treino já acabou
+  (`reivindicar_treino_aberto`, na rota dos lembretes da Saúde), que abre a
+  sessão com o "Encerrar" na frente. Um aviso por treino — a reserva usa o
+  tipo `treino_aberto_<id da sessão>` —, e nada depois de 7h40 aberto: a
+  essa altura o aviso já não ajuda.
+- **Se mesmo assim ficar aberto, ele fecha no fim de verdade**
+  (`fimDeVerdade`, em `lib/saude/sessao.ts`): com mais de 3 horas aberto, o
+  fim é a última série registrada mais 5 minutos; sem série nenhuma, o
+  tempo de treino do perfil. Vale para o "Encerrar" e para o fechamento
+  automático de quando outro treino começa. Antes, os dois usavam "agora".
+
 ### O histórico mora no exercício, e não no treino (2026-09-30)
 
 **A série muda a cada três meses, e o histórico não pode ir junto.** Até

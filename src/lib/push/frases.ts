@@ -153,3 +153,29 @@ const PLANEJAMENTO: readonly string[] = [
 export function frasePlanejamento(usuarioId: string, data: string): string {
   return daVez(PLANEJAMENTO, usuarioId, Math.floor(diaCorrido(data) / 7));
 }
+
+// ------------------------------------------------------- treino aberto
+
+const TREINO_ABERTO: readonly ((nome: string, tempo: string) => string)[] = [
+  (n, t) => `${n} está aberto há ${t}. Já terminou?`,
+  (n, t) => `Treino aberto há ${t}. Se acabou, é só encerrar.`,
+  (n, t) => `${t} de ${n}. Encerrar agora deixa o tempo certo.`,
+];
+
+/** "1h40", e não "1h 40min" — cabe na frase sem pesar. */
+function tempoAberto(minutos: number): string {
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  if (h === 0) return `${m} minutos`;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, "0")}`;
+}
+
+/** A rodada é o dia: quem esquece todo dia não lê a mesma frase. */
+export function fraseTreinoAberto(
+  usuarioId: string,
+  data: string,
+  nomeDoTreino: string,
+  minutosAberto: number,
+): string {
+  return daVez(TREINO_ABERTO, usuarioId, diaCorrido(data))(nomeDoTreino, tempoAberto(minutosAberto));
+}

@@ -1,5 +1,5 @@
 import { executarCron, type Reivindicador } from "@/lib/push/despacho";
-import { fraseAgua, fraseEvolucao } from "@/lib/push/frases";
+import { fraseAgua, fraseEvolucao, fraseTreinoAberto } from "@/lib/push/frases";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -13,6 +13,13 @@ export const maxDuration = 60;
  */
 const TETO_MANHA = 180;
 const TETO_AGUA = 120;
+
+/**
+ * Treino aberto há 1h40 sem ser encerrado: pergunta se já acabou. Treino
+ * esquecido virava sessão de 23 horas, e a duração entra na conta de
+ * calorias da Nutrição. Um aviso por treino.
+ */
+const MINUTOS_ATE_LEMBRAR_DO_TREINO = 100;
 
 /**
  * Os lembretes da Saúde, no fuso de cada pessoa. Quem recebe o quê é
@@ -32,6 +39,14 @@ const TETO_AGUA = 120;
 
 type LinhaEvolucao = { usuario_id: string; data: string; medir: boolean; fotografar: boolean };
 type LinhaAgua = { usuario_id: string; data: string; faltam_garrafas: number; tipo: string };
+type LinhaTreino = {
+  usuario_id: string;
+  data: string;
+  sessao_id: string;
+  treino_id: string;
+  treino_nome: string;
+  inicio: string;
+};
 
 const evolucao: Reivindicador = async (supabase, lote) => {
   const { data, error } = await supabase.rpc("reivindicar_evolucao", {
@@ -81,6 +96,36 @@ const agua: Reivindicador = async (supabase, lote) => {
   }));
 };
 
+const treinoAberto: Reivindicador = async (supabase, lote) => {
+  const { data, error } = await supabase.rpc("reivindicar_treino_aberto", {
+    p_lote: lote,
+    p_minutos: MINUTOS_ATE_LEMBRAR_DO_TREINO,
+  });
+  if (error) throw new Error(`reivindicar_treino_aberto: ${error.message}`);
+
+  return ((data ?? []) as LinhaTreino[]).map((l) => ({
+    usuarioId: l.usuario_id,
+    data: l.data,
+    tipo: `treino_aberto_${l.sessao_id}`,
+    // Duas horas: depois disso a pessoa já saiu da academia faz tempo, e o
+    // fechamento usa a última série de qualquer jeito.
+    ttlSegundos: 2 * 60 * 60,
+    carga: {
+      titulo: "The Reset",
+      corpo: fraseTreinoAberto(
+        l.usuario_id,
+        l.data,
+        l.treino_nome,
+        Math.round((Date.now() - Date.parse(l.inicio)) / 60_000),
+      ),
+      // Abre a sessão, onde o "Encerrar" está na frente.
+      url: `/saude/treinos/${l.treino_id}/sessao`,
+      comAcoes: false,
+      tag: "treino",
+    },
+  }));
+};
+
 export function GET(request: Request) {
-  return executarCron(request, "lembretes", [evolucao, agua]);
+  return executarCron(request, "lembretes", [evolucao, agua, treinoAberto]);
 }
